@@ -1,0 +1,102 @@
+{% load bootstrap4 %}
+{% load static %}
+<!-- Main Footer -->
+  <footer class="main-footer">
+    <!-- To the right -->
+    <div class="float-right d-none d-sm-inline">
+      FreyrMonitoring: система мониторинга интернет-реакции.
+    </div>
+    <!-- Default to the left -->
+    <strong>Тема: &copy; 2014-2019 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+  </footer>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+<!-- jQuery -->
+<script src="{% static 'AdminLTE/plugins/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'AdminLTE/dist/js/adminlte.min.js' %}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+<script>
+var ctx = document.getElementById('totalStat').getContext('2d');
+var totalStat = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+
+    // The data for our dataset
+    data: {
+        labels: [{%for d in days%}'{{d}}', {%endfor%}],
+        datasets: [{
+            label: "Позитивные",
+            backgroundColor: 'rgba(133, 199, 0, 0.5)',
+            borderColor: 'rgba(74, 159, 0, 0.9)',
+            borderWidth: 1,
+            data: [{%for d in counts_positive%}'{{d}}', {%endfor%}],
+        },
+            {
+            label: "Нейтральные",
+            backgroundColor: 'rgba(74, 159, 198, 0.5)',
+            borderColor: 'rgba(39, 48, 170, 0.9)',
+            borderWidth: 1,
+            data: [{%for d in counts_neutral%}'{{d}}', {%endfor%}],
+        },
+            {
+            label: "Негативные",
+            backgroundColor: 'rgba(236, 98, 84, 0.5)',
+            borderColor: 'rgba(179, 34, 27, 0.9)',
+            borderWidth: 1,
+            data: [{%for d in counts_negative%}'{{d}}', {%endfor%}],
+        }
+                  ]
+    },
+
+    // Configuration options go here
+    options: {}
+});
+    
+var ctx_p = document.getElementById('personStat').getContext('2d');   
+var personStat = new Chart(ctx_p, {
+    type: 'pie',
+    data: {
+       datasets: [{
+        backgroundColor: ['rgba(133, 199, 0, 1)', 'rgba(74, 159, 198, 1)', 'rgba(236, 98, 84, 1)'],
+        data: [{{per_positive_count}}, {{per_neutral_count}}, {{per_negative_count}}]
+    }],
+        labels: [
+        'Позитивные',
+        'Нейтральные',
+        'Негативные'
+    ]
+    },
+
+    // Configuration options go here
+    options: {}
+});
+    
+var ctx_o = document.getElementById('orgStat').getContext('2d');   
+var personStat = new Chart(ctx_o, {
+    type: 'pie',
+    data: {
+       datasets: [{
+        backgroundColor: ['rgba(133, 199, 0, 1)', 'rgba(74, 159, 198, 1)', 'rgba(236, 98, 84, 1)'],
+        data: [{{org_positive_count}}, {{org_neutral_count}}, {{org_negative_count}}]
+    }],
+        labels: [
+        'Позитивные',
+        'Нейтральные',
+        'Негативные'
+    ]
+    },
+
+    // Configuration options go here
+    options: {}
+});
+</script>
+</body>
+</html>
