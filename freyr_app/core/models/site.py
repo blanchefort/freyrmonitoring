@@ -22,6 +22,7 @@ class Site(models.Model):
         ('vk_owner', 'Группа Вконтакте идентификатор'),
         ('youtube', 'Ютуб-канал'),
         ('twi', 'Твиттер'),
+        ('facebook', 'Твиттер'),
     )
     url = models.URLField(verbose_name='URL площадки', max_length=512, unique=True)
     title = models.CharField(verbose_name='Название площадки', max_length=512)

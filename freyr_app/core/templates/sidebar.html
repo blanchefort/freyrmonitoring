@@ -5,7 +5,11 @@
     <div class="sidebar">
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-
+        {% if user.is_authenticated %}
+        <div class="info"><a class="d-block">Вы авторизованы как {{user.username}}</a></div>
+        {% else %}
+        <div class="info"><a href="{% url 'login' %}">Авторизоваться</a></div>
+        {% endif %}
       </div>
 
       <!-- Sidebar Menu -->
@@ -31,14 +35,36 @@
             </a>
           </li>
             
-            <li class="nav-item">
+          {% if user.is_authenticated %}
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-cloud"></i>
+              <p>Источники <i class="right fas fa-angle-left"></i></p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'sources' %}" class="nav-link">
+                  <i class="nav-icon fas fa-indent"></i>
+                  <p>Индекс</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'add_source' %}" class="nav-link">
+                  <i class="nav-icon fas fa-plus"></i>
+                  <p>Добавить источник</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          </li>
+          {% else %}
+          <li class="nav-item">
             <a href="{% url 'sources' %}" class="nav-link">
               <i class="nav-icon fas fa-cloud"></i>
-              <p>
-                Источники
-              </p>
+              <p>Источники</p>
             </a>
           </li>
+          {% endif %}
             
             <li class="nav-item">
             <a href="{% url 'persons' %}" class="nav-link">

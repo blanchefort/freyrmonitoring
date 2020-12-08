@@ -1,8 +1,6 @@
 {% load bootstrap4 %}
 {% load static %}
-
 {% include 'header.html' %}
-
 {% include 'sidebar.html' %}
   </aside>
 
@@ -37,7 +35,7 @@
           <!-- Default box -->
             <div class="card">
               <div class="card-body">
-                Иногда важно знать не только то, какие темы обсуждаются жителями региона, но и то, о ком они говорят. Например, важно знать, поддерживает ли население действия губернатора или министра. Здесь собраны все персоны, выявленные системой в ходе анализа данных. Вы можете посмотреть обнаруженных людей по частоте их встречаемости, а также увидеть краткую сводку о том, в каком контексте встречается данное лицо. Перейдя по выбранному имени, вы увидите, в каких материалах упоминается данное лицо.
+                  <p>Здесь вы можете добавить новый источник в индекс мониторинга.</p>
               </div>
               <!-- /.card-body -->
             </div>
@@ -46,17 +44,44 @@
           </div>
         </div>
           
-          
         <div class="row">
           <div class="col-lg-12">
               <div class="card">
-              <div class="card-body">
-                  {%for e in ents%}
-                  <a href="{{e.id}}" class="btn btn-sm btn-outline-primary">{{e.name}}</a>
-                  {%endfor%}
-            </div></div>
+                  <div class="card-header">
+                      <h2 class="card-title">Добавить</h2>
+                  </div>
+                  <div class="card-body">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="p-3 mb-2 bg-warning text-white">{{ message }}</div>
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if show_info %}
+                    <dl>
+                        <dt>Ссылка</dt>
+                        <dd>{{url}}</dd>
+                        <dt>Тип</dt>
+                        <dd>{{type}}</dd>
+                        <dt>Заголовок</dt>
+                        <dd>{{title}}</dd>
+                        <dt>Описание</dt>
+                        <dd>{{description}}</dd>
+                    </dl>
+                    {% endif %}
+
+                    {%if form%}
+                      <form method="POST">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <button type="submit" class="btn btn-lg btn-info btn-block">Проверить</button>
+                      </form>
+                    {%endif%}
+                  </div>
+              </div>
           </div>
           <!-- /.col-md-6 -->
+          
         </div>
         <!-- /.row -->
       </div><!-- /.container-fluid -->

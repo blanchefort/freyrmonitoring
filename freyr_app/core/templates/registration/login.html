@@ -1,0 +1,41 @@
+{% load bootstrap4 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+  <title>Авторизация</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="{% static 'AdminLTE/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'AdminLTE/dist/css/adminlte.min.css' %}">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link rel="apple-touch-icon" sizes="57x57" href="{% static 'freyr_images/freyr.ico/apple-icon-57x57.png' %}">
+  <link rel="apple-touch-icon" sizes="60x60" href="{% static 'freyr_images/freyr.ico/apple-icon-60x60.png' %}">
+  <link rel="apple-touch-icon" sizes="72x72" href="{% static 'freyr_images/freyr.ico/apple-icon-72x72.png' %}">
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'freyr_images/freyr.ico/apple-icon-76x76.png' %}">
+  <link rel="apple-touch-icon" sizes="114x114" href="{% static 'freyr_images/freyr.ico/apple-icon-114x114.png' %}">
+  <link rel="apple-touch-icon" sizes="120x120" href="{% static 'freyr_images/freyr.ico/apple-icon-120x120.png' %}">
+  <link rel="apple-touch-icon" sizes="144x144" href="{% static 'freyr_images/freyr.ico/apple-icon-144x144.png' %}">
+  <link rel="apple-touch-icon" sizes="152x152" href="{% static 'freyr_images/freyr.ico/apple-icon-152x152.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'freyr_images/freyr.ico/apple-icon-180x180.png' %}">
+  <link rel="icon" type="image/png" sizes="192x192"  href="{% static 'freyr_images/freyr.ico/android-icon-192x192.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'freyr_images/freyr.ico/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="96x96" href="{% static 'freyr_images/freyr.ico/favicon-96x96.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'freyr_images/freyr.ico/favicon-16x16.png' %}">
+</head>
+<body class="hold-transition login-page">
+    <form class="form-signin" method="post">
+        <img class="mb-4" src="{% static 'freyr_images/freyr_logo_colored.svg' %}" alt="FreyrMonitoring" width="270" height="125">
+        <h1 class="h3 mb-3 font-weight-normal">Войти</h1>
+        {% csrf_token %}
+        {% bootstrap_form_errors form %}
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-lg btn-info btn-block">Войти</button>
+    </form>
+</body>

@@ -11,9 +11,15 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os, sys
 from pathlib import Path
+import configparser
+
+config = configparser.ConfigParser()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+
+CONFIG_INI_PATH = os.path.join(BASE_DIR, 'config.ini')
+config.read(CONFIG_INI_PATH)
 
 TENSORS_PATH = os.path.join(BASE_DIR, 'tensors')
 CLUSTERS_PATH = os.path.join(TENSORS_PATH, 'clusters')
@@ -30,13 +36,13 @@ ML_MODELS = os.path.join(BASE_DIR, 'ml_models')
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '%7@txra@2x=e4yzwm9*rhj85l__$ae+z-4((5ewmmee_!x1ta6'
+SECRET_KEY = config['DJANGO']['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # https://stackoverflow.com/a/56190379
-if "celery" in sys.argv[0]:
-    DEBUG = False
+# if "celery" in sys.argv[0]:
+#     DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -69,7 +75,7 @@ ROOT_URLCONF = 'freyr_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [str(BASE_DIR.joinpath('core/templates'))],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -139,10 +145,5 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Tasks
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_IGNORE_RESULT = True
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

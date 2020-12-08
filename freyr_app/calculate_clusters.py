@@ -45,12 +45,12 @@ for cl_idx in range(0, len(cluster_embeddings)):
         name=cluster_titles[cl_idx],
         keywords=cluster_keywords[cl_idx]
     )
-    torch.save(cluster_embeddings, os.path.join(settings.CLUSTERS_PATH, f'{theme_id}.pt'))
-    theme = Theme.objects.get(theme_id)
+    torch.save(cluster_embeddings, os.path.join(settings.CLUSTERS_PATH, f'{theme_id.id}.pt'))
+    theme = Theme.objects.get(pk=theme_id.id)
     for art_id in get_system_ids(lag_idx=lag_idx, reltive_ids=cluster_articles[cl_idx]):
         ThemeArticles(
             theme_link=theme,
-            article_link=Article.objects.get(art_id)
+            article_link=Article.objects.get(pk=art_id)
         ).save()
 
 print('TOTAL TIME:', format_time(time.time()-start_time))

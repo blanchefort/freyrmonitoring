@@ -132,3 +132,6 @@ dmypy.json
 migrations/
 ml_models/
 .vscode/
+static/
+tensors/
+config.ini
