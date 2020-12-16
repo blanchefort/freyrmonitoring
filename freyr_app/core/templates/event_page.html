@@ -1,0 +1,362 @@
+{% load bootstrap4 %}
+{% load static %}
+
+{% include 'header.html' %}
+
+{% include 'sidebar.html' %}
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-7">
+            <h1 class="m-0 text-dark"><i class="fas fa-feather"></i>&nbsp;{{page_title}}</h1>
+            <p class="mt-5">
+                <i class="fas fa-info"></i>
+                Заголовки формируются автоматически. 
+                Если вы считаете, что это неудачный заголовок,
+                пожалуйста, укажите свой вариант:
+            </p>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <input class="form-control form-control-lg" type="text" placeholder="Новый заголовок">
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <button class="btn btn-info btn-lg float-right">
+                        <i class="fas fa-star"></i>
+                        Отправить</button>
+                </div>
+            </div>
+          </div><!-- /.col -->
+          <div class="col-sm-5">
+            <div class="card card-info card-outline">
+                <div class="card-body box-profile">
+                    <h3 class="profile-username text-center">Сводка</h3>
+                    <ul class="list-group list-group-unbordered mb-3">
+                        <li class="list-group-item">
+                            <b><i class="fas fa-calendar"></i> Первый материал:</b>
+                            <span class="float-right">{{cluster_start}}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <b><i class="fas fa-calendar-check"></i> Последний материал:</b>
+                            <span class="float-right">{{cluster_end}}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <b><i class="fas fa-newspaper"></i> Статей:</b>
+                            <span class="float-right">{{cluser_articles}}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <b><i class="fas fa-comments"></i> Комментариев:</b>
+                            <span class="float-right">{{cluser_comments}}</span>
+                        </li>
+                        <li class="list-group-item"><b><i class="fas fa-thumbs-up"></i> Лайков:</b>
+                            <span class="float-right">{{cluser_likes}}</span>
+                        </li>
+                    </ul>
+                    <button class="btn btn-info float-right">
+                        <i class="fas fa-download"></i>
+                        Скачать отчёт
+                    </button>
+                </div>
+            </div>
+          </div>
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+                
+        <div class="row"> 
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row"><h3>Тональность статей</h3></div>
+                        <div class="row">
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="info-box mb-3">
+                                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-thumbs-up"></i></span>
+                                    
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Положительных</span>
+                                        <span class="info-box-number">{{articles_positive_count}}</span>
+                                    </div>
+                                <!-- /.info-box-content -->
+                                </div>
+                            <!-- /.info-box -->
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="info-box mb-3">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-comment"></i></span>
+                                    
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Нейтральных</span>
+                                        <span class="info-box-number">{{articles_neutral_count}}</span>
+                                    </div>
+                                <!-- /.info-box-content -->
+                                </div>
+                            <!-- /.info-box -->
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="info-box mb-3">
+                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-down"></i></span>
+                                    
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Отрицательных</span>
+                                        <span class="info-box-number">{{articles_negative_count}}</span>
+                                    </div>
+                                <!-- /.info-box-content -->
+                                </div>
+                            <!-- /.info-box -->
+                            </div>
+                            
+                        </div>
+                    <!-- /.card-body -->
+                    </div>
+                <!-- /.card -->
+                </div>
+            </div>
+        </div>
+
+        <div class="row"> 
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row"><h3>Тональность комментариев к статьям</h3></div>
+                        <div class="row">
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="info-box mb-3">
+                                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-thumbs-up"></i></span>
+                                    
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Положительных</span>
+                                        <span class="info-box-number">{{articles_positive_count}}</span>
+                                    </div>
+                                <!-- /.info-box-content -->
+                                </div>
+                            <!-- /.info-box -->
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="info-box mb-3">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-comment"></i></span>
+                                    
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Нейтральных</span>
+                                        <span class="info-box-number">{{articles_neutral_count}}</span>
+                                    </div>
+                                <!-- /.info-box-content -->
+                                </div>
+                            <!-- /.info-box -->
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-md-4">
+                                <div class="info-box mb-3">
+                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-down"></i></span>
+                                    
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Отрицательных</span>
+                                        <span class="info-box-number">{{articles_negative_count}}</span>
+                                    </div>
+                                <!-- /.info-box-content -->
+                                </div>
+                            <!-- /.info-box -->
+                            </div>
+                            
+                        </div>
+                    <!-- /.card-body -->
+                    </div>
+                <!-- /.card -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="row"> 
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Динамика сообщений</h3>
+                        <canvas id="timeseries" height="50"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-info card-outline">
+                    <div class="card-body box-profile">
+                        <h3 class="profile-username">География</h3>
+                        <div id="vmap" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-info card-outline">
+                    <div class="card-body box-profile">
+                        <h3 class="profile-username">Источники</h3>
+                        <canvas id="sourcesChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+          
+        <div class="row">
+          <div class="col-lg-12">
+              <div class="card">
+              <div class="card-body">
+                  {%for a in articles%}
+                      {% if a.sentiment == 2%}
+                      <div class="callout callout-danger">
+                    {%endif%}
+                      {% if a.sentiment == 1%}
+                    <div class="callout callout-success">
+                        {%endif%}
+                      {% if a.sentiment == 0%}
+                        <div class="callout callout-info">
+                      {%endif%}
+                  <b>{{a.publish_date}}</b>
+                            <h5><a href="{{a.url}}" target="_blank">{{a.title}}</a></h5>
+                            <p>{{a.text|truncatechars:300}}</p>
+                            {% include 't/site_types.html' %}
+                                <span class="badge bg-info">{{a.site.title}}</span>
+                                Лайки: <span class="badge bg-success">{{a.likes}}</span>
+                                Комментарии
+                            </p>
+                            </div>
+                  {%endfor%}
+                        
+                  
+            </div></div>
+          </div>
+          <!-- /.col-md-6 -->
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+    <div class="p-3">
+      <h5>Title</h5>
+      <p>Sidebar content</p>
+    </div>
+  </aside>
+  <!-- /.control-sidebar -->
+
+<!-- Main Footer -->
+<footer class="main-footer">
+    <!-- To the right -->
+    <div class="float-right d-none d-sm-inline">
+      FreyrMonitoring: система мониторинга интернет-реакции.
+    </div>
+    <!-- Default to the left -->
+    <strong> <a href="https://tlgg.ru/blanchefort"><i class="fas fa-cat"></i>Заказать внедрение</a>.</strong>
+  </footer>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+
+<!-- jQuery -->
+<script src="{% static 'AdminLTE/plugins/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'AdminLTE/dist/js/adminlte.min.js' %}"></script>
+
+<!-- JQVMap -->
+<script src="{% static 'AdminLTE/plugins/jqvmap/jquery.vmap.min.js' %}"></script>
+<script src="{% static 'AdminLTE/plugins/jqvmap/maps/jquery.vmap.russia.js' %}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+<script>
+    var ctx = document.getElementById('timeseries').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [
+                {%for item in chronology%}
+                '{{item.day|date:"d m Y"}}',
+                {%endfor%}
+            ],
+            datasets: [{
+                backgroundColor: '#06CCB8',
+                borderColor: '#009688',
+                data: [
+                    {%for item in chronology%}
+                    {{item.count}},
+                    {%endfor%}
+                ],
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        stepSize: 1,
+                    }
+                }]
+            },
+            legend: {
+                display: false,
+            }
+        }
+    });
+
+    //-------------
+    //- SOURCES CHART -
+    //-------------
+    var sourcesChartCanvas = $('#sourcesChart').get(0).getContext('2d')
+    var sourcesData = {
+        labels: [
+            {%for s in source_name%}
+            '{{s}}',
+            {%endfor%}
+        ],
+        datasets: [
+            {
+            data: [
+                {%for s in source_count%}
+                '{{s}}',
+                {%endfor%}
+            ],
+            backgroundColor : ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de'],
+            }
+        ]
+    }
+
+    var sourcesOptions = {
+        maintainAspectRatio : false,
+        responsive : true,
+    }
+    var sourcesChart = new Chart(sourcesChartCanvas, {
+        type: 'doughnut',
+        data: sourcesData,
+        options: sourcesOptions      
+    })
+</script>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery('#vmap').vectorMap({map: 'russia_en'});
+});
+</script>
+</body>
+</html>

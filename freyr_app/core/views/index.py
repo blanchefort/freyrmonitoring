@@ -59,7 +59,7 @@ def index(request):
     top_org = None
     top_count = 0
     for e in objs:
-        if e.name not in ('СМИ', 'ИА “НИЖНИЙ СЕЙЧАС'):
+        if e.name not in ('СМИ', 'ИА “НИЖНИЙ СЕЙЧАС', 'INSTAGRAM'):
             if EntityLink.objects.filter(entity_link=e).count() > top_count:
                 top_count = EntityLink.objects.filter(entity_link=e).count()
                 top_org = e
@@ -105,5 +105,20 @@ def index(request):
         'theme_count': theme_count,
         'theme_articles': theme_articles,
     }
+
+    # Индекс лояльности
+    # Коеффициенты:
+    #     * Позитивный - 1.2
+    #     * Негативный - 1.2
+    #     * Нейтральный - 1.0
+    # Индекс (%pos*k_pos) + (%neu*k_neu) - (%neg*k_neg)
+    k_pos, k_neu, k_neg = 120, 110, 120
+    total = Article.objects.filter(theme=True).count()
+    neu = Article.objects.filter(theme=True).filter(sentiment=0).count() / total
+    pos = Article.objects.filter(theme=True).filter(sentiment=1).count() / total
+    neg = Article.objects.filter(theme=True).filter(sentiment=2).count() / total
+    loyalty_index = (pos*k_pos) + (neu*k_neu) - (neg*k_neg)
+
+    context.update({'loyalty_index': loyalty_index})
 
     return TemplateResponse(request, 'index.html', context=context)

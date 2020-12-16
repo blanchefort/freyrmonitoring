@@ -23,6 +23,7 @@ config.read(CONFIG_INI_PATH)
 
 TENSORS_PATH = os.path.join(BASE_DIR, 'tensors')
 CLUSTERS_PATH = os.path.join(TENSORS_PATH, 'clusters')
+AUDIO_PATH = os.path.join(BASE_DIR, 'audio_cache')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -31,6 +32,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 ML_MODELS = os.path.join(BASE_DIR, 'ml_models')
+KALDI = os.path.join(ML_MODELS, 'kaldi')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -58,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core.apps.CoreConfig',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

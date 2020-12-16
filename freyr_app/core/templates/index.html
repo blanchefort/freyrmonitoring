@@ -30,16 +30,14 @@
     <div class="content">
       <div class="container-fluid">
         <div class="row">
-          <div class="col-lg-12">
+          <div class="col-md-6">
             <!-- Line chart -->
             <div class="card card-primary card-outline">
               <div class="card-header">
                 <h3 class="card-title">
                   <i class="far fa-chart-bar"></i>
-                  Статистика проиндексированных материалов за 7 дней
-                </h3>
-
-                
+                  Статистика за 7 дней
+                </h3> 
               </div>
               <div class="card-body">
                 <canvas id="totalStat"></canvas>
@@ -48,6 +46,32 @@
             </div>
             <!-- /.card -->
           </div>
+
+          <div class="col-md-6">
+            <!-- Line chart -->
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="far fa-chart-bar"></i>
+                  Индекс лояльности
+                </h3> 
+              </div>
+              <div class="card-body">
+                {% if loyalty_index < 0 %}
+                <h1 class="text-center text-danger" style="font-size: 1100%;">
+                {% elif loyalty_index > 30 %}
+                <h1 class="text-center text-success" style="font-size: 1100%;">
+                {%else%}
+                <h1 class="text-center text-warning" style="font-size: 1100%;">
+                {%endif%}
+                  {{loyalty_index|floatformat:2}}
+                </h1>
+              </div>
+              <!-- /.card-body-->
+            </div>
+            <!-- /.card -->
+          </div>
+
         </div>
         <!-- /.row -->
           
@@ -57,7 +81,7 @@
               <div class="card-header">
                 <h3 class="card-title">
                   <i class="far fa-chart-bar"></i>
-                  Самая упоминаемая персона: {{top_per.name}}
+                  Самая упоминаемая персона: <br />{{top_per.name}}
                 </h3>
 
                 
@@ -74,7 +98,7 @@
               <div class="card-header">
                 <h3 class="card-title">
                   <i class="far fa-chart-bar"></i>
-                  Самая упоминаемая организация: {{top_org.name}}
+                  Самая упоминаемая организация: <br />{{top_org.name}}
                 </h3>
 
                 

@@ -34,6 +34,8 @@ class TextStreamClustering:
         for keyword, score in keywords:
             if score >= threshold:
                 kwd_text += keyword + ', '
+        if len(kwd_text) < 1:
+            kwd_text = text
         return kwd_text
 
     def generate_corpus_embs(self, titles, texts):
@@ -52,6 +54,7 @@ class TextStreamClustering:
         '''
         similars = []
         for idx, query_embedding in enumerate(embeddings):
+            print(len(query_embedding))
             cos_scores = util.pytorch_cos_sim(query_embedding, embeddings)[0]
             cos_scores = cos_scores.cpu()
             sims = []

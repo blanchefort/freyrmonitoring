@@ -129,7 +129,10 @@
                       {%endif%}
                   <b>{{a.publish_date}}</b>
                             <h5><a href="{{a.url}}" target="_blank">{{a.title}}</a></h5>
-                            <p>Источник: <span class="badge bg-info">{{a.site.title}}</span>
+                            <p>{{a.text|truncatechars:200}}</p>
+                            <p>
+                              {% include 't/site_types.html' %}
+                              <span class="badge bg-info">{{a.site.title}}</span>
                                 Лайки: <span class="badge bg-success">{{a.likes}}</span></p>
                             </div>
                   {%endfor%}

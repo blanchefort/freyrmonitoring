@@ -1,0 +1,30 @@
+<p>Источник: 
+{% if a.site.type == 'odnoklassniki_domain' %}
+<i class="fab fa-odnoklassniki-square"></i>
+{% elif a.site.type == 'odnoklassniki_id' %}
+<i class="fab fa-odnoklassniki-square"></i>
+{% elif a.site.type == 'insta' %}
+<i class="fab fa-instagram"></i>
+{% elif a.site.type == 'telega' %}
+<i class="fab fa-telegram"></i>
+{% elif a.site.type == 'vk_domain' %}
+<i class="fab fa-vk"></i>
+{% elif a.site.type == 'vk_owner' %}
+<i class="fab fa-vk"></i>
+{% elif a.site.type == 'youtube' %}
+<i class="fab fa-youtube"></i>
+{% elif a.site.type == 'twi' %}
+<i class="fab fa-twitter"></i>
+{% elif a.site.type == 'facebook' %}
+<i class="fab fa-facebook"></i>
+{% elif a.site.type == 'viber' %}
+<i class="fab fa-viber"></i>
+{% elif a.site.type == 'whatsapp' %}
+<i class="fab fa-whatsapp"></i>
+{% elif a.site.type == 'tiktok' %}
+<i class="fas fa-tiktok"></i>
+{% elif a.site.type == 'yandex' %}
+<i class="fas fa-yandex"></i>
+{% else%}
+<i class="fas fa-globe"></i>
+{% endif %}
