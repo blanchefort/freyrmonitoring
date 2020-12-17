@@ -1,9 +1,18 @@
 import os
-import re
+import logging
 import torch
+import datetime
+import re
 import RAKE
 from sentence_transformers import SentenceTransformer, util
+
 from django.conf import settings
+from django.utils import timezone
+
+from core.models import Article, Theme, ThemeArticles
+
+logger = logging.getLogger(__name__)
+
 
 class TextStreamClustering:
     """Методы кластеризации текстового потока
@@ -34,7 +43,7 @@ class TextStreamClustering:
         for keyword, score in keywords:
             if score >= threshold:
                 kwd_text += keyword + ', '
-        if len(kwd_text) < 1:
+        if len(kwd_text) < 10:
             kwd_text = text
         return kwd_text
 
@@ -190,3 +199,118 @@ class TextStreamClustering:
                 if len(item) > 0:
                     candidates += 1
         return cluster_embeddings, cluster_titles, cluster_keywords, cluster_articles
+
+def clustering(delta_hours=5):
+    """Кластеризуем материалы
+    
+    delta_hours - за сколько предыдущих часов брать статьи из БД для кластеризации.
+    """
+    logger.info('Start Clustering')
+    themes = Theme.objects.all()
+    tsc = TextStreamClustering()
+    if len(themes) == 0:
+        logger.info('New Clustering')
+        articles = Article.objects.filter(theme=True).all()
+
+        lag_idx = [article.id for article in articles]
+        lag_titles = [article.title for article in articles]
+        lag_texts = [article.text for article in articles]
+        
+        logger.info('generate_corpus_embs')
+        corpus_embeddings = tsc.generate_corpus_embs(titles=lag_titles, texts=lag_texts)
+
+        logger.info('generate_new_clusters')
+        (cluster_embeddings, 
+        cluster_titles, 
+        cluster_keywords, 
+        cluster_articles) = tsc.generate_new_clusters(corpus_embeddings, lag_titles, lag_texts)
+
+        logger.info('save clusters and links')
+        for cl_idx in range(0, len(cluster_embeddings)):
+            theme = Theme.objects.create(
+                name=cluster_titles[cl_idx],
+                keywords=cluster_keywords[cl_idx]
+            )
+            torch.save(cluster_embeddings[cl_idx], os.path.join(settings.CLUSTERS_PATH, f'{theme.id}.bin'))
+            for art_id in tsc.get_system_ids(lag_idx=lag_idx, reltive_ids=cluster_articles[cl_idx]):
+                ThemeArticles(
+                    theme_link=theme,
+                    article_link=Article.objects.get(pk=art_id)
+                ).save()
+    else:
+        logger.info('TimeSiquenceClustering')
+        delta_hours = -delta_hours
+        start_date = timezone.now()
+        end_date = timezone.now() + datetime.timedelta(hours=delta_hours)
+        articles = Article.objects.filter(theme=True).filter(
+                    publish_date__gte=end_date,
+                    publish_date__lte=start_date
+                )
+        logger.info(f'Len of articles len(articles)')
+        lag_idx = [article.id for article in articles]
+        lag_titles = [article.title for article in articles]
+        lag_texts = [article.text for article in articles]
+        logger.info('='*10)
+        logger.info('CHECK LENGTHS OF CONTENT')
+        logger.info('Titles:')
+        for i in lag_titles:
+            logger.info(len(i))
+        logger.info('Texts:')
+        for i in lag_texts:
+            logger.info(len(i))
+        # Получаем эмбеддинги новой выборки
+        logger.info('Получаем эмбеддинги новой выборки')
+        corpus_embeddings = tsc.generate_corpus_embs(titles=lag_titles, texts=lag_texts)
+        logger.info('Corpus embeddings:')
+        for i in corpus_embeddings:
+            logger.info(len(i))
+        logger.info('='*10)
+        # Прогоняем статьи по имеющимся кластерам
+        logger.info('Прогоняем статьи по имеющимся кластерам')
+        selected_articles = []
+        #TODO: Темы надо тоже по времени ограничивать
+        for theme in themes:
+            cluster_new_articles = []
+            cluster_embedding = torch.load(os.path.join(settings.CLUSTERS_PATH, f'{theme.id}.bin'))
+            logger.info(f'Cluster embedding, {cluster_embedding.shape}')
+            selected, _, _ = tsc.select_cluster_articles(cluster_embedding, corpus_embeddings)
+            if len(selected) > 0:
+                cluster_new_articles = selected
+                selected_articles += selected
+            # Идентификаторы статей кластера для сохранения в БД
+            for art_id in tsc.get_system_ids(lag_idx=lag_idx, reltive_ids=cluster_new_articles):
+                ThemeArticles.objects.get_or_create(
+                    theme_link=theme,
+                    article_link=Article.objects.get(pk=art_id)
+                )
+        # Смотрим, остались ли ещё неразмеченные статьи
+        logger.info('Смотрим, остались ли ещё неразмеченные статьи')
+        if len(set(selected_articles)) < len(lag_idx):
+            lag_idx, lag_titles, lag_texts = tsc.get_nonclustered_data(
+                lag_idx=lag_idx,
+                lag_titles=lag_titles,
+                lag_texts=lag_texts,
+                clustered_ids=set(selected_articles))
+            corpus_embeddings = tsc.generate_corpus_embs(titles=lag_titles, texts=lag_texts)
+
+            # Новые кластеры
+            logger.info('Новые кластеры')
+            (cluster_embeddings, 
+            cluster_titles, 
+            cluster_keywords, 
+            cluster_articles) = tsc.generate_new_clusters(corpus_embeddings, lag_titles, lag_texts)
+
+            # Сохраняем новые кластеры
+            logger.info('Сохраняем новые кластеры')
+            for cl_idx in range(0, len(cluster_embeddings)):
+                theme = Theme.objects.create(
+                    name=cluster_titles[cl_idx],
+                    keywords=cluster_keywords[cl_idx]
+                )
+                torch.save(cluster_embeddings[cl_idx], os.path.join(settings.CLUSTERS_PATH, f'{theme.id}.bin'))
+                for art_id in tsc.get_system_ids(lag_idx=lag_idx, reltive_ids=cluster_articles[cl_idx]):
+                    ThemeArticles.objects.get_or_create(
+                        theme_link=theme,
+                        article_link=Article.objects.get(pk=art_id)
+                    )
+    logger.info('End Clustering')

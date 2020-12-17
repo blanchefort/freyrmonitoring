@@ -107,18 +107,22 @@ def index(request):
     }
 
     # Индекс лояльности
-    # Коеффициенты:
-    #     * Позитивный - 1.2
-    #     * Негативный - 1.2
-    #     * Нейтральный - 1.0
-    # Индекс (%pos*k_pos) + (%neu*k_neu) - (%neg*k_neg)
-    k_pos, k_neu, k_neg = 120, 110, 120
+    # NPS = # Promoters - # Detractors / # Votes * 100
+    # У нас:
+    # (pos - neg) / total * 100
     total = Article.objects.filter(theme=True).count()
-    neu = Article.objects.filter(theme=True).filter(sentiment=0).count() / total
-    pos = Article.objects.filter(theme=True).filter(sentiment=1).count() / total
-    neg = Article.objects.filter(theme=True).filter(sentiment=2).count() / total
-    loyalty_index = (pos*k_pos) + (neu*k_neu) - (neg*k_neg)
-
+    pos = Article.objects.filter(theme=True).filter(sentiment=1).count()
+    neg = Article.objects.filter(theme=True).filter(sentiment=2).count()
+    loyalty_index = pos - neg
+    loyalty_index /= total
+    loyalty_index *= 100
     context.update({'loyalty_index': loyalty_index})
+    if loyalty_index <= -26:
+        context.update({'loyalty_type': 'bad'})
+    elif loyalty_index >= 26:
+        context.update({'loyalty_type': 'good'})
+    else:
+        context.update({'loyalty_type': 'nono'})
+        
 
     return TemplateResponse(request, 'index.html', context=context)

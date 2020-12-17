@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from core.forms import AddUrlForm
 from core.models.site import Site
-from processing.url import process_url
+from core.processing.url import process_url
 from parsers import VKParser
 
 def index(request):

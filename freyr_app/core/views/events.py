@@ -1,5 +1,5 @@
 from django.template.response import TemplateResponse
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay
 from core.models.theme import Theme, ThemeArticles
 from core.models.article import Article
@@ -94,7 +94,7 @@ def info(request, event_id):
     # Количество лайков
     context.update({'cluser_likes': Article.objects\
         .filter(article_themes__theme_link=theme)\
-        .aggregate(count=Count('likes'))['count']})
+        .aggregate(sum=Sum('likes'))['sum']})
     # Количество комментариев
     context.update({'cluser_comments': 0})
 

@@ -56,16 +56,16 @@
                   Индекс лояльности
                 </h3> 
               </div>
-              <div class="card-body">
-                {% if loyalty_index < 0 %}
-                <h1 class="text-center text-danger" style="font-size: 1100%;">
-                {% elif loyalty_index > 30 %}
-                <h1 class="text-center text-success" style="font-size: 1100%;">
-                {%else%}
-                <h1 class="text-center text-warning" style="font-size: 1100%;">
-                {%endif%}
-                  {{loyalty_index|floatformat:2}}
-                </h1>
+              <div class="card-body">   
+                  {% if loyalty_type == 'bad' %}
+                  <h1 class="text-center text-danger" style="font-size: 1100%;">
+                  {% elif loyalty_type == 'good' %}
+                  <h1 class="text-center text-success" style="font-size: 1100%;">
+                  {%else%}
+                  <h1 class="text-center text-warning" style="font-size: 1100%;">
+                  {%endif%}
+                    {{loyalty_index|floatformat}}
+                  </h1>
               </div>
               <!-- /.card-body-->
             </div>

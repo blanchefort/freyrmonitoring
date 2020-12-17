@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from requests_html import HTMLSession
 from purl import URL
 import datetime

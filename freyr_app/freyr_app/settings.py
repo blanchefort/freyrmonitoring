@@ -13,34 +13,29 @@ import os, sys
 from pathlib import Path
 import configparser
 
-config = configparser.ConfigParser()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
+# CONFIG.INI
+config = configparser.ConfigParser()
 CONFIG_INI_PATH = os.path.join(BASE_DIR, 'config.ini')
 config.read(CONFIG_INI_PATH)
 
+# PATHS
 TENSORS_PATH = os.path.join(BASE_DIR, 'tensors')
 CLUSTERS_PATH = os.path.join(TENSORS_PATH, 'clusters')
 AUDIO_PATH = os.path.join(BASE_DIR, 'audio_cache')
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+# ML MODELS
 ML_MODELS = os.path.join(BASE_DIR, 'ml_models')
 KALDI = os.path.join(ML_MODELS, 'kaldi')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+# SECURITY
 SECRET_KEY = config['DJANGO']['SECRET_KEY']
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # https://stackoverflow.com/a/56190379
 # if "celery" in sys.argv[0]:
@@ -95,25 +90,25 @@ WSGI_APPLICATION = 'freyr_app.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'freyr',
-        'USER': 'freyr',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '',
+if 'POSTGRES' in config:
+    DATABASES = {
+        'default': {
+            'ENGINE': config['POSTGRES']['ENGINE'],
+            'NAME': config['POSTGRES']['NAME'],
+            'USER': config['POSTGRES']['USER'],
+            'PASSWORD': config['POSTGRES']['PASSWORD'],
+            'HOST': config['POSTGRES']['HOST'],
+            'PORT': config['POSTGRES']['PORT'],
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 
 
 # Password validation
@@ -133,7 +128,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -148,5 +144,34 @@ USE_L10N = True
 
 USE_TZ = True
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+# LOGGING
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'format': '%(name)-12s %(levelname)-8s %(message)s'
+        },
+        'file': {
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'file',
+            'filename': 'debug.log'
+        }
+    },
+    'loggers': {
+        '': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file']
+        }
+    }
+}
