@@ -48,9 +48,19 @@ class Article(models.Model):
         default=0,
         null=True
     )
+    dislikes = models.PositiveIntegerField(
+        verbose_name='Дизлайки',
+        default=0,
+        null=True
+    )
+    views = models.PositiveIntegerField(
+        verbose_name='Просмотры',
+        default=0,
+        null=True
+    )
     
     def __str__(self):
-        return str(self.url)
+        return str(self.title)
     
     class Meta:
         verbose_name = 'Статья'

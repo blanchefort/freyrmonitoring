@@ -38,11 +38,11 @@ def person_page(request, ent_id):
             negative_count += 1
     context = {
         'title': 'FreyrMonitoring',
-        'page_title': f'Персона: {entity.name}',
+        'page_title': entity.name,
         'articles': articles,
         'neutral_count': neutral_count,
         'positive_count': positive_count,
         'negative_count': negative_count,
     }
-    return TemplateResponse(request, 'entity_page.html', context=context)
+    return TemplateResponse(request, 'person_page.html', context=context)
     

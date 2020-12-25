@@ -113,52 +113,63 @@
           
         <div class="row">
           <div class="col-lg-12">
-            
-              
-              <div class="card">
-              <div class="card-body">
-                  {%for a in articles%}
-                      {% if a.sentiment == 2%}
-                      <div class="callout callout-danger">
-                    {%endif%}
-                      {% if a.sentiment == 1%}
-                    <div class="callout callout-success">
-                        {%endif%}
-                      {% if a.sentiment == 0%}
-                        <div class="callout callout-info">
-                      {%endif%}
-                  <b>{{a.publish_date}}</b>
-                            <h5><a href="{{a.url}}" target="_blank">{{a.title}}</a></h5>
-                            <p>{{a.text|truncatechars:200}}</p>
-                            <p>
-                              {% include 't/site_types.html' %}
-                              <span class="badge bg-info">{{a.site.title}}</span>
-                                Лайки: <span class="badge bg-success">{{a.likes}}</span></p>
-                            </div>
-                  {%endfor%}
-    <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-left">
-      {% if articles.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
-      {% else %}
-      <li class="page-item disabled"><a class="page-link" href="#"><span>&laquo;</span></a></li>
-      {% endif %}
-      {% for i in paginator.page_range %}
-      {% if articles.number == i %}
-      <li class="page-item active"><a class="page-link" href="#">{{ i }} <span class="sr-only">(current)</span></a></li>
-      {% else %}
-      <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-      {% endif %}
-      {% endfor %}
-      {% if articles.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ articles.next_page_number }}">&raquo;</a></li>
-      {% else %}
-      <li class="page-item disabled"><a class="page-link" href="#"><span>&raquo;</span></a></li>
-      {% endif %}
-    </ul>
-    </nav>
-                  
-            </div></div>
+            {%for a in articles%}
+                {% if a.sentiment == 2%}
+                <div class="card card-danger card-outline">
+                {% elif a.sentiment == 1%}
+                <div class="card card-success card-outline">
+                {% elif a.sentiment == 0%}
+                <div class="card card-info card-outline">
+                {%endif%}
+                    <div class="card-header">
+                        <a href="{{a.url}}" class="text-lg">{{a.title}}</a>
+                    </div>
+                    <div class="card-body">
+                        <p>{{a.text|truncatechars:300}}</p>
+                        <span class="mr-3">
+                            <i class="fas fa-calendar-alt"></i> {{a.publish_date}}
+                        </span>
+                        <span class="mr-3">
+                        {% include 't/site_types.html' %}
+                        <span class="badge bg-info">{{a.site.title}}</span>
+                        </span>
+                        <span class="mr-3">
+                            <i class="fas fa-thumbs-up"></i> <span class="badge bg-success">{{a.likes}}</span>
+                        </span>
+                        <span class="mr-3">
+                            <i class="far fa-eye"></i> <span class="badge bg-success">{{a.likes}}</span>
+                        </span>
+                        <span class="mr-3">
+                            <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.likes}}</span>
+                        </span>
+                    </div>
+                </div>
+            {%endfor%}
+            <!--Page navigation-->
+            <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-left">
+                {% if articles.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#"><span>&laquo;</span></a></li>
+                {% endif %}
+                {% for i in paginator.page_range %}
+                {% if articles.number == i %}
+                <li class="page-item active"><a class="page-link" href="#">{{ i }} <span class="sr-only">(current)</span></a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if articles.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ articles.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#"><span>&raquo;</span></a></li>
+                {% endif %}
+              </ul>
+            </nav>
+          <!--/Page navigation-->     
+          </div>
+        </div>
               
               
               

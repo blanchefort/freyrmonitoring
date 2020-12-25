@@ -1,7 +1,9 @@
-from .koza import get_koza
-from .newsnn import get_newsnn
-from .newsroom24 import get_newsroom24
-from .pravdann import get_pravdann
-from .progorodnn import get_progorodnn
-from .vgoroden import get_vgoroden
+from .freyr_crawler import FreyrCrawler
+from .novgorod_ru import NovgorodRuCrawler
+from .vn_ru import VNRuCrawler
+
+from .vk import VKParser
 from .yt import YTParser
+from .insta import InstaParser
+from .ok import OKParser
+from .twitter import TwitterParser

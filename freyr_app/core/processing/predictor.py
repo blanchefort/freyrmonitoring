@@ -1,5 +1,6 @@
 import torch
 from transformers import BertTokenizer, BertForSequenceClassification
+from django.conf import settings
 
 class DefineText:
     """Общий класс для определения различных типов текстов Бертами.
@@ -17,23 +18,24 @@ class DefineText:
         self.device = torch.device(device)
         self.model_path = model_path
     
+    @torch.no_grad()
     def predictor(self, texts, tokenizer, model):
         """Общий метод, определяющий метки текстов
         """
-        inputs = tokenizer(
-            texts,
-            padding='longest',
-            truncation=True,
-            max_length=512,
-            return_tensors='pt')
-        input_ids = inputs['input_ids'].to(self.device)
-        token_type_ids = inputs['token_type_ids'].to(self.device)
-        attention_mask = inputs['attention_mask'].to(self.device)
-        with torch.no_grad():
-            logits = model(input_ids=input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask)[0]
-        probabilities = torch.softmax(logits, dim=1).to('cpu')
-        labels = torch.argmax(probabilities, dim=1)
-        return labels.tolist(), probabilities.tolist()
+        result_labels, result_probs = [], []
+        for batch in range(0, len(texts), settings.BATCH_SIZE):
+            inputs = tokenizer(
+                texts[batch:batch+settings.BATCH_SIZE],
+                padding='longest',
+                truncation=True,
+                max_length=512,
+                return_tensors='pt')
+            logits = model(**inputs.to(self.device))[0]
+            probabilities = torch.softmax(logits, dim=1).to('cpu')
+            labels = torch.argmax(probabilities, dim=1)
+            result_labels.extend(labels.tolist())
+            result_probs.extend(probabilities.tolist())
+        return result_labels, result_probs
     
     def article_theme(self):
         """Метод определяет тему текста статьи.

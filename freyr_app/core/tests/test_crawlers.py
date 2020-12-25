@@ -2,157 +2,36 @@ from django.test import TestCase
 import validators
 import datetime
 from core.crawlers import (
-    get_koza,
-    get_newsnn,
-    get_newsroom24,
-    get_pravdann,
-    get_progorodnn,
-    get_vgoroden
+    NovgorodRuCrawler,
+    VNRuCrawler
 )
 
 # Стандартные парсеры: соцсети
 
-# Кастомные парсеры для Заказчика
-class KozaTestClass(TestCase):
+class NovgorodRuTestClass(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.response = get_koza()
-
-    def test_response(self):
-        self.assertTrue(len(self.response)>0)
+        cls.crawler = NovgorodRuCrawler()
     
-    def test_url(self):
-        result = [validators.url(item['url']) for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_title(self):
-        result = [len(item['title'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_text(self):
-        result = [len(item['text'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_date(self):
-        result = [type(item['date']) == datetime.datetime for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-class NewsnnTestClass(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.response = get_newsnn()
-
-    def test_response(self):
-        self.assertTrue(len(self.response)>0)
+    def test_posts(self):
+        response = self.crawler.latest_posts()
+        self.assertTrue(len(response)>0)
     
-    def test_url(self):
-        result = [validators.url(item['url']) for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
+    def test_comments(self):
+        link = 'https://news.novgorod.ru/news/nerabotayushchikh-pensionerov-zhdt-indeksaciya-pensiy--176964.html'
+        response = self.crawler.latest_comments(link)
+        self.assertTrue(len(response)>0)
 
-    def test_title(self):
-        result = [len(item['title'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_text(self):
-        result = [len(item['text'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_date(self):
-        result = [type(item['date']) == datetime.datetime for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-class Newsroom24TestClass(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.response = get_newsroom24()
-
-    def test_response(self):
-        self.assertTrue(len(self.response)>0)
+# class VNRuTestClass(TestCase):
+#     @classmethod
+#     def setUpTestData(cls):
+#         cls.crawler = VNRuCrawler()
     
-    def test_url(self):
-        result = [validators.url(item['url']) for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_title(self):
-        result = [len(item['title'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_text(self):
-        result = [len(item['text'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_date(self):
-        result = [type(item['date']) == datetime.datetime for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-class PravdannTestClass(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.response = get_pravdann()
-
-    def test_response(self):
-        self.assertTrue(len(self.response)>0)
+#     def test_posts(self):
+#         response = self.crawler.latest_posts()
+#         self.assertTrue(len(response)>0)
     
-    def test_url(self):
-        result = [validators.url(item['url']) for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_title(self):
-        result = [len(item['title'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_text(self):
-        result = [len(item['text'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_date(self):
-        result = [type(item['date']) == datetime.datetime for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-class ProgorodnnTestClass(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.response = get_progorodnn()
-
-    def test_response(self):
-        self.assertTrue(len(self.response)>0)
-    
-    def test_url(self):
-        result = [validators.url(item['url']) for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_title(self):
-        result = [len(item['title'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_text(self):
-        result = [len(item['text'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_date(self):
-        result = [type(item['date']) == datetime.datetime for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-class VgorodenTestClass(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.response = get_vgoroden()
-
-    def test_response(self):
-        self.assertTrue(len(self.response)>0)
-    
-    def test_url(self):
-        result = [validators.url(item['url']) for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_title(self):
-        result = [len(item['title'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_text(self):
-        result = [len(item['text'])>0 for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
-
-    def test_date(self):
-        result = [type(item['date']) == datetime.datetime for item in self.response]
-        self.assertEquals(result, len(self.response)*[True])
+#     async def test_comments(self):
+#         link = 'https://vnru.ru/news/52954-salamandra-zhivushchaya-v-veryazhskom-parke-uteplilas.html'
+#         response = await self.crawler.latest_comments(link)
+#         self.assertTrue(len(response)>0)

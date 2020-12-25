@@ -7,12 +7,7 @@ from core.processing.nlp import ner
 
 from core.models import Site, Article, Entity, EntityLink
 from core.crawlers import (
-    get_newsroom24,
-    get_vgoroden,
-    get_newsnn,
-    get_progorodnn,
-    get_koza,
-    get_pravdann
+    NovgorodRuCrawler,
 )
 
 logger = logging.getLogger(__name__)
@@ -57,50 +52,15 @@ def scrape_custom_sites():
     """
     logger.info('Start Custom Sites Scraping')
 
-    #newsroom24
-    site, _ = Site.objects.get_or_create(url='https://newsroom24.ru/archive/', title='newsroom24.ru', type='site')
-    logger.info(site)
-    result = get_newsroom24()
-    logger.info(f'Found articles {len(result)}')
-    if result is not None and len(result) > 0:
-        save_articles(result, site.url)
-
-    #vgoroden
-    site, _ = Site.objects.get_or_create(url='https://www.vgoroden.ru/', title='vgoroden.ru', type='site')
-    logger.info(site)
-    result = get_vgoroden()
-    logger.info(f'Found articles {len(result)}')
-    if result is not None and len(result) > 0:
-        save_articles(result, site.url)
-
-    #get_newsnn
-    site, _ = Site.objects.get_or_create(url='https://newsnn.ru/', title='newsnn.ru', type='site')
-    logger.info(site)
-    result = get_newsnn()
-    logger.info(f'Found articles {len(result)}')
-    if result is not None and len(result) > 0:
-        save_articles(result, site.url)
-
-    #get_progorodnn
-    site, _ = Site.objects.get_or_create(url='https://progorodnn.ru/news', title='progorodnn.ru', type='site')
-    logger.info(site)
-    result = get_progorodnn()
-    logger.info(f'Found articles {len(result)}')
-    if result is not None and len(result) > 0:
-        save_articles(result, site.url)
-
-    #get_koza
-    site, _ = Site.objects.get_or_create(url='https://koza.press/', title='koza.press', type='site')
-    logger.info(site)
-    result = get_koza()
-    logger.info(f'Found articles {len(result)}')
-    if result is not None and len(result) > 0:
-        save_articles(result, site.url)
-
-    #get_pravdann
-    site, _ = Site.objects.get_or_create(url='https://pravda-nn.ru/', title='pravda-nn.ru', type='site')
-    logger.info(site)
-    result = get_pravdann()
+    # NovgorodRuCrawler
+    crawler = NovgorodRuCrawler()
+    logger.info(crawler.domain)
+    site, _ = Site.objects.get_or_create(
+        url='https://news.novgorod.ru/news/',
+        title='«Новгород.ру»',
+        type='site'
+    )
+    result = crawler.latest_posts()
     logger.info(f'Found articles {len(result)}')
     if result is not None and len(result) > 0:
         save_articles(result, site.url)

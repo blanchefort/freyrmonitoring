@@ -1,8 +1,9 @@
 from django.template.response import TemplateResponse
+from django.http import HttpResponseNotFound, JsonResponse
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay
-from core.models.theme import Theme, ThemeArticles
-from core.models.article import Article
+from excel_response import ExcelResponse
+from core.models import Theme, ThemeArticles, ThemeMarkup, Article
 
 def index(request):
     """Стартовая страница
@@ -58,6 +59,7 @@ def info(request, event_id):
             negative_count += 1
     context = {
         'title': 'FreyrMonitoring',
+        'theme_id': theme.id,
         'page_title': theme.name,
         'articles': articles,
         'articles_neutral_count': neutral_count,
@@ -132,3 +134,40 @@ def info(request, event_id):
         'source_count': source_count,
     })
     return TemplateResponse(request, 'event_page.html', context=context)
+
+def excelview(request, event_id):
+    """Выборка по кластеру в виде эксель-файла
+
+    Args:
+        event_id (int): Идентификатор темы
+    """
+    try:
+        theme = Theme.objects.get(pk=event_id)
+        data = []
+        for item in ThemeArticles.objects.filter(theme_link=theme):
+            data.append({
+                'Дата публикации': item.article_link.publish_date,
+                'Ссылка': item.article_link.url,
+                'Заголовок': item.article_link.title,
+                'Тип источника': item.article_link.site.type,
+                'Тональность': item.article_link.sentiment,
+                'Лайки': item.article_link.likes
+            })
+        return ExcelResponse(data, f'FreyrMonitoring: Выборка по теме {theme.name}')
+    except Theme.DoesNotExist:
+        return HttpResponseNotFound('Такая тема не найдена!')
+
+def suggest_alt_title(request):
+    """Предложение альтернативного заголовка
+    """
+    try:
+        id = request.GET.get('id', None)
+        alt_title = request.GET.get('alt_title', None)
+        theme = Theme.objects.get(pk=id)
+        ThemeMarkup.objects.create(
+            theme=theme,
+            name=alt_title
+        )
+        return JsonResponse({'result': True})
+    except Theme.DoesNotExist:
+        return HttpResponseNotFound()

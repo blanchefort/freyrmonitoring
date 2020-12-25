@@ -1,5 +1,5 @@
 import vk_api
-from typing import List, Optional, Tuple, Dict
+from typing import List, Tuple, Dict
 from django.conf import settings
 import configparser
 import datetime

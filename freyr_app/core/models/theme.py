@@ -36,3 +36,23 @@ class ThemeArticles(models.Model):
     class Meta:
         verbose_name = 'Ссылка темы'
         verbose_name_plural = 'Ссылки тем'
+
+class ThemeMarkup(models.Model):
+    """Пользовательская разметка. 
+    Пользовательскае названия кластеров 
+    для обучения модели формирования заголовков.
+    """
+    theme = models.ForeignKey(Theme,
+        on_delete=models.SET_NULL,
+        related_name='theme_alt',
+        verbose_name='Тема',
+        null=True,
+        )
+    name = models.TextField(verbose_name='Альтернативный заголовок')
+
+    def __str__(self):
+        return str(self.name)
+    
+    class Meta:
+        verbose_name = 'Альтернативный заголовок темы'
+        verbose_name_plural = 'Альтернативные заголовоки тем'

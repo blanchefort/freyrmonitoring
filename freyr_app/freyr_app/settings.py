@@ -33,6 +33,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # ML MODELS
 ML_MODELS = os.path.join(BASE_DIR, 'ml_models')
 KALDI = os.path.join(ML_MODELS, 'kaldi')
+BATCH_SIZE = 20
 
 # SECURITY
 SECRET_KEY = config['DJANGO']['SECRET_KEY']
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core.apps.CoreConfig',
     'django_extensions',
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -135,13 +137,9 @@ LOGOUT_REDIRECT_URL = '/'
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 LANGUAGE_CODE = 'ru-RU'
-
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 # LOGGING

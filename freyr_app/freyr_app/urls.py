@@ -33,6 +33,8 @@ urlpatterns = [
     path('items/', items.index, name='items'),
     path('events/', events.index, name='events'),
     path('events/<int:event_id>', events.info, name='event_info'),
+    path('events/excel/<int:event_id>', events.excelview, name='event_excel'),
+    path('events/alt_title/', events.suggest_alt_title, name='event_alt_title'),
     # AUTH
     path('accounts/', include('django.contrib.auth.urls')),
 ]

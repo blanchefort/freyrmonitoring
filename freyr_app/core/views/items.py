@@ -15,7 +15,7 @@ def index(request):
     articles = paginator.get_page(page)
     context = {
         'title': 'FreyrMonitoring',
-        'page_title': 'Источники для анализа',
+        'page_title': 'Статьи в индексе',
         'articles': articles,
         'neutral_count': neutral_count,
         'positive_count': positive_count,
