@@ -84,7 +84,10 @@ def index(request):
         if ThemeArticles.objects.filter(theme_link=e).count() > theme_count:
             theme_count = ThemeArticles.objects.filter(theme_link=e).count()
             top_theme = e
-    theme_articles = ThemeArticles.objects.filter(theme_link=top_theme).order_by('id')[:5]
+    if top_theme == None:
+        theme_articles = []
+    else:
+        theme_articles = ThemeArticles.objects.filter(theme_link=top_theme).order_by('id')[:5]
     
     context = {
         'title': 'FreyrMonitoring',
@@ -110,7 +113,7 @@ def index(request):
     # NPS = # Promoters - # Detractors / # Votes * 100
     # У нас:
     # (pos - neg) / total * 100
-    total = Article.objects.filter(theme=True).count()
+    total = Article.objects.filter(theme=True).count() + 1e-8
     pos = Article.objects.filter(theme=True).filter(sentiment=1).count()
     neg = Article.objects.filter(theme=True).filter(sentiment=2).count()
     loyalty_index = pos - neg

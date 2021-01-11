@@ -13,14 +13,14 @@ def index(request):
         t = {}
         t['id'] = theme.id
         t['name'] = theme.name
-        earliest = ThemeArticles.objects.filter(theme_link=theme).order_by('article_link__publish_date')[0]
+        earliest = ThemeArticles.objects.filter(theme_link=theme).filter(article_link__theme=True).order_by('article_link__publish_date')[0]
         t['start'] = Article.objects.get(id=earliest.article_link.id).publish_date
-        latest =  ThemeArticles.objects.filter(theme_link=theme).order_by('-article_link__publish_date')[0]
+        latest =  ThemeArticles.objects.filter(theme_link=theme).filter(article_link__theme=True).order_by('-article_link__publish_date')[0]
         t['end'] = Article.objects.get(id=latest.article_link.id).publish_date
-        t['article_count'] = ThemeArticles.objects.filter(theme_link=theme).count()
+        t['article_count'] = ThemeArticles.objects.filter(theme_link=theme).filter(article_link__theme=True).count()
         t['comment_count'] = 0
         pos, neg, likes = 0, 0, 0
-        for item in ThemeArticles.objects.filter(theme_link=theme):
+        for item in ThemeArticles.objects.filter(theme_link=theme).filter(article_link__theme=True):
             item = Article.objects.get(id=item.article_link.id)
             if item.sentiment == 1:
                 pos += 1

@@ -8,9 +8,9 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+# build/
 develop-eggs/
-dist/
+# dist/
 downloads/
 eggs/
 .eggs/
@@ -132,6 +132,10 @@ dmypy.json
 migrations/
 ml_models/
 .vscode/
-static/
+static_files/
 tensors/
 config.ini
+debug.log
+*.session
+audio_cache/
+.virtual_documents/

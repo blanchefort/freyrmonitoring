@@ -206,7 +206,10 @@ def clustering(delta_hours=5):
     delta_hours - за сколько предыдущих часов брать статьи из БД для кластеризации.
     """
     logger.info('Start Clustering')
-    themes = Theme.objects.all()
+    start_date = timezone.now()
+    end_date = timezone.now() + datetime.timedelta(hours=-5*24)
+    themes = Theme.objects.filter(
+        theme_articles__article_link__publish_date__range=[end_date, start_date])
     tsc = TextStreamClustering()
     if len(themes) == 0:
         logger.info('New Clustering')

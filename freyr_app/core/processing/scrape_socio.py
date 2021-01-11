@@ -9,13 +9,20 @@ from core.processing.predictor import DefineText
 from core.processing.nlp import ner
 
 from core.models import Site, Article, Entity, EntityLink, Comment
-from core.crawlers import VKParser, InstaParser, OKParser, TwitterParser, YTParser
+from core.crawlers import (
+    VKParser,
+    InstaParser,
+    OKParser,
+    TwitterParser,
+    YTParser,
+    TelegaParser)
 
 logger = logging.getLogger(__name__)
 vk = VKParser()
 insta = InstaParser(set_proxy=False)
 ok = OKParser()
 twi = TwitterParser()
+telega = TelegaParser()
 
 config = configparser.ConfigParser()
 config.read(settings.CONFIG_INI_PATH)
@@ -75,6 +82,8 @@ def save_articles(articles, site):
                     theme=t,
                     sentiment=s,
                     likes=item.get('likes', 0),
+                    dislikes=item.get('dislikes', 0),
+                    views=item.get('views', 0),
                 )
                 # Сущности
                 if t == 1:
@@ -184,7 +193,7 @@ def collect_socio_posts():
                 logger.warning(f'Cant catch data from {site.url}')
     logger.info('Stop socio posts collecting')
 
-def collect_commets():
+def collect_comments():
     """Собираем комментарии к сохранённым постам.
     Временной лаг - неделя
     """
@@ -244,3 +253,21 @@ def collect_commets():
                 logger.warning(f'Cant get comments for {post.url}')
             if len(comments) > 0:
                 save_comments(comments, post)
+
+async def collect_telega_posts():
+    """Собираем последние сообщения из Телеграма
+    """
+    logger.info('START TELEGRAM POSTS COLECCTION')
+    channels = Site.objects.filter(type='telega')
+    for channel in channels:
+        logger.info(f'CHANNEL: {channel}')
+        results = []
+        try:
+            results = await telega.last_messages(channel.url)
+        except:
+            logger.error(f'CANT GET DATA FOR TG-CHANNEL {channel}')
+        
+        if len(results) > 0:
+            save_articles(results, channel)
+    
+    logger.info('TELEGRAM POSTS COLECCTION COMPLETE')

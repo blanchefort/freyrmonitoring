@@ -35,12 +35,11 @@
              <div class="col-lg-12">
                  
           <!-- Default box -->
-            <div class="card">
+            <!-- <div class="card">
               <div class="card-body">
                 Источниками для анализа реакции жителей региона являются статьи информационных ресурсов, а также посты и видеоролики в социальных сетях. Здесь представлен список всех данных, собранных системой за время работы.
               </div>
-              <!-- /.card-body -->
-            </div>
+            </div> -->
             <!-- /.card -->
              
           </div>
@@ -122,7 +121,11 @@
                 <div class="card card-info card-outline">
                 {%endif%}
                     <div class="card-header">
+                        {% if a.title == '(без заголовка)' %}
+                        <a href="{{a.url}}" class="text-lg">{{a.site.title}}</a>
+                        {%else%}
                         <a href="{{a.url}}" class="text-lg">{{a.title}}</a>
+                        {%endif%}
                     </div>
                     <div class="card-body">
                         <p>{{a.text|truncatechars:300}}</p>
@@ -136,12 +139,12 @@
                         <span class="mr-3">
                             <i class="fas fa-thumbs-up"></i> <span class="badge bg-success">{{a.likes}}</span>
                         </span>
-                        <span class="mr-3">
-                            <i class="far fa-eye"></i> <span class="badge bg-success">{{a.likes}}</span>
+                        <!-- <span class="mr-3">
+                            <i class="far fa-eye"></i> <span class="badge bg-success">{{a.views}}</span>
                         </span>
                         <span class="mr-3">
                             <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.likes}}</span>
-                        </span>
+                        </span> -->
                     </div>
                 </div>
             {%endfor%}

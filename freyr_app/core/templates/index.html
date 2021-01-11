@@ -118,7 +118,10 @@
               <div class="card-header">
                 <h3 class="card-title">
                   <i class="far fa-chart-bar"></i>
-                  Самая популярная тема: {{top_theme.name}}
+                  Самая популярная тема:
+                  {% if top_theme.id > 0 %}
+                  <a href="{% url 'event_info' top_theme.id %}">{{top_theme.name}}</a>
+                  {% endif %}
                 </h3>
 
                 

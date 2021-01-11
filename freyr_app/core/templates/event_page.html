@@ -134,58 +134,6 @@
             </div>
         </div>
 
-        <div class="row"> 
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row"><h3>Тональность комментариев к статьям</h3></div>
-                        <div class="row">
-                            <div class="col-12 col-sm-6 col-md-4">
-                                <div class="info-box mb-3">
-                                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-thumbs-up"></i></span>
-                                    
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Положительных</span>
-                                        <span class="info-box-number">{{articles_positive_count}}</span>
-                                    </div>
-                                <!-- /.info-box-content -->
-                                </div>
-                            <!-- /.info-box -->
-                            </div>
-
-                            <div class="col-12 col-sm-6 col-md-4">
-                                <div class="info-box mb-3">
-                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-comment"></i></span>
-                                    
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Нейтральных</span>
-                                        <span class="info-box-number">{{articles_neutral_count}}</span>
-                                    </div>
-                                <!-- /.info-box-content -->
-                                </div>
-                            <!-- /.info-box -->
-                            </div>
-
-                            <div class="col-12 col-sm-6 col-md-4">
-                                <div class="info-box mb-3">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-down"></i></span>
-                                    
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Отрицательных</span>
-                                        <span class="info-box-number">{{articles_negative_count}}</span>
-                                    </div>
-                                <!-- /.info-box-content -->
-                                </div>
-                            <!-- /.info-box -->
-                            </div>
-                            
-                        </div>
-                    <!-- /.card-body -->
-                    </div>
-                <!-- /.card -->
-                </div>
-            </div>
-        </div>
         
         <div class="row"> 
             <div class="col-lg-12">
@@ -243,12 +191,12 @@
                         <span class="mr-3">
                             <i class="fas fa-thumbs-up"></i> <span class="badge bg-success">{{a.likes}}</span>
                         </span>
-                        <span class="mr-3">
+                        <!-- <span class="mr-3">
                             <i class="far fa-eye"></i> <span class="badge bg-success">{{a.likes}}</span>
                         </span>
                         <span class="mr-3">
                             <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.likes}}</span>
-                        </span>
+                        </span> -->
                     </div>
                 </div>
             {%endfor%}

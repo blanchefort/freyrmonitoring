@@ -9,7 +9,7 @@ def index(request):
     ents = []
     objs = Entity.objects.filter(type='ORG')
     for e in objs:
-        if EntityLink.objects.filter(entity_link=e).count() >= 5:
+        if EntityLink.objects.filter(entity_link=e).count() >= 2:
             ents.append(e)
     context = {
         'title': 'FreyrMonitoring',
@@ -44,5 +44,5 @@ def org_page(request, ent_id):
         'positive_count': positive_count,
         'negative_count': negative_count,
     }
-    return TemplateResponse(request, 'entity_page.html', context=context)
+    return TemplateResponse(request, 'items.html', context=context)
     

@@ -7,3 +7,4 @@ from .yt import YTParser
 from .insta import InstaParser
 from .ok import OKParser
 from .twitter import TwitterParser
+from .telega import TelegaParser

@@ -37,23 +37,23 @@
                     <div class="card-body box-profile">
                         <div class="text-center">
                             <img class="profile-user-img img-fluid img-circle"
-                                src="{% static 'AdminLTE/dist/img/user4-128x128.jpg' %}"
+                                src="{% static 'AdminLTE/dist/img/boxed-bg.jpg' %}"
                                 alt="Person profile picture">
                         </div>
                         <h3 class="profile-username text-center">{{page_title}}</h3>
-                        <p class="text-muted text-center">Linked Data</p>
+                        <!-- <p class="text-muted text-center">Linked Data</p>
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
-                                <b>Followers</b> <a class="float-right">1,322</a>
+                                <b>Позитив</b> <a class="float-right">{{positive_count}}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Following</b> <a class="float-right">543</a>
+                                <b>Нейтрально</b> <a class="float-right">{{neutral_count}}</a>
                             </li>
                             <li class="list-group-item">
-                                <b>Friends</b> <a class="float-right">13,287</a>
+                                <b>Негатив</b> <a class="float-right">{{negative_count}}</a>
                             </li>
                         </ul>
-                        <a href="#" class="btn btn-info btn-block"><b>Добавить ссылку</b></a>
+                        <a href="#" class="btn btn-info btn-block"><b>Добавить ссылку</b></a> -->
                     </div>
                 </div>
                 <!--/ Profile Card -->
@@ -63,9 +63,15 @@
                 <div class="row">
                     <div class="col-md-6">
                         <!--Loyalty Index Plate-->
+                        {% if loyalty_type == 'bad' %}
+                        <div class="small-box bg-danger">
+                        {% elif loyalty_type == 'good' %}
                         <div class="small-box bg-success">
+                        {%else%}
+                        <div class="small-box bg-warning">
+                        {%endif%}
                             <div class="inner">
-                                <b style="font-size: 400%;">- 17,2</b>
+                                <b style="font-size: 400%;">{{loyalty_index|floatformat}}</b>
                                 <p>Индекс лояльности</p>
                             </div>
                             <div class="icon">
@@ -73,7 +79,7 @@
                             </div>
                             <div class="small-box-footer">
                                 <i class="fas fa-tachometer-alt"></i>
-                                Место в рейтинге: 325
+                                Место в рейтинге: 1
                             </div>
                         </div>
                         <!--/ Loyalty Index Plate-->
@@ -82,7 +88,7 @@
                         <!-- Significance Index Plate-->
                         <div class="small-box bg-success">
                             <div class="inner">
-                                <b style="font-size: 400%;">- 17,2</b>
+                                <b style="font-size: 400%;">{{significance_index|floatformat}}</b>
                                 <p>Индекс значимости</p>
                             </div>
                             <div class="icon">
@@ -90,27 +96,27 @@
                             </div>
                             <div class="small-box-footer">
                                 <i class="fas fa-tachometer-alt"></i>
-                                Место в рейтинге: 325
+                                Место в рейтинге: 1
                             </div>
                         </div>
                         <!-- / Significance Index Plate-->
                     </div>
                 </div>
-                <!--Chronology-->
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card card-info card-outline">
-                            <div class="card-body">
-                                <h5>Динамика сообщений</h5>
-                                <canvas id="timeseries" height="135"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--Chronology-->   
+                <!-- chr -->
             </div>
         </div>
-        
+        <!--Chronology-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-info card-outline">
+                    <div class="card-body">
+                        <h5>Динамика сообщений</h5>
+                        <canvas id="totalStat" height="135"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Chronology-->   
         <!--Article List-->
         <div class="row">
             <div class="col-lg-12">
@@ -123,7 +129,11 @@
                 <div class="card card-info card-outline">
                 {%endif%}
                     <div class="card-header">
+                        {% if a.title == '(без заголовка)' %}
+                        <a href="{{a.url}}" class="text-lg">{{a.site.title}}</a>
+                        {%else%}
                         <a href="{{a.url}}" class="text-lg">{{a.title}}</a>
+                        {%endif%}
                     </div>
                     <div class="card-body">
                         <p>{{a.text|truncatechars:300}}</p>
@@ -137,12 +147,12 @@
                         <span class="mr-3">
                             <i class="fas fa-thumbs-up"></i> <span class="badge bg-success">{{a.likes}}</span>
                         </span>
-                        <span class="mr-3">
+                        <!-- <span class="mr-3">
                             <i class="far fa-eye"></i> <span class="badge bg-success">{{a.likes}}</span>
                         </span>
                         <span class="mr-3">
                             <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.likes}}</span>
-                        </span>
+                        </span> -->
                     </div>
                 </div>
             {%endfor%}
@@ -167,4 +177,66 @@
   <!-- /.control-sidebar -->
 
 
-{% include 'footer.html' %}
+<!-- Footer Start -->
+<!-- Main Footer -->
+<footer class="main-footer">
+    <!-- To the right -->
+    <div class="float-right d-none d-sm-inline text-info">
+      FreyrMonitoring <i class="fas fa-balance-scale-left"></i> система мониторинга общественного мнения.
+    </div>
+    <!-- Default to the left -->
+    <strong> <a href="https://tlgg.ru/blanchefort"><i class="fas fa-cat"></i>Заказать внедрение</a>.</strong>
+  </footer>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+<!-- jQuery -->
+<script src="{% static 'AdminLTE/plugins/jquery/jquery.min.js' %}"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'AdminLTE/dist/js/adminlte.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+<script>
+    var ctx = document.getElementById('totalStat').getContext('2d');
+    ctx.height = 135;
+    var totalStat = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: [{%for d in days%}'{{d}}', {%endfor%}],
+            datasets: [{
+                label: "Позитивные",
+                backgroundColor: 'rgba(133, 199, 0, 0.5)',
+                borderColor: 'rgba(74, 159, 0, 0.9)',
+                borderWidth: 1,
+                data: [{%for d in counts_positive%}'{{d}}', {%endfor%}],
+            },
+                {
+                label: "Нейтральные",
+                backgroundColor: 'rgba(74, 159, 198, 0.5)',
+                borderColor: 'rgba(39, 48, 170, 0.9)',
+                borderWidth: 1,
+                data: [{%for d in counts_neutral%}'{{d}}', {%endfor%}],
+            },
+                {
+                label: "Негативные",
+                backgroundColor: 'rgba(236, 98, 84, 0.5)',
+                borderColor: 'rgba(179, 34, 27, 0.9)',
+                borderWidth: 1,
+                data: [{%for d in counts_negative%}'{{d}}', {%endfor%}],
+            }
+                    ]
+        },
+
+        // Configuration options go here
+        options: {}
+    });
+</script>
+</body>
+</html>
