@@ -53,9 +53,9 @@ class InstaParser:
         return result
     
     def get_comments_by_id(self, post_id: str) -> List[Dict]:
-        """Получаем последние 10.000 комментариев к посту по ID
+        """Получаем последние 100 комментариев к посту по ID
         """
-        comments = self.instagram.get_media_comments_by_id(post_id, 10000)
+        comments = self.instagram.get_media_comments_by_id(post_id, 100)
         result = []
         if 'comments' in comments:
             for comment in comments['comments']:
@@ -70,7 +70,7 @@ class InstaParser:
         return result
     
     def get_comments_by_code(self, code: str) -> List[Dict]:
-        """Получаем последние 10.000 комментариев к посту по коду
+        """Получаем последние 100 комментариев к посту по коду
         (Работает через раз)
         Args:
             code (str): Код поста
@@ -78,7 +78,7 @@ class InstaParser:
         Returns:
             List[Dict]: Список комментариев с мета-информацией
         """
-        comments = self.instagram.get_media_comments_by_code(code, 10000)
+        comments = self.instagram.get_media_comments_by_code(code, 100)
         result = []
         if 'comments' in comments:
             for comment in comments['comments']:

@@ -5,10 +5,7 @@ import datetime
 from django.conf import settings
 from django.utils import timezone
 
-from core.processing.predictor import DefineText
-from core.processing.nlp import ner
-
-from core.models import Site, Article, Entity, EntityLink, Comment
+from core.models import Site, Article, Comment
 from core.crawlers import (
     VKParser,
     InstaParser,
@@ -31,6 +28,23 @@ yt = YTParser(
     audio_path=settings.AUDIO_PATH,
     kaldi_path=settings.KALDI
     )
+
+def create_datetime(value):
+    if isinstance(value, datetime.datetime) and timezone.is_aware(value):
+        return value
+    else:
+        current_tz = timezone.get_current_timezone()
+        return current_tz.localize(value)
+
+def views_as_number(views):
+    if type(views) == int:
+        return views
+    if type(views) == float:
+        return int(views)
+    if 'K' in views:
+        views = views.replace('K', '')
+        views = float(views) * 1_000
+    return int(float(views))
 
 def save_comments(comments, post):
     """Сохраняем комментарии определённого поста
@@ -57,43 +71,29 @@ def save_articles(articles, site):
     """Сохраняем статьи ресурса
     """
     logger.info('Save posts start')
-    texts = [item['text'] for item in articles if len(item['text']) > 0]
-    logger.info(f'Count of texts: {len(texts)}')
-    themes, sentiments = [], []
-    if len(texts) > 0:
-        dt = DefineText(texts=texts, model_path=settings.ML_MODELS)
-        themes, _ = dt.article_theme()
-        sentiments, _ = dt.article_sentiment()
-
-        current_tz = timezone.get_current_timezone()
-
-        for item, t, s in zip(articles, themes, sentiments):
+    if len(articles) > 0:
+        for item in articles:
             if Article.objects.filter(url=item['url']).count() == 0:
-                try:
-                    date = current_tz.localize(item['date'])
-                except:
-                    date = item['date']
-                article_id = Article.objects.create(
+                date = create_datetime(item['date'])
+                Article.objects.create(
                     url=item['url'],
                     site=site,
                     title=item.get('title', '(без заголовка)'),
                     text=item.get('text', '(без текста)'),
                     publish_date=date,
-                    theme=t,
-                    sentiment=s,
-                    likes=item.get('likes', 0),
-                    dislikes=item.get('dislikes', 0),
-                    views=item.get('views', 0),
+                    theme=False,
+                    sentiment=9,
+                    likes=views_as_number(item.get('likes', 0)),
+                    dislikes=views_as_number(item.get('dislikes', 0)),
+                    views=views_as_number(item.get('views', 0)),
                 )
-                # Сущности
-                if t == 1:
-                    entities = ner(item['text'])
-                    for entity in entities:
-                        obj, created = Entity.objects.get_or_create(name=entity[0], type=entity[1])
-                        EntityLink.objects.create(
-                            entity_link=obj,
-                            article_link=article_id
-                        )
+            else:
+                article = Article.objects.filter(url=item['url'])
+                article.update(
+                    likes=views_as_number(item.get('likes', 0)),
+                    dislikes=views_as_number(item.get('dislikes', 0)),
+                    views=views_as_number(item.get('views', 0)),
+                )
     logger.info('Saving posts complete!')
 
 def collect_socio_posts():
@@ -164,7 +164,7 @@ def collect_socio_posts():
                     save_articles(result, site)
 
     # Ютуб
-    # TODO: Изменить дату публикации 
+    # TODO: Проверить дату публикации 
     sites = Site.objects.filter(type='youtube')
     if len(sites) > 0:
         logger.info('Start youtube')
@@ -175,22 +175,21 @@ def collect_socio_posts():
                 for link in latest_links:
                     if Article.objects.filter(url=link['url']).count() == 0:
                         text, description = yt.video2data(link['url'])
-                        if len(text) > 0 and len(description) > 0:
-                            dt = DefineText(texts=[text], model_path=settings.ML_MODELS)
-                            theme, _ = dt.article_theme()
-                            sentiment, _ = dt.article_sentiment()
-                            Article.objects.create(
-                                url=description['webpage_url'],
-                                site=site,
-                                title=description['title'],
-                                text=text,
-                                publish_date=timezone.now(),
-                                theme=theme[0],
-                                sentiment=sentiment[0],
-                                likes=description['like_count'],
-                            )
+                        result.append({
+                            'url': link['url'],
+                            'title': description['title'],
+                            'text': text,
+                            'date': description['upload_date'],
+                            'likes': description['like_count'],
+                            'dislikes': description['dislike_count'],
+                            'views': description['view_count'],
+                        })
             except:
                 logger.warning(f'Cant catch data from {site.url}')
+            
+            if len(result) > 0:
+                    save_articles(result, site)
+
     logger.info('Stop socio posts collecting')
 
 def collect_comments():

@@ -20,7 +20,8 @@ class Article(models.Model):
     SENTIMENT_TYPES = (
         (0, 'Нейтральный'),
         (1, 'Положительный'),
-        (2, 'Отрицательный')
+        (2, 'Отрицательный'),
+        (9, 'Не размечен'),
     )
 
     url = models.URLField(verbose_name='URL статьи', max_length=512, unique=True)
@@ -39,6 +40,12 @@ class Article(models.Model):
     theme = models.BooleanField(verbose_name='В индексе отслеживания', default=False)
     sentiment = models.PositiveSmallIntegerField(
         verbose_name='Тональность',
+        blank=True,
+        null=True,
+        choices=SENTIMENT_TYPES
+    )
+    happiness_sentiment = models.PositiveSmallIntegerField(
+        verbose_name='Тональность для индекса счастья',
         blank=True,
         null=True,
         choices=SENTIMENT_TYPES

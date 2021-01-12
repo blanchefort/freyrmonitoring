@@ -1,4 +1,4 @@
-from .freyr_crawler import FreyrCrawler
+from ..freyr_crawler import FreyrCrawler
 from dateutil import parser
 import re
 

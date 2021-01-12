@@ -11,10 +11,8 @@ os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 import time
 import schedule
 import logging
-from asgiref.sync import async_to_sync, sync_to_async
 import asyncio
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from core.processing.clustering import clustering
@@ -23,14 +21,19 @@ from core.processing.scrape_socio import (
     collect_socio_posts,
     collect_comments,
     collect_telega_posts)
-from core.crawlers import TelegaParser
-from core.models import Site
 
+from core.processing.markup_content import (
+    create_titles,
+    markup_theme,
+    article_happiness,
+    comment_sentiment,
+)
 
 logger = logging.getLogger(__name__)
 
-
-def job():
+def clustering_step():
+    """Кластеризация
+    """
     logger.info('START CLUSTERING')
     try:
         clustering(delta_hours=24*5)
@@ -38,29 +41,54 @@ def job():
         logger.error('CLUSTERING FAILED')
 
 def tg_run():
+    """Сбор данных их Телеграма
+    """
     loop = asyncio.get_event_loop()
     loop.run_until_complete(collect_telega_posts())
+
+def crawler_step():
+    """Полный цикл сбора информации
+    """
+    logger.info('START CRAWLER')
+    tg_run()
+    collect_socio_posts()
+    scrape_custom_sites()
+    collect_comments()
+    logger.info('STOP CRAWLER')
+
+def processing_step():
+    """Полный цикл обработки собранной информации
+    """
+    logger.info('START CONTENT PROCESSING')
+    create_titles()
+    markup_theme()
+    article_happiness()
+    comment_sentiment()
+    logger.info('END CONTENT PROCESSING')
 
 class Command(BaseCommand):
     help = 'Запуск сборщика данных по расписанию'
 
     def handle(self, *args, **kwargs):
-        logger.info('START CRAWLER')
-        #tg_run()
-        # await collect_telega_posts()
-        # tg()
-        # sync_to_async(collect_telega_posts)
-        
-        # schedule.every(1).hours.do(collect_telega_posts)
-        # schedule.every(1).hours.do(collect_comments)
-        # schedule.every(2).hours.do(collect_socio_posts)
+        schedule.every().day.at('05:20').do(crawler_step)
+        schedule.every().day.at('06:00').do(processing_step)
+        schedule.every().day.at('08:00').do(clustering_step)
 
-        schedule.every().day.at('21:50').do(tg_run)
-        # schedule.every().day.at('08:00').do(job)
+        schedule.every().day.at('09:00').do(crawler_step)
+        schedule.every().day.at('10:30').do(processing_step)
 
-        # schedule.every().day.at('10:00').do(collect_socio_posts)
-        # schedule.every().day.at('10:30').do(job)
+        schedule.every().day.at('12:00').do(crawler_step)
+        schedule.every().day.at('13:00').do(processing_step)
+        schedule.every().day.at('14:30').do(clustering_step)
 
+        schedule.every().day.at('15:00').do(crawler_step)
+        schedule.every().day.at('16:30').do(processing_step)
+
+        schedule.every().day.at('18:00').do(crawler_step)
+        schedule.every().day.at('19:00').do(processing_step)
+
+        schedule.every().day.at('23:00').do(crawler_step)
+        schedule.every().day.at('02:00').do(processing_step)
 
         while True:
             schedule.run_pending()

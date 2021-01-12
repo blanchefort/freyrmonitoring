@@ -8,7 +8,7 @@ class Comment(models.Model):
         (0, 'Нейтральный'),
         (1, 'Положительный'),
         (2, 'Отрицательный'),
-        (3, 'Не размечен')
+        (9, 'Не размечен'),
     )
     article = models.ForeignKey(Article,
         on_delete=models.SET_NULL,

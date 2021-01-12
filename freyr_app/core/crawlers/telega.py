@@ -42,7 +42,7 @@ class TelegaParser:
                 await client.connect()
                 client(JoinChannelRequest(channel))
                 channel_item = await client.get_entity(channel)
-                async for message in client.iter_messages(channel_item, limit=100):
+                async for message in client.iter_messages(channel_item, limit=1000):
                     if len(message.message) > 1:
                         result.append({
                             # https://t.me/rt_russian/56086
