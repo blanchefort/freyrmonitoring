@@ -2,6 +2,7 @@ from pyyoutube import Api
 from vosk import Model, KaldiRecognizer
 import json
 import os
+import datetime
 import subprocess
 import time
 import youtube_dl
@@ -57,7 +58,7 @@ class YTParser:
             'uploader_url': description['uploader_url'],
             'channel_id': description['channel_id'],
             'channel_url': description['channel_url'],
-            'upload_date': description['upload_date'],
+            'upload_date': datetime.datetime.strptime(description['upload_date'], "%Y%m%d"),
             'title': description['title'],
             'description': description['description'],
             'webpage_url': description['webpage_url'],

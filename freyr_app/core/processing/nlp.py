@@ -1,3 +1,4 @@
+import os
 import re
 from razdel import sentenize
 from natasha import (Doc, 
@@ -6,12 +7,19 @@ from natasha import (Doc,
                      Segmenter, 
                      MorphVocab, 
                      NewsMorphTagger)
+import networkx as nx
+from nltk.stem.snowball import SnowballStemmer
+
+from django.conf import settings
 
 emb = NewsEmbedding()
 ner_tagger = NewsNERTagger(emb)
 segmenter = Segmenter()
 morph_vocab = MorphVocab()
 morph_tagger = NewsMorphTagger(emb)
+
+stemmer = SnowballStemmer('russian')
+G = nx.read_edgelist(path=os.path.join(settings.ML_MODELS, 'geograph.edgelist'), delimiter=':')
 
 def lemmatize(text):
     doc = Doc(text)
@@ -22,7 +30,9 @@ def lemmatize(text):
         token.lemmatize(morph_vocab)
     return [token.lemma for token in doc.tokens]
 
-def ner(text):
+def ner(text: str) -> set:
+    """Распознавание именованных сущностей
+    """
     doc = Doc(text)
     doc.segment(segmenter)
     doc.tag_ner(ner_tagger)
@@ -34,14 +44,10 @@ def ner(text):
         span.normalize(morph_vocab)
     ner_tokens = []
     for span in doc.spans:
-        if span.type in ['PER', 'LOC']:
-            tok = ''
-            for token in span.tokens:
-                tok += ' ' + token.lemma.upper()
-            ner_tokens.append((tok.strip(), span.type))
+        if len(span.normal) > 0:
+            ner_tokens.append((span.normal, span.type))
         else:
-            ner_tokens.append((span.normal.upper(), span.type))
-    
+            ner_tokens.append((span.text, span.type))
     return set(ner_tokens)
 
 def get_title(text: str) -> str:
@@ -86,3 +92,25 @@ def deEmojify(text: str) -> str:
     text = text.replace('**', ' ')
     text = text.replace('__', ' ')
     return text.strip()
+
+def get_district(location: str) -> str:
+    """Получаем муниципалитет, к которому относится локация
+
+    Args:
+        location (str): [description]
+
+    Returns:
+        str: [description]
+    """
+    location_variants = (
+        location,
+        stemmer.stem(location),
+    )
+    region = [n for n in G.neighbors('Россия')][0]
+    for location in location_variants:
+        if location in G:
+            path = nx.dijkstra_path(G, location, region)
+            if len(path) == 1:
+                return 'region'
+            return path[-2].split(',')[0]
+    return False

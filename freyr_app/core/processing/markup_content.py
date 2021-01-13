@@ -1,8 +1,18 @@
 """Размечаем неразмеченный контент
 """
 import logging
-from core.models import Article, Category, ArticleCategory, Comment
-from core.processing.nlp import get_title, deEmojify
+from nltk.metrics import distance
+from core.models import (
+    Article,
+    Category,
+    ArticleCategory,
+    Comment,
+    District,
+    ArticleDistrict,
+    Entity,
+    EntityLink
+)
+from core.processing.nlp import get_title, deEmojify, ner, get_district
 from core.processing.predictor import DefineText
 
 logger = logging.getLogger(__name__)
@@ -30,6 +40,8 @@ def markup_theme():
             article.theme = bool(theme)
             article.sentiment = sentiment
             article.save()
+    # Сущности
+    ner_articles(articles)
 
 def article_happiness():
     """Разметка тональность статей для индекса благополучия
@@ -52,6 +64,9 @@ def article_happiness():
                 ).save()
             article.happiness_sentiment = sentiment
             article.save()
+        
+        # привязка к муниципалитетам
+        localize(articles)
 
 
 def comment_sentiment():
@@ -69,7 +84,39 @@ def comment_sentiment():
             comment.sentiment = sentiment
             comment.save()
 
-def ner():
+def ner_articles(articles: Article):
     """Извлечение именованных сущностей из размеченных статей
     """
-    pass
+    for article in articles:
+        entities = ner(article.text)
+        for ent in entities:
+            if ent[1] in ('PER', 'LOC', 'ORG', ) and ent[0] is not None:
+                entity, _ = Entity.objects.get_or_create(
+                    name=ent[0],
+                    type=ent[1]
+                )
+                EntityLink(
+                    entity_link=entity,
+                    article_link=article
+                ).save()
+
+def localize(articles: Article):
+    """Выявление муниципалитетов, о которых идёт речь в статьях
+    """
+    districts = District.objects.all()
+    for article in articles:
+        entities = ner(article.text)
+        for ent in entities:
+            if ent[1] == 'LOC' and ent[0] is not None:
+                location = get_district(ent[0])
+                if location is not False:
+                    for district in districts:
+                        location = location.replace('Город', '').strip().lower()
+                        dist = distance.edit_distance(location, district.name.lower())
+                        if dist < 2:
+                            ArticleDistrict(
+                                article=article,
+                                district=district
+                            ).save()
+                            break
+

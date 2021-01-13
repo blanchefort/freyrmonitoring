@@ -1,22 +1,17 @@
 """freyr_app URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
 from django.urls import path, include
 
-from core.views import index, sources, persons, orgs, items, events
+from core.views import (
+    index,
+    sources,
+    persons,
+    orgs,
+    items,
+    events,
+    happiness
+)
 
 urlpatterns = [
     # ADMIN
@@ -35,6 +30,7 @@ urlpatterns = [
     path('events/<int:event_id>', events.info, name='event_info'),
     path('events/excel/<int:event_id>', events.excelview, name='event_excel'),
     path('events/alt_title/', events.suggest_alt_title, name='event_alt_title'),
+    path('happiness/', happiness.index, name='happiness'),
     # AUTH
     path('accounts/', include('django.contrib.auth.urls')),
 ]

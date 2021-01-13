@@ -2,7 +2,6 @@ from django.template.response import TemplateResponse
 from core.models.article import Article
 from core.models.entity import Entity, EntityLink
 from core.models.theme import Theme, ThemeArticles
-from django.db.models import Count
 from datetime import date, timedelta
 
 

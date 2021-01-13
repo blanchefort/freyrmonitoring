@@ -10,7 +10,8 @@ from .models import (
     ThemeMarkup,
     Comment,
     Category,
-    ArticleCategory
+    ArticleCategory,
+    District
 )
 
 from import_export import resources
@@ -30,7 +31,7 @@ class CommentResource(resources.ModelResource):
 
 class ArticleAdmin(ImportExportModelAdmin):
     resource_class = ArticleResource
-    list_display = ('title',  'publish_date', 'theme', 'sentiment')
+    list_display = ('publish_date', 'title', 'theme', 'sentiment')
     date_hierarchy = 'publish_date'
 
 class EntityAdmin(ImportExportModelAdmin):
@@ -39,6 +40,7 @@ class EntityAdmin(ImportExportModelAdmin):
 class CommentAdmin(ImportExportModelAdmin):
     resource_class = CommentResource
     list_display = ('publish_date', 'text', 'sentiment')
+    date_hierarchy = 'publish_date'
 
 admin.site.register(Site)
 admin.site.register(Article, ArticleAdmin)
@@ -50,3 +52,4 @@ admin.site.register(ThemeMarkup)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Category)
 admin.site.register(ArticleCategory)
+admin.site.register(District)

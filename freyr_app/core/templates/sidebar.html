@@ -67,22 +67,31 @@
           {% endif %}
             
             <li class="nav-item">
-            <a href="{% url 'persons' %}" class="nav-link">
-              <i class="nav-icon fas fa-user"></i>
-              <p>
-                Персоны
-              </p>
-            </a>
-          </li>
+              <a href="{% url 'persons' %}" class="nav-link">
+                <i class="nav-icon fas fa-user"></i>
+                <p>
+                  Персоны
+                </p>
+              </a>
+            </li>
             
             <li class="nav-item">
-            <a href="{% url 'orgs' %}" class="nav-link">
-              <i class="nav-icon fas fa-university"></i>
-              <p>
-                Организации
-              </p>
-            </a>
-          </li>
+              <a href="{% url 'orgs' %}" class="nav-link">
+                <i class="nav-icon fas fa-university"></i>
+                <p>
+                  Организации
+                </p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'happiness' %}" class="nav-link">
+                <i class="fas fa-grin-squint-tears"></i>
+                <p>
+                  Индекс счастья
+                </p>
+              </a>
+            </li>
             
             
         </ul>

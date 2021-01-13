@@ -42,7 +42,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'bootstrap4',
-    'jazzmin',
+    #'jazzmin', Админка
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'django_extensions',
     'import_export',
+    'leaflet',
 ]
 
 MIDDLEWARE = [

@@ -36,7 +36,7 @@ def clustering_step():
     """
     logger.info('START CLUSTERING')
     try:
-        clustering(delta_hours=24*5)
+        clustering(delta_hours=24)
     except:
         logger.error('CLUSTERING FAILED')
 
@@ -70,9 +70,13 @@ class Command(BaseCommand):
     help = 'Запуск сборщика данных по расписанию'
 
     def handle(self, *args, **kwargs):
-        schedule.every().day.at('05:20').do(crawler_step)
-        schedule.every().day.at('06:00').do(processing_step)
-        schedule.every().day.at('08:00').do(clustering_step)
+        crawler_step()
+        processing_step()
+        clustering_step()
+        
+        schedule.every().day.at('04:00').do(crawler_step)
+        schedule.every().day.at('04:30').do(processing_step)
+        schedule.every().day.at('05:00').do(clustering_step)
 
         schedule.every().day.at('09:00').do(crawler_step)
         schedule.every().day.at('10:30').do(processing_step)

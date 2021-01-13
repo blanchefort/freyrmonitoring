@@ -41,9 +41,14 @@ def views_as_number(views):
         return views
     if type(views) == float:
         return int(views)
+    if views is None:
+        return 0
     if 'K' in views:
         views = views.replace('K', '')
         views = float(views) * 1_000
+    elif 'M' in views:
+        views = views.replace('M', '')
+        views = float(views) * 1_000_000
     return int(float(views))
 
 def save_comments(comments, post):
@@ -164,7 +169,6 @@ def collect_socio_posts():
                     save_articles(result, site)
 
     # Ютуб
-    # TODO: Проверить дату публикации 
     sites = Site.objects.filter(type='youtube')
     if len(sites) > 0:
         logger.info('Start youtube')
