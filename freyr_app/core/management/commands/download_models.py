@@ -101,6 +101,7 @@ freyr_region_graphs = (
     'https://www.dropbox.com/s/dvemxjpge5hj83k/fias_04.edgelist?dl=1',
     'https://www.dropbox.com/s/9q04vrgkknx54p9/fias_03.edgelist?dl=1',
     'https://www.dropbox.com/s/41mbyprhuf3v13l/fias_01.edgelist?dl=1',
+    'https://www.dropbox.com/s/scsgpz2nmgjbgnb/fias_66.edgelist?dl=1'
 )
 
 class Command(BaseCommand):
