@@ -52,7 +52,7 @@ def crawler_step():
     logger.info('START CRAWLER')
     tg_run()
     collect_socio_posts()
-    scrape_custom_sites()
+    #scrape_custom_sites()
     collect_comments()
     logger.info('STOP CRAWLER')
 
