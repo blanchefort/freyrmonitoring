@@ -23,3 +23,7 @@ vk-api==11.9.1
 vosk==0.3.15
 wget==3.2
 youtube-dl==2020.12.14
+requests-html==0.10.0
+python-youtube==0.6.4
+igramscraper==0.3.5
+python-dateutil==2.8.1

@@ -108,64 +108,64 @@ class Command(BaseCommand):
     help = 'Команда скачивания новых версий ML-моделей'
 
     def handle(self, *args, **kwargs):
-        # Создаём папки
-        # logger.info('Create Dirs')
-        # if os.path.isdir(settings.AUDIO_PATH):
-        #     shutil.rmtree(settings.AUDIO_PATH, ignore_errors=True)
-        # os.makedirs(settings.AUDIO_PATH, exist_ok=True)
-        # if os.path.isdir(settings.ML_MODELS):
-        #     shutil.rmtree(settings.ML_MODELS, ignore_errors=True)
-        # if not os.path.isdir(settings.CLUSTERS_PATH):
-        #     os.makedirs(settings.CLUSTERS_PATH, exist_ok=True)
+        Создаём папки
+        logger.info('Create Dirs')
+        if os.path.isdir(settings.AUDIO_PATH):
+            shutil.rmtree(settings.AUDIO_PATH, ignore_errors=True)
+        os.makedirs(settings.AUDIO_PATH, exist_ok=True)
+        if os.path.isdir(settings.ML_MODELS):
+            shutil.rmtree(settings.ML_MODELS, ignore_errors=True)
+        if not os.path.isdir(settings.CLUSTERS_PATH):
+            os.makedirs(settings.CLUSTERS_PATH, exist_ok=True)
 
-        # # Качаем модели
-        # for ff in freyr_files:
-        #     logger.info(f"Download model: {ff['save_path']}")
-        #     save_path = os.path.join(settings.ML_MODELS, ff['save_path'])
-        #     file_path = os.path.join(save_path, ff['file_name'])
-        #     os.makedirs(save_path, exist_ok=True)
-        #     if os.path.isfile(file_path):
-        #         os.remove(file_path)
-        #     wget.download(ff['url'], file_path)
+        # Качаем модели
+        for ff in freyr_files:
+            logger.info(f"Download model: {ff['save_path']}")
+            save_path = os.path.join(settings.ML_MODELS, ff['save_path'])
+            file_path = os.path.join(save_path, ff['file_name'])
+            os.makedirs(save_path, exist_ok=True)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            wget.download(ff['url'], file_path)
 
-        # # Токенизаторы
-        # logger.info(f'Download tokenizers')
-        # # article_theme, article_sentiment
-        # BertTokenizer.from_pretrained(
-        #     'DeepPavlov/rubert-base-cased-sentence').save_pretrained(
-        #         os.path.join(settings.ML_MODELS, 'rubert-base-cased-sentence-tokenizer'))
+        # Токенизаторы
+        logger.info(f'Download tokenizers')
+        # article_theme, article_sentiment
+        BertTokenizer.from_pretrained(
+            'DeepPavlov/rubert-base-cased-sentence').save_pretrained(
+                os.path.join(settings.ML_MODELS, 'rubert-base-cased-sentence-tokenizer'))
 
-        # # gov_categories
-        # BertTokenizer.from_pretrained(
-        #     'DeepPavlov/rubert-base-cased').save_pretrained(
-        #         os.path.join(settings.ML_MODELS, 'rubert-base-cased-tokenizer'))
+        # gov_categories
+        BertTokenizer.from_pretrained(
+            'DeepPavlov/rubert-base-cased').save_pretrained(
+                os.path.join(settings.ML_MODELS, 'rubert-base-cased-tokenizer'))
         
-        # # Модель и токенизатор анализа тональности статей и комментариев
-        # logger.info(f'Download Sentiment Models')
-        # for m_name in ('rubert-base-cased-sentiment', 'rubert-base-cased-sentiment-rusentiment'):
-        #     BertForSequenceClassification.from_pretrained(
-        #         f'blanchefort/{m_name}').save_pretrained(
-        #             os.path.join(settings.ML_MODELS, m_name))
-        #     BertTokenizer.from_pretrained(
-        #         f'blanchefort/{m_name}').save_pretrained(
-        #             os.path.join(settings.ML_MODELS, m_name))
+        # Модель и токенизатор анализа тональности статей и комментариев
+        logger.info(f'Download Sentiment Models')
+        for m_name in ('rubert-base-cased-sentiment', 'rubert-base-cased-sentiment-rusentiment'):
+            BertForSequenceClassification.from_pretrained(
+                f'blanchefort/{m_name}').save_pretrained(
+                    os.path.join(settings.ML_MODELS, m_name))
+            BertTokenizer.from_pretrained(
+                f'blanchefort/{m_name}').save_pretrained(
+                    os.path.join(settings.ML_MODELS, m_name))
 
-        # # Кальди
-        # logger.info(f'Download Kaldi')
-        # m_name = 'vosk-model-ru-0.10'
-        # wget.download(
-        #     f'https://alphacephei.com/vosk/models/{m_name}.zip',
-        #     os.path.join(settings.ML_MODELS, f'{m_name}.zip')
-        # )
-        # logger.info(f'Extracting Kaldi model files')
-        # shutil.unpack_archive(
-        #     os.path.join(settings.ML_MODELS, f'{m_name}.zip')
-        # )
+        # Кальди
+        logger.info(f'Download Kaldi')
+        m_name = 'vosk-model-ru-0.10'
+        wget.download(
+            f'https://alphacephei.com/vosk/models/{m_name}.zip',
+            os.path.join(settings.ML_MODELS, f'{m_name}.zip')
+        )
+        logger.info(f'Extracting Kaldi model files')
+        shutil.unpack_archive(
+            os.path.join(settings.ML_MODELS, f'{m_name}.zip')
+        )
         
-        # if os.path.isdir(settings.KALDI):
-        #     shutil.rmtree(settings.KALDI, ignore_errors=True)
-        # os.rename(m_name, settings.KALDI)
-        # os.remove(os.path.join(settings.ML_MODELS, f'{m_name}.zip'))
+        if os.path.isdir(settings.KALDI):
+            shutil.rmtree(settings.KALDI, ignore_errors=True)
+        os.rename(m_name, settings.KALDI)
+        os.remove(os.path.join(settings.ML_MODELS, f'{m_name}.zip'))
 
         # Устанавливаем названия категорий в БД
         if Category.objects.all().count() == 0:
@@ -207,7 +207,8 @@ class Command(BaseCommand):
             District.objects.create(name='region')
             for f in region['features']:
                 if type(f['properties']['NL_NAME_2']) == str and len(f['properties']['NL_NAME_2']) > 0:
-                    District.objects.create(name=f['properties']['NL_NAME_2'])
+                    if District.objects.filter(name=f['properties']['NL_NAME_2']).count() == 0:
+                        District.objects.create(name=f['properties']['NL_NAME_2'])
         
         # Граф адресов региона
         logger.info(f'Download Addresses Graph')
