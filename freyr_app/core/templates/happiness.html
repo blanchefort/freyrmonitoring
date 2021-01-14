@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-  <title>{{title}}</title>
+  <title>{{page_title}}</title>
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="{% static 'AdminLTE/plugins/fontawesome-free/css/all.min.css' %}">
@@ -41,26 +41,138 @@
   {% leaflet_css %}
   <style>
     .leaflet-container { height: 100%; width: 100%; }
+    .leaflet-info {
+        padding: 6px 8px;
+        font: 14px/16px Arial, Helvetica, sans-serif;
+        background: white;
+        background: rgba(255,255,255,0.8);
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        border-radius: 5px;
+    }
+    .leaflet-info h4 {
+        margin: 0 0 5px;
+        color: #777;
+    }
+    .leaflet-legend {
+        line-height: 18px;
+        color: #555;
+    }
+    .leaflet-legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.7;
+    }
   </style>
   <script>
-    var dataurl = '{% static "maps/region.json" %}';
+
+    
+
+    var dataurl = '{% url "leaflet_map" selected_cat start_date end_date %}';
 
     window.addEventListener("map:init", function (event) {
-      var map = event.detail.map.setView([58.1, 33.0], 6);
-      // Download GeoJSON data with Ajax
+
+      
+      var map = event.detail.map.setView([{{center_a}}, {{center_b}}], 6);
+
       fetch(dataurl)
         .then(function(resp) {
           return resp.json();
         })
         .then(function(data) {
-          L.geoJson(data, {
+          geojson = L.geoJson(data, {
+            style: style,
             onEachFeature: function onEachFeature(feature, layer) {
-              var props = feature.properties;
-              var content = `<img width="300" src="${props.picture_url}"/><h3>${props.NL_NAME_1}</h3><p>${props.description}</p>`;
-              layer.bindPopup(props.NL_NAME_2);
+              layer.on({
+                  mouseover: highlightFeature,
+                  mouseout: resetHighlight,
+              });
           }}).addTo(map);
         });
+
+        var info = L.control();
+
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'leaflet-info');
+            this.update();
+            return this._div;
+        };
+
+        info.update = function (props) {
+            this._div.innerHTML = (props ?
+                '<b>' + props.NL_NAME_2 + '</b><br />Индекс:  ' + props.nps
+                : '<i class="fas fa-grin-squint-tears"></i>');
+        };
+
+        info.addTo(map);
+
+        function getColor(d) {
+          return d > 7 ? '#800026' :
+                d > 6  ? '#BD0026' :
+                d > 5  ? '#E31A1C' :
+                d > 4  ? '#FC4E2A' :
+                d > 3   ? '#FD8D3C' :
+                d > 2   ? '#FEB24C' :
+                d > 1   ? '#FED976' :
+                            '#FFEDA0';
+        }
+
+      function style(feature) {
+        return {
+            fillColor: getColor(feature.properties.nps),
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            dashArray: '3',
+            fillOpacity: 0.7
+        };
+      }
+
+      function highlightFeature(e) {
+          var layer = e.target;
+
+          layer.setStyle({
+              weight: 2,
+              color: '#666',
+              dashArray: '',
+              fillOpacity: 0.7
+          });
+
+          if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+              layer.bringToFront();
+          }
+          info.update(layer.feature.properties);
+      }
+
+      function resetHighlight(e) {
+        var layer = e.target;
+        geojson.resetStyle(layer);
+        info.update();
+      }
+
+
+        var legend = L.control({position: 'bottomright'});
+
+        legend.onAdd = function (map) {
+
+            var div = L.DomUtil.create('div', 'leaflet-info leaflet-legend'),
+                grades = [0, 1, 2, 3, 4, 5, 6, 7],
+                labels = [];
+
+            // loop through our density intervals and generate a label with a colored square for each interval
+            for (var i = 0; i < grades.length; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+            }
+
+            return div;
+        };
+
+        legend.addTo(map);
     });
+
   </script>
 </head>
 <body class="hold-transition sidebar-mini">
@@ -110,10 +222,10 @@
             <h1 class="m-0 text-dark">{{page_title}}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
-            <a class="btn btn-info float-right" href="{% url 'event_excel' 1 %}">
-                <i class="fas fa-download"></i>
-                Скачать сводку
-            </a>
+              <a class="btn btn-info float-right" href="{% url 'happiness_excel' selected_cat start_date end_date %}">
+                  <i class="fas fa-download"></i>
+                  Скачать сводку
+              </a>
           </div><!-- /.col -->
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
@@ -128,14 +240,22 @@
                 {% leaflet_map "main" %}
             </div>
             <div class="col-sm-5">
+              <form method="POST">
+                {% csrf_token %}
                 <div class="form-group">
                     <label>Категория</label>
-                    <select class="form-control select2bs4" data-dropdown-css-class="select2bs4">
-                        <option selected="selected">Все</option>
+                    <select name="category" class="form-control select2bs4" data-dropdown-css-class="select2bs4">
+                        {% if selected_cat == 0 %}
+                        <option selected="selected" value="0">Все</option>
+                        {% else %}
+                        <option value="0">Все</option>
+                        {% endif %}
                         {%for cat in categories%}
-                        {%if cat.name != 'Без темы' %}
-                        <option>{{cat}}</option>
-                        {%endif%}
+                        {% if selected_cat == cat.id %}
+                        <option value="{{cat.id}}" selected="selected">{{cat}}</option>
+                        {% else %}
+                        <option value="{{cat.id}}">{{cat}}</option>
+                        {% endif %}
                         {%endfor%}
                     </select>
                 </div>
@@ -147,18 +267,20 @@
                             <i class="far fa-calendar-alt"></i>
                             </span>
                         </div>
-                        <input type="text" class="form-control float-right" id="reservation">
+                        <input type="text" class="form-control float-right" id="reservation" name="daterange">
                     </div>
                     <div class="input-group mt-5">
                         <button class="btn btn-info" type="submit">Применить</button>
                     </div>
                 </div>
+              </form>
             </div>
         </div>
 
         <div class="row mt-5 mb-2">
             <div class="col-sm-12">
-                <h3>Wellbeing</h3>
+                <h3>Wellbeing: {{mean_index}}</h3>
+                {{req}}
                 <p>Важнейшим показателем при расчёте индекса счастья (HPL) 
                     является субъективная удовлетворенность людей жизнью (Wellbeing),
                     получаемая в рамках всемирного опроса населения, проводимого Институтом Гэллапа.
@@ -211,6 +333,8 @@
             theme: 'bootstrap4'
         })
         $('#reservation').daterangepicker({
+            startDate: "{{start_date}}",
+            endDate: "{{end_date}}",
             locale: {
                 format: 'DD-MM-YYYY',
                 applyLabel: 'Принять',
@@ -223,20 +347,16 @@
         })
 
         var district_data = [
+          {%for item in results%}
+
             {
-                "Муниципалитет": "Великий Новгород",
-                "Положительные": 50,
-                "Нейтральные": 175,
-                "Отрицательные": 1820,
-                "Wellbeing": 72
+                "Муниципалитет": "{{item.district.name}}",
+                "Позитивные": {{item.pos}},
+                "Нейтральные": {{item.neu}},
+                "Негативные": {{item.neg}},
+                "Wellbeing": {{item.nps}},
             },
-            {
-                "Муниципалитет": "Старая Русса",
-                "Положительные": 50,
-                "Нейтральные": 175,
-                "Отрицательные": 1820,
-                "Wellbeing": 72
-            }
+          {%endfor%}
         ]
         $("#districts").jsGrid({
             height: "100%",
@@ -248,9 +368,9 @@
     
             fields: [
                 { name: "Муниципалитет", type: "text", width: 150 },
-                { name: "Положительные", type: "number", width: 50 },
+                { name: "Позитивные", type: "number", width: 50 },
                 { name: "Нейтральные", type: "number", width: 50 },
-                { name: "Отрицательные", type: "number", width: 50 },
+                { name: "Негативные", type: "number", width: 50 },
                 { name: "Wellbeing", type: "number", width: 50 },
             ]
         });

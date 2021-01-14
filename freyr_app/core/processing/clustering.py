@@ -207,7 +207,7 @@ def clustering(delta_hours=5):
     """
     logger.info('Start Clustering')
     start_date = timezone.now()
-    end_date = timezone.now() + datetime.timedelta(hours=-5*24)
+    end_date = timezone.now() - datetime.timedelta(hours=5*24)
     themes = Theme.objects.filter(
         theme_articles__article_link__publish_date__range=[end_date, start_date])
     tsc = TextStreamClustering()

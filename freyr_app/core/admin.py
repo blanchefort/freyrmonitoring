@@ -1,4 +1,6 @@
 from django.contrib import admin
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 
 from .models import (
     Site,
@@ -13,9 +15,6 @@ from .models import (
     ArticleCategory,
     District
 )
-
-from import_export import resources
-from import_export.admin import ImportExportModelAdmin
 
 class ArticleResource(resources.ModelResource):
     class Meta:

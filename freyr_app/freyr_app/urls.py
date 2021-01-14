@@ -31,6 +31,8 @@ urlpatterns = [
     path('events/excel/<int:event_id>', events.excelview, name='event_excel'),
     path('events/alt_title/', events.suggest_alt_title, name='event_alt_title'),
     path('happiness/', happiness.index, name='happiness'),
+    path('happiness_map/<int:category>/<str:start_date>/<str:end_date>', happiness.leaflet_map, name='leaflet_map'),
+    path('happiness/excel/<int:category>/<str:start_date>/<str:end_date>', happiness.excelview, name='happiness_excel'),
     # AUTH
     path('accounts/', include('django.contrib.auth.urls')),
 ]

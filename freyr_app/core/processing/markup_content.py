@@ -68,7 +68,6 @@ def article_happiness():
         # привязка к муниципалитетам
         localize(articles)
 
-
 def comment_sentiment():
     """Тональность комментариев
     """
