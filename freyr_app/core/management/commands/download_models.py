@@ -108,7 +108,7 @@ class Command(BaseCommand):
     help = 'Команда скачивания новых версий ML-моделей'
 
     def handle(self, *args, **kwargs):
-        Создаём папки
+        # Создаём папки
         logger.info('Create Dirs')
         if os.path.isdir(settings.AUDIO_PATH):
             shutil.rmtree(settings.AUDIO_PATH, ignore_errors=True)
