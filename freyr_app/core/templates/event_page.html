@@ -134,24 +134,12 @@
             </div>
         </div>
 
-        
-        <div class="row"> 
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h3>Динамика сообщений</h3>
-                        <canvas id="timeseries" height="50"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-md-6">
                 <div class="card card-info card-outline">
                     <div class="card-body box-profile">
-                        <h3 class="profile-username">География</h3>
-                        <div id="vmap" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></div>
+                        <h3>Динамика сообщений</h3>
+                        <canvas id="timeseries" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                     </div>
                 </div>
             </div>
@@ -191,12 +179,12 @@
                         <span class="mr-3">
                             <i class="fas fa-thumbs-up"></i> <span class="badge bg-success">{{a.likes}}</span>
                         </span>
-                        <!-- <span class="mr-3">
-                            <i class="far fa-eye"></i> <span class="badge bg-success">{{a.likes}}</span>
+                        <span class="mr-3">
+                            <i class="far fa-eye"></i> <span class="badge bg-success">{{a.views}}</span>
                         </span>
                         <span class="mr-3">
-                            <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.likes}}</span>
-                        </span> -->
+                            <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.comment_count}}</span>
+                        </span>
                     </div>
                 </div>
             {%endfor%}
@@ -251,7 +239,7 @@
 <script>
     var ctx = document.getElementById('timeseries').getContext('2d');
     var chart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: [
                 {%for item in chronology%}

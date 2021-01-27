@@ -4,6 +4,7 @@ import datetime
 import configparser
 from django.conf import settings
 
+
 class InstaParser:
     """Получаем информацию из Инстаграма
     """

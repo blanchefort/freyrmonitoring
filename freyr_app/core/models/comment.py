@@ -1,6 +1,7 @@
 from django.db import models
 from .article import Article
 
+
 class Comment(models.Model):
     """Комментарии к сохранённым статьям и постам
     """

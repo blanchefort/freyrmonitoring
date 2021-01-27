@@ -1,8 +1,8 @@
 from django.template.response import TemplateResponse
 from core.models.entity import Entity, EntityLink
 from core.models.article import Article
-from django.db.models import Count
 from datetime import date, timedelta
+
 
 def index(request):
     """Стартовая страница
@@ -18,6 +18,7 @@ def index(request):
         'ents': ents,
     }
     return TemplateResponse(request, 'persons.html', context=context)
+
 
 def person_page(request, ent_id):
     """Страница сущности
@@ -38,7 +39,6 @@ def person_page(request, ent_id):
         counts_negative.append(
             EntityLink.objects.filter(entity_link=entity).filter(article_link__theme=True).filter(article_link__publish_date__date=day).filter(article_link__sentiment=2).count())
 
-    
     articles_links = EntityLink.objects.filter(entity_link=entity)
     neutral_count = 0
     positive_count = 0
@@ -92,4 +92,3 @@ def person_page(request, ent_id):
     significance_index *= 100
     context.update({'significance_index': significance_index})
     return TemplateResponse(request, 'person_page.html', context=context)
-    

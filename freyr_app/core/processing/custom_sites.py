@@ -9,6 +9,7 @@ from core.processing.scrape_socio import save_articles
 
 logger = logging.getLogger(__name__)
 
+
 def scrape_custom_sites():
     """Обходим и сохраняем сайты с индивидуальными парсерами
     """

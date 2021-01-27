@@ -125,6 +125,4 @@ def index(request):
         context.update({'loyalty_type': 'good'})
     else:
         context.update({'loyalty_type': 'nono'})
-        
-
     return TemplateResponse(request, 'index.html', context=context)

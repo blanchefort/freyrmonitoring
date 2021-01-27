@@ -1,6 +1,7 @@
 from typing import Tuple
 from purl import URL
 
+
 def process_url(link: str) -> Tuple:
     """Выводим мета-информацию о ссылке
 

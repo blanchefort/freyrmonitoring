@@ -3,6 +3,7 @@ from requests_html import HTMLSession
 import datetime
 import re
 
+
 class OKParser:
     """Получаем информацию из Одноклассников
     """

@@ -4,6 +4,7 @@ from django.conf import settings
 import configparser
 import datetime
 
+
 class VKParser:
     """Получаем информацию из ВК
     """

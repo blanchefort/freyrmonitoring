@@ -4,6 +4,8 @@ from transformers import BertTokenizer, BertForSequenceClassification
 from django.conf import settings
 from core.models import categories
 from core.nn import CategoryClassifier
+from .nlp import preprocess_text
+
 
 class DefineText:
     """Общий класс для определения различных типов текстов Бертами.
@@ -16,16 +18,11 @@ class DefineText:
     themes, _ = dt.article_theme()
     """
     def __init__(self, texts):
-        self.texts = []
-        for text in texts:
-            if len(text) == 0:
-                self.texts.append('(без текста)')
-            else:
-                self.texts.append(text)
+        self.texts = list(map(preprocess_text, texts))
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.device = torch.device(device)
         self.model_path = settings.ML_MODELS
-    
+
     @torch.no_grad()
     def predictor(self, texts, tokenizer, model):
         """Общий метод, определяющий метки текстов
@@ -130,4 +127,17 @@ class DefineText:
         model.to(self.device)
         model.eval()
         
+        return self.predictor(self.texts, tokenizer, model)
+
+    def is_appeal(self):
+        """Определяем, является ли текст поста или комментария обращением к администрации
+        1 - Является,
+        0 - Не является
+        """
+        tokenizer = BertTokenizer.from_pretrained(f'{self.model_path}/rubert-base-cased-conversational-tokenizer')
+        model = BertForSequenceClassification.from_pretrained(
+            f'{self.model_path}/article_appeal')
+        model.to(self.device)
+        model.eval()
+
         return self.predictor(self.texts, tokenizer, model)

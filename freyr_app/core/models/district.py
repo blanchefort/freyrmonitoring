@@ -1,6 +1,7 @@
 from django.db import models
 from .article import Article
 
+
 class District(models.Model):
     """Муниципалитеты
 
@@ -18,6 +19,7 @@ class District(models.Model):
     class Meta:
         verbose_name = 'Муниципалитет'
         verbose_name_plural = 'Муниципалитеты'
+
 
 class ArticleDistrict(models.Model):
     """Привязка статьи к муниципалитету

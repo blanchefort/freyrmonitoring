@@ -200,6 +200,7 @@ class TextStreamClustering:
                     candidates += 1
         return cluster_embeddings, cluster_titles, cluster_keywords, cluster_articles
 
+
 def clustering(delta_hours=5):
     """Кластеризуем материалы
     

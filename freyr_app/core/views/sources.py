@@ -6,6 +6,7 @@ from core.models.site import Site
 from core.processing.url import process_url
 from core.crawlers import VKParser
 
+
 def index(request):
     """Стартовая страница
     """
@@ -16,6 +17,7 @@ def index(request):
 #         'article_count': article_collector(),
     }
     return TemplateResponse(request, 'sources/list.html', context=context)
+
 
 @login_required
 def add_source(request):
@@ -51,6 +53,5 @@ def add_source(request):
                     messages.add_message(request, messages.INFO, '234324')
     else:
         context.update({'form': AddUrlForm()})
-            
-    
+
     return TemplateResponse(request, 'sources/add.html', context=context)

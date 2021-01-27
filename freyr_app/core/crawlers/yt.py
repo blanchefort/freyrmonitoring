@@ -7,6 +7,7 @@ import subprocess
 import time
 import youtube_dl
 
+
 class YTParser:
     """Получаем информацию из Ютуба
     """

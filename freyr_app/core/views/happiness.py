@@ -50,6 +50,7 @@ def index(request):
     }
     return TemplateResponse(request, 'happiness.html', context=context)
 
+
 def leaflet_map(request, category: int, start_date: str, end_date: str):
     """Карта
 
@@ -84,6 +85,7 @@ def leaflet_map(request, category: int, start_date: str, end_date: str):
 
     return JsonResponse(geodata)
 
+
 def get_center(geojson):
     """Координаты центра карты
     TODO: Нужен другой метод
@@ -111,6 +113,7 @@ def get_center(geojson):
     center_x = x1 + ((x2 - x1) / .75);
     center_y = y1 + ((y2 - y1) / .75);
     return center_x, center_y
+
 
 def happiness_index(category, start_date, end_date):
     results = []
@@ -140,6 +143,7 @@ def happiness_index(category, start_date, end_date):
             })
             mean_index += nps
     return round(mean_index/len(districts), 2), results
+
 
 def excelview(request, category: int, start_date: str, end_date: str):
     """Эксель-файл для выборки

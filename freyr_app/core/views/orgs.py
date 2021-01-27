@@ -3,6 +3,7 @@ from core.models.entity import Entity, EntityLink
 from core.models.article import Article
 from django.db.models import Count
 
+
 def index(request):
     """Стартовая страница
     """
@@ -17,6 +18,7 @@ def index(request):
         'ents': ents,
     }
     return TemplateResponse(request, 'orgs.html', context=context)
+
 
 def org_page(request, ent_id):
     """Страница сущности
@@ -45,4 +47,3 @@ def org_page(request, ent_id):
         'negative_count': negative_count,
     }
     return TemplateResponse(request, 'items.html', context=context)
-    

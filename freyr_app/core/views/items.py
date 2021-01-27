@@ -2,6 +2,7 @@ from django.template.response import TemplateResponse
 from core.models.article import Article
 from django.core.paginator import Paginator
 
+
 def index(request):
     """Стартовая страница
     """

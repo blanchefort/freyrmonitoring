@@ -2,6 +2,7 @@ from django.db.models import Q
 from core.models import Article, District, Category, Comment
 import numpy as np
 
+
 def calculate_happiness(district: District, category: Category, period: tuple) -> tuple:
     """Рассчёт субъективной удовлетворенность людей жизнью
 
@@ -31,6 +32,7 @@ def calculate_happiness(district: District, category: Category, period: tuple) -
     
     nps = calculate_nps(positive_index, negative_index, neutral_index)
     return nps_norm10(nps), sum(positive_index), sum(negative_index), sum(neutral_index)
+
 
 def calculate_happiness_by_district(district: District, period: tuple) -> tuple:
     """Рассчёт субъективной удовлетворенность людей жизнью по району
@@ -64,6 +66,7 @@ def calculate_happiness_by_district(district: District, period: tuple) -> tuple:
     nps = calculate_nps(positive_index, negative_index, neutral_index)
     return nps_norm10(nps), sum(positive_index), sum(negative_index), sum(neutral_index)
 
+
 def calculate_nps(pos: list, neg: list, neu: list) -> float:
     """Считаем Net Promoter Score
 
@@ -83,6 +86,7 @@ def calculate_nps(pos: list, neg: list, neu: list) -> float:
     nps /= total
     nps *= 100
     return nps
+
 
 def nps_norm10(nps: float) -> float:
     """Переводим индекс NPS в шкалу 0..10

@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Site(models.Model):
     """Площадки, которые обходит краулер
     
@@ -38,4 +39,3 @@ class Site(models.Model):
     class Meta:
         verbose_name = 'Площадка для наблюдения'
         verbose_name_plural = 'Площадки для наблюдения'
-    

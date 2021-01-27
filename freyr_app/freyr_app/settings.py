@@ -129,7 +129,7 @@ LOGOUT_REDIRECT_URL = '/'
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 LANGUAGE_CODE = 'ru-RU'
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = config['REGION']['TIME_ZONE']
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True

@@ -1,8 +1,10 @@
 from telethon import TelegramClient
+from telethon.errors import UsernameNotOccupiedError
 from telethon.tl.functions.channels import JoinChannelRequest
 from django.conf import settings
 import configparser
 from typing import Dict, List
+
 
 class TelegaParser:
     """Получаем информацию из Телеграма

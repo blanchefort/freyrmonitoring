@@ -74,25 +74,9 @@ class Command(BaseCommand):
         processing_step()
         clustering_step()
         
-        schedule.every().day.at('04:00').do(crawler_step)
-        schedule.every().day.at('04:30').do(processing_step)
+        schedule.every().day.at('02:00').do(crawler_step)
+        schedule.every().day.at('02:30').do(processing_step)
         schedule.every().day.at('05:00').do(clustering_step)
-
-        schedule.every().day.at('09:00').do(crawler_step)
-        schedule.every().day.at('10:30').do(processing_step)
-
-        schedule.every().day.at('12:00').do(crawler_step)
-        schedule.every().day.at('13:00').do(processing_step)
-        schedule.every().day.at('14:30').do(clustering_step)
-
-        schedule.every().day.at('15:00').do(crawler_step)
-        schedule.every().day.at('16:30').do(processing_step)
-
-        schedule.every().day.at('18:00').do(crawler_step)
-        schedule.every().day.at('19:00').do(processing_step)
-
-        schedule.every().day.at('23:00').do(crawler_step)
-        schedule.every().day.at('02:00').do(processing_step)
 
         while True:
             schedule.run_pending()

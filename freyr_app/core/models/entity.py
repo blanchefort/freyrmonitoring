@@ -42,4 +42,3 @@ class EntityLink(models.Model):
     class Meta:
         verbose_name = 'Ссылка сущности'
         verbose_name_plural = 'Ссылки сущностей'
-    

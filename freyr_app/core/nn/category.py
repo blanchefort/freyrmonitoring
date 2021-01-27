@@ -7,6 +7,7 @@ from transformers import BertConfig, BertModel
 
 from django.conf import settings
 
+
 class CategoryClassifier(nn.Module):
     def __init__(self):
         super(CategoryClassifier, self).__init__()

@@ -29,12 +29,14 @@ yt = YTParser(
     kaldi_path=settings.KALDI
     )
 
+
 def create_datetime(value):
     if isinstance(value, datetime.datetime) and timezone.is_aware(value):
         return value
     else:
         current_tz = timezone.get_current_timezone()
         return current_tz.localize(value)
+
 
 def views_as_number(views):
     if type(views) == int:
@@ -50,6 +52,7 @@ def views_as_number(views):
         views = views.replace('M', '')
         views = float(views) * 1_000_000
     return int(float(views))
+
 
 def save_comments(comments, post):
     """Сохраняем комментарии определённого поста
@@ -71,6 +74,7 @@ def save_comments(comments, post):
             username=comment.get('username', None),
             userid=comment.get('userid', None),
         )
+
 
 def save_articles(articles, site):
     """Сохраняем статьи ресурса
@@ -100,6 +104,7 @@ def save_articles(articles, site):
                     views=views_as_number(item.get('views', 0)),
                 )
     logger.info('Saving posts complete!')
+
 
 def collect_socio_posts():
     """Собираем посты из соцсетей
@@ -196,6 +201,7 @@ def collect_socio_posts():
 
     logger.info('Stop socio posts collecting')
 
+
 def collect_comments():
     """Собираем комментарии к сохранённым постам.
     Временной лаг - неделя
@@ -221,8 +227,6 @@ def collect_comments():
                 logger.warning(f'Cant get comments for {post.url}')
             if len(comments) > 0:
                 save_comments(comments, post)
-    
-
     # ВК vk_owner
     posts = Article.objects.filter(site__type='vk_owner').filter(
         publish_date__gte=end_date,
@@ -256,6 +260,7 @@ def collect_comments():
                 logger.warning(f'Cant get comments for {post.url}')
             if len(comments) > 0:
                 save_comments(comments, post)
+
 
 async def collect_telega_posts():
     """Собираем последние сообщения из Телеграма

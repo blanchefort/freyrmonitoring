@@ -3,6 +3,7 @@ from django.conf import settings
 import configparser
 import tweepy
 
+
 class TwitterParser:
     """Получаем информацию из Твиттера
     """

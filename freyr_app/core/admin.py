@@ -16,30 +16,37 @@ from .models import (
     District
 )
 
+
 class ArticleResource(resources.ModelResource):
     class Meta:
         model = Article
+
 
 class EntityResource(resources.ModelResource):
     class Meta:
         model = Entity
 
+
 class CommentResource(resources.ModelResource):
     class Meta:
         model = Comment
+
 
 class ArticleAdmin(ImportExportModelAdmin):
     resource_class = ArticleResource
     list_display = ('publish_date', 'title', 'theme', 'sentiment')
     date_hierarchy = 'publish_date'
 
+
 class EntityAdmin(ImportExportModelAdmin):
     resource_class = EntityResource
+
 
 class CommentAdmin(ImportExportModelAdmin):
     resource_class = CommentResource
     list_display = ('publish_date', 'text', 'sentiment')
     date_hierarchy = 'publish_date'
+
 
 admin.site.register(Site)
 admin.site.register(Article, ArticleAdmin)

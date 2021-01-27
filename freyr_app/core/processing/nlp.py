@@ -21,6 +21,7 @@ morph_tagger = NewsMorphTagger(emb)
 stemmer = SnowballStemmer('russian')
 G = nx.read_edgelist(path=os.path.join(settings.ML_MODELS, 'geograph.edgelist'), delimiter=':')
 
+
 def lemmatize(text):
     doc = Doc(text)
     doc.segment(segmenter)
@@ -29,6 +30,7 @@ def lemmatize(text):
     for token in doc.tokens:
         token.lemmatize(morph_vocab)
     return [token.lemma for token in doc.tokens]
+
 
 def ner(text: str) -> set:
     """Распознавание именованных сущностей
@@ -50,6 +52,7 @@ def ner(text: str) -> set:
             ner_tokens.append((span.text, span.type))
     return set(ner_tokens)
 
+
 def get_title(text: str) -> str:
     """Генеарция заголовка
 
@@ -59,8 +62,13 @@ def get_title(text: str) -> str:
     Returns:
         [str]: Заголовок
     """
+    text = text.replace(' \n', '. ')
     text = text.replace('\n\r', ' ')
     text = text.replace('\n', ' ')
+    text = text.replace('|', ' ')
+    text = re.sub(r'http\S+', '', text.strip(), flags=re.MULTILINE)
+    text = text.replace('[—](', ' ')
+    text = text.replace('[', ' ').replace(']', ' ')
     sents = list(sentenize(text))
     if len(sents[0].text) > 0:
         title = sents[0].text
@@ -70,7 +78,10 @@ def get_title(text: str) -> str:
         title = '(без заголовка)'
     title = title.replace('**', ' ')
     title = title.replace('__', ' ')
-    return title.strip()
+    if len(title.split(',')[0].replace('.', '').split()) == 1:
+        return title.replace('.', '')
+    return title.split(',')[0].replace('.', '')
+
 
 def deEmojify(text: str) -> str:
     """Удаляем эмоджи из текста
@@ -92,6 +103,50 @@ def deEmojify(text: str) -> str:
     text = text.replace('**', ' ')
     text = text.replace('__', ' ')
     return text.strip()
+
+
+def remove_emoji(string: str) -> str:
+    """https://gist.github.com/slowkow/7a7f61f495e3dbb7e3d767f97bd7304b#gistcomment-3315605
+    """
+    emoji_pattern = re.compile("["
+                               u"\U0001F600-\U0001F64F"  # emoticons
+                               u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                               u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                               u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                               u"\U00002500-\U00002BEF"  # chinese char
+                               u"\U00002702-\U000027B0"
+                               u"\U00002702-\U000027B0"
+                               u"\U000024C2-\U0001F251"
+                               u"\U0001f926-\U0001f937"
+                               u"\U00010000-\U0010ffff"
+                               u"\u2640-\u2642"
+                               u"\u2600-\u2B55"
+                               u"\u200d"
+                               u"\u23cf"
+                               u"\u23e9"
+                               u"\u231a"
+                               u"\ufe0f"  # dingbats
+                               u"\u3030"
+                               "]+", flags=re.UNICODE)
+    return emoji_pattern.sub(r'', string)
+
+
+def preprocess_text(text: str) -> str:
+    text = str(text)
+    if len(text) == 0:
+        return '(без текста)'
+    text = text.replace('\n', ' ').replace('\r', ' ').replace('\xa0', ' ')
+    text = text.replace('**', '')
+    text = text.replace('__', '')
+    text = re.sub(r'http\S+', '', text, flags=re.MULTILINE)
+    text = text.replace('](', ' ').replace('[', ' ').replace(']', '')
+    # club148281938|AromaTOCHKA
+    text = re.sub(r'id\d+\|', '', text, flags=re.MULTILINE)
+    text = text.replace('\u200b', '')
+    text = remove_emoji(text)
+    text = re.sub(r' +', ' ', text, flags=re.MULTILINE)
+    return text.strip()
+
 
 def get_district(location: str) -> str:
     """Получаем муниципалитет, к которому относится локация

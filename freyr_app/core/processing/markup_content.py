@@ -17,6 +17,7 @@ from core.processing.predictor import DefineText
 
 logger = logging.getLogger(__name__)
 
+
 def create_titles():
     """Создание заголовков статей
     """
@@ -25,12 +26,14 @@ def create_titles():
         article.title = get_title(article.text)
         article.save()
 
+
 def markup_theme():
     """Разметка темы и тональности (отношение к власти) статей
     """
     articles = Article.objects.exclude(sentiment=0).exclude(sentiment=1).exclude(sentiment=2)
     if len(articles) > 0:
         logger.info('DEFINE ARTICLE THEME AND SENTIMENT')
+        # TODO: Теперь класс сам обрабатывает весь входящий текст, нужно убрать эту штуковину
         texts = [deEmojify(item.text) for item in articles]
         dt = DefineText(texts)
         themes, _ = dt.article_theme()
@@ -42,6 +45,7 @@ def markup_theme():
             article.save()
     # Сущности
     ner_articles(articles)
+
 
 def article_happiness():
     """Разметка тональность статей для индекса благополучия
@@ -68,6 +72,7 @@ def article_happiness():
         # привязка к муниципалитетам
         localize(articles)
 
+
 def comment_sentiment():
     """Тональность комментариев
     """
@@ -82,6 +87,7 @@ def comment_sentiment():
         for comment, sentiment in zip(comments, sentiments):
             comment.sentiment = sentiment
             comment.save()
+
 
 def ner_articles(articles: Article):
     """Извлечение именованных сущностей из размеченных статей
@@ -98,6 +104,7 @@ def ner_articles(articles: Article):
                     entity_link=entity,
                     article_link=article
                 ).save()
+
 
 def localize(articles: Article):
     """Выявление муниципалитетов, о которых идёт речь в статьях

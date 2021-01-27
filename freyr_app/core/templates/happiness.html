@@ -66,9 +66,6 @@
     }
   </style>
   <script>
-
-    
-
     var dataurl = '{% url "leaflet_map" selected_cat start_date end_date %}';
 
     window.addEventListener("map:init", function (event) {
@@ -108,14 +105,12 @@
         info.addTo(map);
 
         function getColor(d) {
-          return d > 7 ? '#800026' :
-                d > 6  ? '#BD0026' :
-                d > 5  ? '#E31A1C' :
-                d > 4  ? '#FC4E2A' :
-                d > 3   ? '#FD8D3C' :
-                d > 2   ? '#FEB24C' :
-                d > 1   ? '#FED976' :
-                            '#FFEDA0';
+          return d >= 9  ? '#009012' :
+                d >= 7  ? '#01C715' :
+                d >= 5   ? '#FFD900' :
+                d >= 3   ? '#FF5400' :
+                d >= 1   ? '#B00606' :
+                          '#EBEBEB';
         }
 
       function style(feature) {
@@ -157,15 +152,14 @@
         legend.onAdd = function (map) {
 
             var div = L.DomUtil.create('div', 'leaflet-info leaflet-legend'),
-                grades = [0, 1, 2, 3, 4, 5, 6, 7],
+                grades = [2, 4, 6, 8, 10],
                 labels = [];
-
-            // loop through our density intervals and generate a label with a colored square for each interval
-            for (var i = 0; i < grades.length; i++) {
-                div.innerHTML +=
-                    '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-            }
+            div.innerHTML += '<i style="background:#009012"></i> 9<br>';
+            div.innerHTML += '<i style="background:#01C715"></i> 7<br>';
+            div.innerHTML += '<i style="background:#FFD900"></i> 5<br>';
+            div.innerHTML += '<i style="background:#FF5400"></i> 3<br>';
+            div.innerHTML += '<i style="background:#B00606"></i> 1<br>';
+            div.innerHTML += '<i style="background:#EBEBEB"></i> NA<br>';
 
             return div;
         };

@@ -28,6 +28,8 @@ freyr_files = [
     {'save_path': 'gov_categories', 'file_name': 'classifier.pt', 'url': 'https://www.dropbox.com/s/knjbpwxj7vcizcf/classifier.pt?dl=1',},
     {'save_path': '', 'file_name': 'stopwords.txt', 'url': 'https://www.dropbox.com/s/regobpg4xciezt6/stopwords.txt?dl=1',},
     {'save_path': '', 'file_name': 'ru_bert_config.json', 'url': 'https://www.dropbox.com/s/02ih472utx9gcex/ru_bert_config.json?dl=1',},
+    {'save_path': 'article_appeal', 'file_name': 'config.json', 'url': 'https://www.dropbox.com/s/7o1fz3mow8o7zh6/config.json?dl=1',},
+    {'save_path': 'article_appeal', 'file_name': 'pytorch_model.bin', 'url': 'https://www.dropbox.com/s/plp0k4934yome64/pytorch_model.bin?dl=1',}
 ]
 
 freyr_region_maps = ('Adygey','Altay','Amur',"Arkhangel'sk","Astrakhan'",'Bashkortostan',
@@ -139,6 +141,11 @@ class Command(BaseCommand):
         BertTokenizer.from_pretrained(
             'DeepPavlov/rubert-base-cased').save_pretrained(
                 os.path.join(settings.ML_MODELS, 'rubert-base-cased-tokenizer'))
+
+        # appeal
+        BertTokenizer.from_pretrained(
+            'DeepPavlov/rubert-base-cased-conversational').save_pretrained(
+            os.path.join(settings.ML_MODELS, 'rubert-base-cased-conversational-tokenizer'))
         
         # Модель и токенизатор анализа тональности статей и комментариев
         logger.info(f'Download Sentiment Models')
@@ -161,7 +168,7 @@ class Command(BaseCommand):
         shutil.unpack_archive(
             os.path.join(settings.ML_MODELS, f'{m_name}.zip')
         )
-        
+
         if os.path.isdir(settings.KALDI):
             shutil.rmtree(settings.KALDI, ignore_errors=True)
         os.rename(m_name, settings.KALDI)
@@ -171,7 +178,7 @@ class Command(BaseCommand):
         if Category.objects.all().count() == 0:
             for cat in categories:
                 Category.objects.create(name=cat)
-        
+
         # Карта региона
         config = configparser.ConfigParser()
         config.read(settings.CONFIG_INI_PATH)
@@ -201,7 +208,7 @@ class Command(BaseCommand):
             with open(data_path, 'w') as fp:
                 json.dump(region, fp)
             logger.info('Regin Map successfully compiled')
-        
+
         # Муниципалитеты региона
         if District.objects.all().count() == 0:
             District.objects.create(name='region')
@@ -209,7 +216,7 @@ class Command(BaseCommand):
                 if type(f['properties']['NL_NAME_2']) == str and len(f['properties']['NL_NAME_2']) > 0:
                     if District.objects.filter(name=f['properties']['NL_NAME_2']).count() == 0:
                         District.objects.create(name=f['properties']['NL_NAME_2'])
-        
+
         # Граф адресов региона
         logger.info(f'Download Addresses Graph')
         fname = f"fias_{config['REGION']['CODE']}"

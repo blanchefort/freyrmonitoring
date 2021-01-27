@@ -1,6 +1,7 @@
 from django.db import models
 from .article import Article
 
+
 class Theme(models.Model):
     """Выявленные темы для отслеживания
     """
@@ -13,6 +14,7 @@ class Theme(models.Model):
     class Meta:
         verbose_name = 'Тема'
         verbose_name_plural = 'Темы'
+
 
 class ThemeArticles(models.Model):
     """Статьи, относящиеся к кластеру
@@ -36,6 +38,7 @@ class ThemeArticles(models.Model):
     class Meta:
         verbose_name = 'Ссылка темы'
         verbose_name_plural = 'Ссылки тем'
+
 
 class ThemeMarkup(models.Model):
     """Пользовательская разметка. 

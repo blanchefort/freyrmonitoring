@@ -1,6 +1,7 @@
 from django.db import models
 from .site import Site
 
+
 class Article(models.Model):
     """Статьи, скачанные краулером
     
@@ -50,6 +51,11 @@ class Article(models.Model):
         null=True,
         choices=SENTIMENT_TYPES
     )
+    appeal = models.PositiveSmallIntegerField(
+        verbose_name='Обращение, требующее ответа',
+        blank=True,
+        null=True,
+    )
     likes = models.PositiveIntegerField(
         verbose_name='Лайки',
         default=0,
@@ -73,4 +79,3 @@ class Article(models.Model):
         verbose_name = 'Статья'
         verbose_name_plural = 'Статьи'
         ordering = ['-publish_date']
-        
