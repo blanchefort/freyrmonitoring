@@ -117,7 +117,7 @@ def localize(articles: Article):
                 location = get_district(ent[0])
                 if location is not False:
                     for district in districts:
-                        location = location.replace('Город', '').strip().lower()
+                        location = location.replace('городской округ', '').strip().lower()
                         dist = distance.edit_distance(location, district.name.lower())
                         if dist < 2:
                             ArticleDistrict(

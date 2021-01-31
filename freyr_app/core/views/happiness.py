@@ -1,5 +1,7 @@
 import os
 import json
+import pandas as pd
+import requests
 import datetime
 from django.http import JsonResponse
 from django.template.response import TemplateResponse
@@ -8,20 +10,13 @@ from django.conf import settings
 from core.models import District, Category
 from core.processing.calculate_indexes import calculate_happiness, calculate_happiness_by_district
 from excel_response import ExcelResponse
+import configparser
+
 
 def index(request):
     """Индекс счастья региона
     """
-    data_path = os.path.join(
-                settings.BASE_DIR,
-                'core',
-                'static',
-                'maps',
-                'region.json')
-    with open(data_path) as fp:
-        geodata = json.load(fp)
-    center_a, center_b = get_center(geodata)
-    del geodata
+    center_a, center_b = get_center()
 
     if request.method == 'POST':
         start_date, end_date = request.POST.get('daterange').split(' - ')
@@ -61,85 +56,80 @@ def leaflet_map(request, category: int, start_date: str, end_date: str):
     """
     start_date = datetime.datetime.strptime(start_date, "%d.%m.%Y")
     end_date = datetime.datetime.strptime(end_date, "%d.%m.%Y")
-    data_path = os.path.join(
-                settings.BASE_DIR,
-                'core',
-                'static',
-                'maps',
-                'region.json')
+    data_path = os.path.join(settings.ML_MODELS, 'region.geojson')
     with open(data_path) as fp:
         geodata = json.load(fp)
     if Category.objects.filter(pk=category).count() == 0:
         for f in geodata['features']:
-            if type(f['properties']['NL_NAME_2']) == str and len(f['properties']['NL_NAME_2']) > 0:
-                district = District.objects.get(name=f['properties']['NL_NAME_2'])
-                nps, _, _, _ = calculate_happiness_by_district(district, (start_date, end_date))
-                f['properties']['nps'] = str(round(nps, 2))
+            district = District.objects.get(name=f['properties']['russian_name'])
+            nps, _, _, _ = calculate_happiness_by_district(district, (start_date, end_date))
+            f['properties']['nps'] = str(round(nps, 2))
     else:
         category = Category.objects.get(pk=category)
         for f in geodata['features']:
-            if type(f['properties']['NL_NAME_2']) == str and len(f['properties']['NL_NAME_2']) > 0:
-                district = District.objects.get(name=f['properties']['NL_NAME_2'])
-                nps, _, _, _ = calculate_happiness(district, category, (start_date, end_date))
-                f['properties']['nps'] = str(round(nps, 2))
+            district = District.objects.get(name=f['properties']['russian_name'])
+            nps, _, _, _ = calculate_happiness(district, category, (start_date, end_date))
+            f['properties']['nps'] = str(round(nps, 2))
 
     return JsonResponse(geodata)
 
 
-def get_center(geojson):
+def get_center():
     """Координаты центра карты
-    TODO: Нужен другой метод
-    Args:
-        geojson ([type]): Объект с координатами
 
     Returns:
-        [tuple]: Центр
+        [tuple]: Центр региона
     """
-    x1, x2, y1, y2 = None, None, None, None
-    for feature in geojson['features']:
-        for coord in feature['geometry']['coordinates'][0]:
-            if x1 is None:
-                x1 = coord[1]
-            if x2 is None:
-                x2 = coord[1]
-            if y1 is None:
-                y1 = coord[0]
-            if y2 is None:
-                y2 = coord[0]
-            x1 = min(x1, coord[1])
-            x2 = max(x1, coord[1])
-            y1 = min(y1, coord[0])
-            y2 = max(y1, coord[0])
-    center_x = x1 + ((x2 - x1) / .75);
-    center_y = y1 + ((y2 - y1) / .75);
-    return center_x, center_y
+    file_path = os.path.join(settings.ML_MODELS, 'federal_subjects_index.csv')
+    federal_subjects_index = pd.read_csv(file_path)
+    config = configparser.ConfigParser()
+    config.read(settings.CONFIG_INI_PATH)
+    region = config['REGION']['NAME']
+    lat = float(federal_subjects_index[federal_subjects_index.name == region].lat)
+    lon = float(federal_subjects_index[federal_subjects_index.name == region].lon)
+    lat -= 0.01*lat
+    lon += 0.015*lon
+    return lat, lon
 
 
 def happiness_index(category, start_date, end_date):
     results = []
     mean_index = 0
+    ext_districts, ext_happiness = external_happiness_index()
     districts = District.objects.exclude(name='region')
     if Category.objects.filter(pk=category).count() == 0:
         for district in districts:
             nps, pos, neg, neu = calculate_happiness_by_district(district, (start_date, end_date))
+            if district.name in ext_districts:
+                ext_idx = ext_districts.index(district.name)
+                ext_district_happiness = ext_happiness[ext_idx]
+            else:
+                ext_district_happiness = 0
             results.append({
                 'district': district,
                 'nps': str(round(nps, 2)),
                 'pos': pos,
                 'neg': neg,
                 'neu': neu,
+                'ext_district_happiness': str(round(ext_district_happiness, 3))
             })
             mean_index += nps
     else:
         category = Category.objects.get(pk=category)
         for district in districts:
             nps, pos, neg, neu = calculate_happiness(district, category, (start_date, end_date))
+            if district.name in ext_districts:
+                ext_idx = ext_districts.index(district.name)
+                ext_district_happiness = ext_happiness[ext_idx]
+            else:
+                ext_district_happiness = 0
             results.append({
                 'district': district,
                 'nps': str(round(nps, 2)),
                 'pos': pos,
                 'neg': neg,
                 'neu': neu,
+                'ext_district_happiness': str(round(ext_district_happiness, 3))
             })
             mean_index += nps
     return round(mean_index/len(districts), 2), results
@@ -167,3 +157,23 @@ def excelview(request, category: int, start_date: str, end_date: str):
             'Индекс удовлетворённости жизнью': float(item['nps']),
         })
     return ExcelResponse(data, title)
+
+def external_happiness_index():
+    """Индекс счастья внешний"""
+    ext_districts, ext_happiness = [], []
+    config = configparser.ConfigParser()
+    config.read(settings.CONFIG_INI_PATH)
+    if 'HAPPINESS_INDEX' in config:
+        response = requests.get(config['HAPPINESS_INDEX']['LINK'])
+        if response.status_code == 200:
+            data = response.json()
+
+            ext_districts = []
+            for item in data['Наименование МО']:
+                if data['Наименование МО'][item].startswith('г. '):
+                    ext_districts.append(data['Наименование МО'][item].replace('г. ', 'городской округ '))
+                else:
+                    ext_districts.append(data['Наименование МО'][item])
+
+            ext_happiness = list(data['Индекс счастья'].values())
+    return ext_districts, ext_happiness

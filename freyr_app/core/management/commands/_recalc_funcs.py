@@ -1,8 +1,8 @@
 import logging
 from core.processing.nlp import get_title
-from core.models import Article, Comment
+from core.models import Article, Comment, ArticleDistrict
 from core.processing.predictor import DefineText
-
+from core.processing.markup_content import localize
 logger = logging.getLogger(__name__)
 
 
@@ -35,3 +35,18 @@ def appeals():
             article.appeal = appeal
             article.save()
     logger.info("Recalculating Finished!")
+
+
+def geo():
+    """Пересчёт привязки статей к муниципалитетам"""
+    articles = Article.objects.all()
+    if articles.count() == 0:
+        logger.info('Пока нет статей для пересчёта. Выходим...')
+        return False
+    logger.info('Удаление предыдущих гео-привязок')
+    ArticleDistrict.objects.all().delete()
+    logger.info('Начало определения локализации статей')
+    logger.info(f'Количество материалов: {articles.count()}')
+    localize(articles)
+    logger.info('Определения локализации статей успешно закончено')
+    return True

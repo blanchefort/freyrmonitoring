@@ -40,7 +40,11 @@
   {% leaflet_js %}
   {% leaflet_css %}
   <style>
-    .leaflet-container { height: 100%; width: 100%; }
+    .leaflet-container {
+        min-heigh: 500px;
+        height: 500px;
+        width: 100%;
+    }
     .leaflet-info {
         padding: 6px 8px;
         font: 14px/16px Arial, Helvetica, sans-serif;
@@ -71,7 +75,7 @@
     window.addEventListener("map:init", function (event) {
 
       
-      var map = event.detail.map.setView([{{center_a}}, {{center_b}}], 6);
+      var map = event.detail.map.setView([{{center_a}}, {{center_b}}], 7);
 
       fetch(dataurl)
         .then(function(resp) {
@@ -98,7 +102,7 @@
 
         info.update = function (props) {
             this._div.innerHTML = (props ?
-                '<b>' + props.NL_NAME_2 + '</b><br />Индекс:  ' + props.nps
+                '<b>' + props.russian_name + '</b><br />Индекс:  ' + props.nps
                 : '<i class="fas fa-grin-squint-tears"></i>');
         };
 
@@ -273,8 +277,8 @@
 
         <div class="row mt-5 mb-2">
             <div class="col-sm-12">
-                <h3>Wellbeing: {{mean_index}}</h3>
-                {{req}}
+                <h3>Индекс удовлетворённости жизнью: {{mean_index}}</h3>
+                {{external_happiness_index}}
                 <p>Важнейшим показателем при расчёте индекса счастья (HPL) 
                     является субъективная удовлетворенность людей жизнью (Wellbeing),
                     получаемая в рамках всемирного опроса населения, проводимого Институтом Гэллапа.
@@ -344,11 +348,9 @@
           {%for item in results%}
 
             {
-                "Муниципалитет": "{{item.district.name}}",
-                "Позитивные": {{item.pos}},
-                "Нейтральные": {{item.neu}},
-                "Негативные": {{item.neg}},
-                "Wellbeing": {{item.nps}},
+                "Муниципальное образование": "{{item.district.name}}",
+                "Индекс удовлетворённости жизнью": {{item.nps}},
+                "Индекс счастья": {{item.ext_district_happiness}},
             },
           {%endfor%}
         ]
@@ -361,11 +363,9 @@
             data: district_data,
     
             fields: [
-                { name: "Муниципалитет", type: "text", width: 150 },
-                { name: "Позитивные", type: "number", width: 50 },
-                { name: "Нейтральные", type: "number", width: 50 },
-                { name: "Негативные", type: "number", width: 50 },
-                { name: "Wellbeing", type: "number", width: 50 },
+                { name: "Муниципальное образование", type: "text", width: 150 },
+                { name: "Индекс удовлетворённости жизнью", type: "number", width: 50 },
+                { name: "Индекс счастья", type: "number", width: 50 },
             ]
         });
     })

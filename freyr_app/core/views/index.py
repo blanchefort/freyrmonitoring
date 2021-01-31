@@ -3,7 +3,8 @@ from core.models.article import Article
 from core.models.entity import Entity, EntityLink
 from core.models.theme import Theme, ThemeArticles
 from datetime import date, timedelta
-
+import configparser
+from django.conf import settings
 
 def index(request):
     """Стартовая страница
@@ -87,10 +88,13 @@ def index(request):
         theme_articles = []
     else:
         theme_articles = ThemeArticles.objects.filter(theme_link=top_theme).order_by('id')[:5]
-    
+
+    # region_name
+    config = configparser.ConfigParser()
+    config.read(settings.CONFIG_INI_PATH)
     context = {
         'title': 'FreyrMonitoring',
-        'page_title': 'Сводка',
+        'page_title': config['REGION']['NAME'],
         'days': days,
         'counts_positive': counts_positive,
         'counts_neutral': counts_neutral,
