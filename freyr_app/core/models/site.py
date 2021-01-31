@@ -34,7 +34,7 @@ class Site(models.Model):
     type = models.CharField(verbose_name='Тип площадки', max_length=30, choices=SITE_TYPES)
     
     def __str__(self):
-        return str(self.url)
+        return str(self.title)
     
     class Meta:
         verbose_name = 'Площадка для наблюдения'

@@ -8,26 +8,7 @@
     <style>
       .leaflet-container { height: 100%; }
     </style>
-    <script>
-      var dataurl = '{% static "maps/novgorod.json" %}';
 
-      window.addEventListener("map:init", function (event) {
-        var map = event.detail.map.setView([57.47708702, 30.59827614], 7);
-        // Download GeoJSON data with Ajax
-        fetch(dataurl)
-          .then(function(resp) {
-            return resp.json();
-          })
-          .then(function(data) {
-            L.geoJson(data, {
-              onEachFeature: function onEachFeature(feature, layer) {
-                var props = feature.properties;
-                var content = `<img width="300" src="${props.picture_url}"/><h3>${props.NL_NAME_1}</h3><p>${props.description}</p>`;
-                layer.bindPopup(props.NL_NAME_2);
-            }}).addTo(map);
-          });
-      });
-    </script>
   </head>
   <body>
     <h1>Mushrooms Spots</h1>

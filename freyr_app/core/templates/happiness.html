@@ -110,11 +110,11 @@
 
         function getColor(d) {
           return d >= 9  ? '#009012' :
-                d >= 7  ? '#01C715' :
-                d >= 5   ? '#FFD900' :
-                d >= 3   ? '#FF5400' :
-                d >= 1   ? '#B00606' :
-                          '#EBEBEB';
+                d >= 5  ? '#01C715' :
+                d >= 3   ? '#FFD900' :
+                d >= 2   ? '#FF5400' :
+                d > 0   ? '#B00606' :
+                          '#A0A0A0';
         }
 
       function style(feature) {
@@ -156,14 +156,14 @@
         legend.onAdd = function (map) {
 
             var div = L.DomUtil.create('div', 'leaflet-info leaflet-legend'),
-                grades = [2, 4, 6, 8, 10],
+                grades = [0, 2, 3, 5, 9],
                 labels = [];
-            div.innerHTML += '<i style="background:#009012"></i> 9<br>';
-            div.innerHTML += '<i style="background:#01C715"></i> 7<br>';
-            div.innerHTML += '<i style="background:#FFD900"></i> 5<br>';
-            div.innerHTML += '<i style="background:#FF5400"></i> 3<br>';
-            div.innerHTML += '<i style="background:#B00606"></i> 1<br>';
-            div.innerHTML += '<i style="background:#EBEBEB"></i> NA<br>';
+            div.innerHTML += '<i style="background:#009012"></i> >9<br>';
+            div.innerHTML += '<i style="background:#01C715"></i> >5<br>';
+            div.innerHTML += '<i style="background:#FFD900"></i> >3<br>';
+            div.innerHTML += '<i style="background:#FF5400"></i> >2<br>';
+            div.innerHTML += '<i style="background:#B00606"></i> >0<br>';
+            div.innerHTML += '<i style="background:#A0A0A0"></i> NA<br>';
 
             return div;
         };
@@ -275,10 +275,18 @@
             </div>
         </div>
 
+          {%if show_external_index == True%}
+          <div class="row mt-5 mb-2">
+              <div class="col-sm-12">
+                  <h3>Индекс счастья на фактических данных</h3>
+                  <canvas id="external_happiness_index"></canvas>
+              </div>
+          </div>
+          {%endif%}
+
         <div class="row mt-5 mb-2">
             <div class="col-sm-12">
                 <h3>Индекс удовлетворённости жизнью: {{mean_index}}</h3>
-                {{external_happiness_index}}
                 <p>Важнейшим показателем при расчёте индекса счастья (HPL) 
                     является субъективная удовлетворенность людей жизнью (Wellbeing),
                     получаемая в рамках всемирного опроса населения, проводимого Институтом Гэллапа.
@@ -369,6 +377,35 @@
             ]
         });
     })
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+<script>
+  var ctx = document.getElementById('external_happiness_index').getContext('2d');
+  var barChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [
+          {%for i in ext_districts%}
+          '{{i}}',
+          {%endfor%}
+        ],
+        datasets: [{
+          backgroundColor: '#06CCB8',
+          borderColor: '#009688',
+          data: [
+            {%for i in ext_happiness%}
+            {{i}},
+            {%endfor%}
+          ],
+        }]
+      },
+      options: {
+        legend: {
+                display: false,
+            },
+      }
+  });
 </script>
 </body>
 </html>

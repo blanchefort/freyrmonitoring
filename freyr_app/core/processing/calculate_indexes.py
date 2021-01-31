@@ -21,15 +21,27 @@ def calculate_happiness(district: District, category: Category, period: tuple) -
     start_date, end_date = period
     positive_index, negative_index, neutral_index = [], [], []
 
-    articles = Article.objects.filter(article_district__district=district)\
-        .filter(categories__category=category)\
-        .filter(publish_date__range=[start_date, end_date])
-    
+    region = District.objects.get(name='region')
+    articles = Article.objects \
+        .filter(Q(article_district__district=district) | Q(article_district__district=region)) \
+        .filter(publish_date__range=[start_date, end_date]) \
+        .filter(categories__category=category)
+    # articles = Article.objects \
+    #     .filter(article_district__district=district) \
+    #     .filter(publish_date__range=[start_date, end_date]) \
+    #     .filter(categories__category=category)
+
     for article in articles:
+        if article.happiness_sentiment == 1:
+            positive_index.append(max(1, article.views))
+        if article.happiness_sentiment == 2:
+            negative_index.append(max(1, article.views))
+        if article.happiness_sentiment == 0:
+            neutral_index.append(max(1, article.views))
         positive_index.append(Comment.objects.filter(article=article).filter(sentiment=1).count())
         negative_index.append(Comment.objects.filter(article=article).filter(sentiment=2).count())
         neutral_index.append(Comment.objects.filter(article=article).filter(sentiment=0).count())
-    
+
     nps = calculate_nps(positive_index, negative_index, neutral_index)
     return nps_norm10(nps), sum(positive_index), sum(negative_index), sum(neutral_index)
 
@@ -54,11 +66,17 @@ def calculate_happiness_by_district(district: District, period: tuple) -> tuple:
     articles = Article.objects\
         .filter(Q(article_district__district=district) | Q(article_district__district=region))\
         .filter(publish_date__range=[start_date, end_date])
-    
-    positive_index.append(articles.filter(sentiment=1).count()*10)
-    negative_index.append(articles.filter(sentiment=2).count()*10)
-    neutral_index.append(articles.filter(sentiment=0).count()*10)
+    # articles = Article.objects \
+    #     .filter(article_district__district=district) \
+    #     .filter(publish_date__range=[start_date, end_date])
+
     for article in articles:
+        if article.happiness_sentiment == 1:
+            positive_index.append(max(1, article.views))
+        if article.happiness_sentiment == 2:
+            negative_index.append(max(1, article.views))
+        if article.happiness_sentiment == 0:
+            neutral_index.append(max(1, article.views))
         positive_index.append(Comment.objects.filter(article=article).filter(sentiment=1).count())
         negative_index.append(Comment.objects.filter(article=article).filter(sentiment=2).count())
         neutral_index.append(Comment.objects.filter(article=article).filter(sentiment=0).count())

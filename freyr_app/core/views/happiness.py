@@ -1,9 +1,11 @@
 import os
 import json
 import pandas as pd
+import numpy as np
 import requests
 import datetime
 from django.http import JsonResponse
+from django.http import Http404
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.conf import settings
@@ -11,8 +13,9 @@ from core.models import District, Category
 from core.processing.calculate_indexes import calculate_happiness, calculate_happiness_by_district
 from excel_response import ExcelResponse
 import configparser
+from django.views.decorators.cache import cache_page
 
-
+@cache_page(3600 * 24)
 def index(request):
     """Индекс счастья региона
     """
@@ -32,6 +35,24 @@ def index(request):
 
     start_date = str(start_date.day) + '.' + str(start_date.month) + '.' + str(start_date.year)
     end_date = str(end_date.day) + '.' + str(end_date.month) + '.' + str(end_date.year)
+
+    # Показывать ли графики внешнего индекса счастья
+    config = configparser.ConfigParser()
+    config.read(settings.CONFIG_INI_PATH)
+    if 'HAPPINESS_INDEX' in config:
+        show_external_index = True
+        try:
+            ext_districts, ext_happiness = external_happiness_index()
+            ext_districts_compact = []
+            for d in ext_districts:
+                d = d.replace('городской округ ', '')
+                d = d.replace('район', 'р-н')
+                ext_districts_compact.append(d)
+            ext_happiness = list(map(str, ext_happiness))
+        except:
+            show_external_index = False
+    else:
+        show_external_index = False
     context = {
         'page_title': 'Индекс удовлетворённости жизнью',
         'categories': Category.objects.exclude(name='Без темы'),
@@ -42,10 +63,13 @@ def index(request):
         'center_b': str(center_b),
         'mean_index': mean_index,
         'selected_cat': category,
+        'show_external_index': show_external_index,
+        'ext_districts': ext_districts_compact,
+        'ext_happiness': ext_happiness,
     }
     return TemplateResponse(request, 'happiness.html', context=context)
 
-
+@cache_page(3600 * 24)
 def leaflet_map(request, category: int, start_date: str, end_date: str):
     """Карта
 
@@ -63,12 +87,16 @@ def leaflet_map(request, category: int, start_date: str, end_date: str):
         for f in geodata['features']:
             district = District.objects.get(name=f['properties']['russian_name'])
             nps, _, _, _ = calculate_happiness_by_district(district, (start_date, end_date))
+            if round(nps, 2) == 5.00:
+                nps = np.nan
             f['properties']['nps'] = str(round(nps, 2))
     else:
         category = Category.objects.get(pk=category)
         for f in geodata['features']:
             district = District.objects.get(name=f['properties']['russian_name'])
             nps, _, _, _ = calculate_happiness(district, category, (start_date, end_date))
+            if round(nps, 2) == 5.00:
+                nps = np.nan
             f['properties']['nps'] = str(round(nps, 2))
 
     return JsonResponse(geodata)
@@ -105,15 +133,19 @@ def happiness_index(category, start_date, end_date):
                 ext_district_happiness = ext_happiness[ext_idx]
             else:
                 ext_district_happiness = 0
+            mean_index += nps
+            if round(nps, 3) == 5.000:
+                nps = '-1'
+            else:
+                nps = str(round(nps, 3))
             results.append({
                 'district': district,
-                'nps': str(round(nps, 2)),
+                'nps': nps,
                 'pos': pos,
                 'neg': neg,
                 'neu': neu,
                 'ext_district_happiness': str(round(ext_district_happiness, 3))
             })
-            mean_index += nps
     else:
         category = Category.objects.get(pk=category)
         for district in districts:
@@ -123,15 +155,19 @@ def happiness_index(category, start_date, end_date):
                 ext_district_happiness = ext_happiness[ext_idx]
             else:
                 ext_district_happiness = 0
+            mean_index += nps
+            if round(nps, 3) == 5.000:
+                nps = '-1'
+            else:
+                nps = str(round(nps, 3))
             results.append({
                 'district': district,
-                'nps': str(round(nps, 2)),
+                'nps': nps,
                 'pos': pos,
                 'neg': neg,
                 'neu': neu,
                 'ext_district_happiness': str(round(ext_district_happiness, 3))
             })
-            mean_index += nps
     return round(mean_index/len(districts), 2), results
 
 
@@ -160,20 +196,22 @@ def excelview(request, category: int, start_date: str, end_date: str):
 
 def external_happiness_index():
     """Индекс счастья внешний"""
-    ext_districts, ext_happiness = [], []
     config = configparser.ConfigParser()
     config.read(settings.CONFIG_INI_PATH)
     if 'HAPPINESS_INDEX' in config:
-        response = requests.get(config['HAPPINESS_INDEX']['LINK'])
-        if response.status_code == 200:
-            data = response.json()
+        try:
+            response = requests.get(config['HAPPINESS_INDEX']['LINK'])
+            if response.status_code == 200:
+                data = response.json()
 
-            ext_districts = []
-            for item in data['Наименование МО']:
-                if data['Наименование МО'][item].startswith('г. '):
-                    ext_districts.append(data['Наименование МО'][item].replace('г. ', 'городской округ '))
-                else:
-                    ext_districts.append(data['Наименование МО'][item])
+                ext_districts = []
+                for item in data['Наименование МО']:
+                    if data['Наименование МО'][item].startswith('г. '):
+                        ext_districts.append(data['Наименование МО'][item].replace('г. ', 'городской округ '))
+                    else:
+                        ext_districts.append(data['Наименование МО'][item])
 
-            ext_happiness = list(data['Индекс счастья'].values())
+                ext_happiness = list(data['Индекс счастья'].values())
+        except:
+            ext_districts, ext_happiness = [], []
     return ext_districts, ext_happiness

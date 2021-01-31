@@ -117,12 +117,17 @@ def localize(articles: Article):
                 location = get_district(ent[0])
                 if location is not False:
                     for district in districts:
-                        location = location.replace('городской округ', '').strip().lower()
-                        dist = distance.edit_distance(location, district.name.lower())
+                        location = location.replace('Город ', '')
+                        # if location == 'Россия':
+                        #     location = 'region'
+                        location = location.lower()
+                        district_name = district.name.lower()
+                        if 'городской округ' in district_name:
+                            district_name = district_name.replace('городской округ', '')
+                        dist = distance.edit_distance(location, district_name)
                         if dist < 2:
                             ArticleDistrict(
                                 article=article,
                                 district=district
                             ).save()
                             break
-

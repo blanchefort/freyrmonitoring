@@ -5,31 +5,27 @@
 $python manage.py crawler
 """
 import warnings
-warnings.filterwarnings("ignore")
 import os
-os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 import time
 import schedule
 import logging
 import asyncio
-
 from django.core.management.base import BaseCommand
-
 from core.processing.clustering import clustering
-from core.processing.custom_sites import scrape_custom_sites
 from core.processing.scrape_socio import (
     collect_socio_posts,
     collect_comments,
     collect_telega_posts)
-
 from core.processing.markup_content import (
     create_titles,
     markup_theme,
     article_happiness,
     comment_sentiment,
 )
-
+warnings.filterwarnings("ignore")
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 logger = logging.getLogger(__name__)
+
 
 def clustering_step():
     """Кластеризация
@@ -40,11 +36,13 @@ def clustering_step():
     except:
         logger.error('CLUSTERING FAILED')
 
+
 def tg_run():
     """Сбор данных их Телеграма
     """
     loop = asyncio.get_event_loop()
     loop.run_until_complete(collect_telega_posts())
+
 
 def crawler_step():
     """Полный цикл сбора информации
@@ -56,6 +54,7 @@ def crawler_step():
     collect_comments()
     logger.info('STOP CRAWLER')
 
+
 def processing_step():
     """Полный цикл обработки собранной информации
     """
@@ -65,6 +64,7 @@ def processing_step():
     article_happiness()
     comment_sentiment()
     logger.info('END CONTENT PROCESSING')
+
 
 class Command(BaseCommand):
     help = 'Запуск сборщика данных по расписанию'
