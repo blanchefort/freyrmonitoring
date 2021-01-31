@@ -39,6 +39,7 @@ def index(request):
     # Показывать ли графики внешнего индекса счастья
     config = configparser.ConfigParser()
     config.read(settings.CONFIG_INI_PATH)
+    ext_districts_compact, ext_happiness = [], []
     if 'HAPPINESS_INDEX' in config:
         show_external_index = True
         try:
@@ -198,6 +199,7 @@ def external_happiness_index():
     """Индекс счастья внешний"""
     config = configparser.ConfigParser()
     config.read(settings.CONFIG_INI_PATH)
+    ext_districts, ext_happiness = [], []
     if 'HAPPINESS_INDEX' in config:
         try:
             response = requests.get(config['HAPPINESS_INDEX']['LINK'])
