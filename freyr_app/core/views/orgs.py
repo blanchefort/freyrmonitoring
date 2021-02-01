@@ -1,7 +1,6 @@
 from django.template.response import TemplateResponse
 from core.models.entity import Entity, EntityLink
 from core.models.article import Article
-from django.db.models import Count
 
 
 def index(request):

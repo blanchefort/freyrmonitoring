@@ -2,7 +2,7 @@
 """
 import logging
 from nltk.metrics import distance
-from core.models import (
+from ..models import (
     Article,
     Category,
     ArticleCategory,
@@ -12,8 +12,8 @@ from core.models import (
     Entity,
     EntityLink
 )
-from core.processing.nlp import get_title, deEmojify, ner, get_district
-from core.processing.predictor import DefineText
+from .nlp import get_title, deEmojify, ner, get_district
+from .predictor import DefineText
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +45,8 @@ def markup_theme():
             article.save()
     # Сущности
     ner_articles(articles)
+    # Жалобы граждан
+    appeals(articles)
 
 
 def article_happiness():
@@ -131,3 +133,16 @@ def localize(articles: Article):
                                 district=district
                             ).save()
                             break
+
+
+def appeals(articles: Article):
+    """Выявление жалоб граждан, на которые нужен ответ органов региональной власти"""
+    if articles.count() > 0:
+        logger.info("Выявление жалоб граждан")
+        texts = [a.text for a in articles]
+        dt = DefineText(texts)
+        is_appeal, _ = dt.is_appeal()
+        for article, appeal in zip(articles, is_appeal):
+            article.appeal = appeal
+            article.save()
+        logger.info("Выявление жалоб граждан завершено")

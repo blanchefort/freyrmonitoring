@@ -10,7 +10,8 @@ from core.views import (
     orgs,
     items,
     events,
-    happiness
+    happiness,
+    appeals
 )
 
 urlpatterns = [
@@ -19,6 +20,7 @@ urlpatterns = [
     # ENTER
     path('', index.index, name='index'),
     # BASE PATHS
+    path('appeals/', appeals.index, name='appeals'),
     path('sources/', sources.index, name='sources'),
     path('sources/add_source/', sources.add_source, name='add_source'),
     path('persons/', persons.index, name='persons'),

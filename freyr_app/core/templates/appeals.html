@@ -1,0 +1,115 @@
+{% load bootstrap4 %}
+{% load static %}
+
+{% include 'header.html' %}
+
+{% include 'sidebar.html' %}
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">{{page_title}}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            &nbsp;
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+
+
+          <div class="row">
+             <div class="col-lg-12">
+                <!-- Default box -->
+                <div class="card">
+                  <div class="card-body">
+                      <p>Здесь собраны посты, на которые требуется реакция региональной власти.</p>
+                      <p>Для перехода непосредственно к посту в соцсети, нажмите «Перейти к сообщению».</p>
+                      <p>Если сообщение помечено как требующее ответа ошибочно,&nbsp;&mdash; отметьте это,
+                      нажав на кнопку «Нерелевантное».</p>
+                      <p>Если данное сообщение уже получило ответ, нажмите кнопку «Просмотрено».</p>
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+             </div>
+          </div>
+
+          {%if unwatched_count %}
+          <div class="row">
+              <div class="col-lg-12">
+                  <div class="card">
+                      <div class="card-header">
+                          <h3 class="card-title">Новые сообщения <span class="badge badge-danger">{{unwatched_count}}</span></h3>
+                          <div class="card-tools">
+                              {{q}}
+                              <a href="{{item.url}}" target="_blank" type="button" class="btn btn-sm btn-info btn-tool">Перейти к сообщению</a>
+                              <a href="?nonrelevant={{item.pk}}" type="button" class="btn btn-sm btn-info btn-tool">Нерелевантное</a>
+                              <a href="?watched={{item.pk}}" type="button" class="btn btn-sm btn-info btn-tool">Просмотрено</a>
+                          </div>
+                      </div>
+                      <div class="card-body">
+                          {{item.text}}
+                      </div>
+                      <div class="card-footer">
+                          <span class="mr-3"><i class="fas fa-calendar-alt"></i> {{item.publish_date}}</span>
+                          <span class="mr-3"><span class="badge bg-info">{{item.site.title}}</span></span>
+                          <span class="mr-3">
+                              <i class="fas fa-thumbs-up"></i>
+                              <span class="badge bg-success">{{item.likes}}</span>
+                          </span>
+                          <span class="mr-3">
+                              <i class="far fa-eye"></i>
+                              <span class="badge bg-success">{{item.views}}</span>
+                          </span>
+                          <span class="mr-3">
+                              <i class="fas fa-comments"></i>
+                              <span class="badge bg-success">{{item.comment_articles.count}}</span>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          {% else %}
+          <div class="row">
+              <div class="col-lg-12">
+                  <div class="card">
+                      <div class="card-body">
+                          <p class="lead text-center text-info">
+                              <strong>Ура! Нет ни одной новой жалобы!</strong>
+                          </p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          {% endif %}
+
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+    <div class="p-3">
+      <h5>Title</h5>
+      <p>Sidebar content</p>
+    </div>
+  </aside>
+  <!-- /.control-sidebar -->
+
+
+{% include 'footer.html' %}

@@ -48,7 +48,11 @@ class CommentAdmin(ImportExportModelAdmin):
     date_hierarchy = 'publish_date'
 
 
-admin.site.register(Site)
+class SiteAdmin(admin.ModelAdmin):
+    list_display = ('title', 'type')
+
+
+admin.site.register(Site, SiteAdmin)
 admin.site.register(Article, ArticleAdmin)
 admin.site.register(Entity, EntityAdmin)
 admin.site.register(EntityLink)

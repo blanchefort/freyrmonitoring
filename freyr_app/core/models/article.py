@@ -24,6 +24,12 @@ class Article(models.Model):
         (2, 'Отрицательный'),
         (9, 'Не размечен'),
     )
+    APPEAL_TYPES = (
+        (0, 'Отмечено системой как нерелевантное'),
+        (1, 'Отмечено системой как релевантное'),
+        (2, 'Отмечено пользователем как нерелевантное'),
+        (3, 'Просмотрено'),
+    )
 
     url = models.URLField(verbose_name='URL статьи', max_length=512, unique=True)
     site = models.ForeignKey(Site,
@@ -55,6 +61,7 @@ class Article(models.Model):
         verbose_name='Обращение, требующее ответа',
         blank=True,
         null=True,
+        choices=APPEAL_TYPES
     )
     likes = models.PositiveIntegerField(
         verbose_name='Лайки',

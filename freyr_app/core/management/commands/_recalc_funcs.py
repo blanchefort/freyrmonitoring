@@ -1,8 +1,8 @@
 import logging
 from core.processing.nlp import get_title
 from core.models import Article, Comment, ArticleDistrict
-from core.processing.predictor import DefineText
 from core.processing.markup_content import localize
+from core.processing.markup_content import appeals as appl
 logger = logging.getLogger(__name__)
 
 
@@ -28,13 +28,10 @@ def appeals():
     articles = Article.objects.all()
     if articles.count() > 0:
         logger.info("Recalculate Appeals' Flags for Articles")
-        texts = [a.text for a in articles]
-        dt = DefineText(texts)
-        is_appeal, _ = dt.is_appeal()
-        for article, appeal in zip(articles, is_appeal):
-            article.appeal = appeal
-            article.save()
-    logger.info("Recalculating Finished!")
+        appl(articles)
+        logger.info("Recalculating Finished!")
+    else:
+        logger.info('No Articles')
 
 
 def geo():

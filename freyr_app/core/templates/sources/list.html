@@ -65,6 +65,35 @@
                                   {%for source in sources %}
                                   <tr>
                                       <td>
+                                            {% if source.type == 'odnoklassniki_domain' %}
+                                            <i class="fab fa-odnoklassniki-square"></i>
+                                            {% elif source.type == 'odnoklassniki_id' %}
+                                            <i class="fab fa-odnoklassniki-square"></i>
+                                            {% elif source.type == 'insta' %}
+                                            <i class="fab fa-instagram"></i>
+                                            {% elif source.type == 'telega' %}
+                                            <i class="fab fa-telegram"></i>
+                                            {% elif source.type == 'vk_domain' %}
+                                            <i class="fab fa-vk"></i>
+                                            {% elif source.type == 'vk_owner' %}
+                                            <i class="fab fa-vk"></i>
+                                            {% elif source.type == 'youtube' %}
+                                            <i class="fab fa-youtube"></i>
+                                            {% elif source.type == 'twi' %}
+                                            <i class="fab fa-twitter"></i>
+                                            {% elif source.type == 'facebook' %}
+                                            <i class="fab fa-facebook"></i>
+                                            {% elif source.type == 'viber' %}
+                                            <i class="fab fa-viber"></i>
+                                            {% elif source.type == 'whatsapp' %}
+                                            <i class="fab fa-whatsapp"></i>
+                                            {% elif source.type == 'tiktok' %}
+                                            <i class="fas fa-tiktok"></i>
+                                            {% elif source.type == 'yandex' %}
+                                            <i class="fas fa-yandex"></i>
+                                            {% else%}
+                                            <i class="fas fa-globe"></i>
+                                            {% endif %}
                                           <a href="{{source.url}}">{{source.title}}</a>
                                       </td>
                                       <td>{{source.site_articles.count}}</td>
