@@ -19,16 +19,26 @@ from ._download_funcs import geography
 logger = logging.getLogger(__name__)
 
 freyr_files = [
-    {'save_path': 'article_sentiment', 'file_name': 'config.json', 'url': 'https://www.dropbox.com/s/xppp7h47nvvpm5c/config.json?dl=1',},
-    {'save_path': 'article_sentiment', 'file_name': 'pytorch_model.bin', 'url': 'https://www.dropbox.com/s/oqac1o1o9mcrslf/pytorch_model.bin?dl=1',},
-    {'save_path': 'article_theme', 'file_name': 'config.json', 'url': 'https://www.dropbox.com/s/plsxvqk6aj052t1/config.json?dl=1',},
-    {'save_path': 'article_theme', 'file_name': 'pytorch_model.bin', 'url': 'https://www.dropbox.com/s/3dwmakv1kql0gtn/pytorch_model.bin?dl=1',},
-    {'save_path': 'gov_categories', 'file_name': 'classifier.pt', 'url': 'https://www.dropbox.com/s/knjbpwxj7vcizcf/classifier.pt?dl=1',},
-    {'save_path': '', 'file_name': 'stopwords.txt', 'url': 'https://www.dropbox.com/s/regobpg4xciezt6/stopwords.txt?dl=1',},
-    {'save_path': '', 'file_name': 'ru_bert_config.json', 'url': 'https://www.dropbox.com/s/02ih472utx9gcex/ru_bert_config.json?dl=1',},
-    {'save_path': 'article_appeal', 'file_name': 'config.json', 'url': 'https://www.dropbox.com/s/7o1fz3mow8o7zh6/config.json?dl=1',},
-    {'save_path': 'article_appeal', 'file_name': 'pytorch_model.bin', 'url': 'https://www.dropbox.com/s/plp0k4934yome64/pytorch_model.bin?dl=1',}
+    {'save_path': 'article_sentiment', 'file_name': 'config.json',
+     'url': 'https://www.dropbox.com/s/xppp7h47nvvpm5c/config.json?dl=1',},
+    {'save_path': 'article_sentiment', 'file_name': 'pytorch_model.bin',
+     'url': 'https://www.dropbox.com/s/kr36141osykt7f9/pytorch_model.bin?dl=1',},
+    {'save_path': 'article_theme', 'file_name': 'config.json',
+     'url': 'https://www.dropbox.com/s/plsxvqk6aj052t1/config.json?dl=1',},
+    {'save_path': 'article_theme', 'file_name': 'pytorch_model.bin',
+     'url': 'https://www.dropbox.com/s/0o455t87cy0e1yn/pytorch_model.bin?dl=1',},
+    {'save_path': 'gov_categories', 'file_name': 'classifier.pt',
+     'url': 'https://www.dropbox.com/s/knjbpwxj7vcizcf/classifier.pt?dl=1',},
+    {'save_path': '', 'file_name': 'stopwords.txt',
+     'url': 'https://www.dropbox.com/s/regobpg4xciezt6/stopwords.txt?dl=1',},
+    {'save_path': '', 'file_name': 'ru_bert_config.json',
+     'url': 'https://www.dropbox.com/s/02ih472utx9gcex/ru_bert_config.json?dl=1',},
+    {'save_path': 'article_appeal', 'file_name': 'config.json',
+     'url': 'https://www.dropbox.com/s/7o1fz3mow8o7zh6/config.json?dl=1',},
+    {'save_path': 'article_appeal', 'file_name': 'pytorch_model.bin',
+     'url': 'https://www.dropbox.com/s/plp0k4934yome64/pytorch_model.bin?dl=1',}
 ]
+
 
 class Command(BaseCommand):
     help = 'Команда скачивания новых версий ML-моделей'

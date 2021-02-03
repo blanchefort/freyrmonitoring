@@ -1,5 +1,5 @@
 from django.db.models import Q
-from core.models import Article, District, Category, Comment
+from ..models import Article, District, Category, Comment
 import numpy as np
 
 
@@ -26,10 +26,6 @@ def calculate_happiness(district: District, category: Category, period: tuple) -
         .filter(Q(article_district__district=district) | Q(article_district__district=region)) \
         .filter(publish_date__range=[start_date, end_date]) \
         .filter(categories__category=category)
-    # articles = Article.objects \
-    #     .filter(article_district__district=district) \
-    #     .filter(publish_date__range=[start_date, end_date]) \
-    #     .filter(categories__category=category)
 
     for article in articles:
         if article.happiness_sentiment == 1:
@@ -66,9 +62,6 @@ def calculate_happiness_by_district(district: District, period: tuple) -> tuple:
     articles = Article.objects\
         .filter(Q(article_district__district=district) | Q(article_district__district=region))\
         .filter(publish_date__range=[start_date, end_date])
-    # articles = Article.objects \
-    #     .filter(article_district__district=district) \
-    #     .filter(publish_date__range=[start_date, end_date])
 
     for article in articles:
         if article.happiness_sentiment == 1:

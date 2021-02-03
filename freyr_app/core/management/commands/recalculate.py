@@ -12,7 +12,7 @@ $ python manage.py recalculate --help
 """
 import logging
 from django.core.management.base import BaseCommand
-from ._recalc_funcs import titles, appeals, geo
+from ._recalc_funcs import titles, appeals, geo, loyalty
 
 logger = logging.getLogger(__name__)
 
@@ -28,26 +28,20 @@ class Command(BaseCommand):
             appeals()
         if options['geo']:
             geo()
+        if options['loyalty']:
+            loyalty()
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '-a',
-            '--appeals',
-            action='store_true',
-            default=False,
-            help='Классификация постов-обращений, на которые требуется ответ'
+        commands = (
+            ('--appeals', 'Классификация постов-обращений, на которые требуется ответ',),
+            ('--titles', 'Переделать все заголовки, сгенерированные для текстов из соцсетей',),
+            ('--geo', 'Пересчёт привязки статей к муниципалитетам',),
+            ('--loyalty', 'Пересчитать индекс лояльности',),
         )
-        parser.add_argument(
-            '-t',
-            '--titles',
-            action='store_true',
-            default=False,
-            help='Переделать все заголовки, сгенерированные для текстов из соцсетей'
-        )
-        parser.add_argument(
-            '-g',
-            '--geo',
-            action='store_true',
-            default=False,
-            help='Пересчёт привязки статей к муниципалитетам'
-        )
+        for command, help in commands:
+            parser.add_argument(
+                command,
+                action='store_true',
+                default=False,
+                help=help
+            )

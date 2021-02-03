@@ -33,8 +33,7 @@ def markup_theme():
     articles = Article.objects.exclude(sentiment=0).exclude(sentiment=1).exclude(sentiment=2)
     if len(articles) > 0:
         logger.info('DEFINE ARTICLE THEME AND SENTIMENT')
-        # TODO: Теперь класс сам обрабатывает весь входящий текст, нужно убрать эту штуковину
-        texts = [deEmojify(item.text) for item in articles]
+        texts = [item.text for item in articles]
         dt = DefineText(texts)
         themes, _ = dt.article_theme()
         sentiments, _ = dt.article_sentiment()

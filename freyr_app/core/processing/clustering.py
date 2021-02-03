@@ -9,7 +9,7 @@ from sentence_transformers import SentenceTransformer, util
 from django.conf import settings
 from django.utils import timezone
 
-from core.models import Article, Theme, ThemeArticles
+from ..models import Article, Theme, ThemeArticles
 
 logger = logging.getLogger(__name__)
 

@@ -3,6 +3,8 @@ from core.processing.nlp import get_title
 from core.models import Article, Comment, ArticleDistrict
 from core.processing.markup_content import localize
 from core.processing.markup_content import appeals as appl
+from core.processing.predictor import DefineText
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,3 +49,22 @@ def geo():
     localize(articles)
     logger.info('Определения локализации статей успешно закончено')
     return True
+
+
+def loyalty():
+    """Пересчитать индекс лояльности"""
+    articles = Article.objects.all()
+    if articles.count() == 0:
+        logger.info('Пока нет статей для пересчёта. Выходим...')
+        return False
+    logger.info('Начало пересчёта индекса лояльности')
+    logger.info(f'Количество материалов: {articles.count()}')
+    texts = [item.text for item in articles]
+    dt = DefineText(texts)
+    themes, _ = dt.article_theme()
+    sentiments, _ = dt.article_sentiment()
+
+    for article, theme, sentiment in zip(articles, themes, sentiments):
+        article.theme = bool(theme)
+        article.sentiment = sentiment
+        article.save()

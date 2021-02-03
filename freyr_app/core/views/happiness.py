@@ -4,16 +4,16 @@ import pandas as pd
 import numpy as np
 import requests
 import datetime
+import configparser
+from excel_response import ExcelResponse
 from django.http import JsonResponse
-from django.http import Http404
 from django.template.response import TemplateResponse
+from django.views.decorators.cache import cache_page
 from django.utils import timezone
 from django.conf import settings
-from core.models import District, Category
-from core.processing.calculate_indexes import calculate_happiness, calculate_happiness_by_district
-from excel_response import ExcelResponse
-import configparser
-from django.views.decorators.cache import cache_page
+from ..models import District, Category
+from ..processing.calculate_indexes import calculate_happiness, calculate_happiness_by_district
+
 
 @cache_page(3600 * 24)
 def index(request):
@@ -69,6 +69,7 @@ def index(request):
         'ext_happiness': ext_happiness,
     }
     return TemplateResponse(request, 'happiness.html', context=context)
+
 
 @cache_page(3600 * 24)
 def leaflet_map(request, category: int, start_date: str, end_date: str):

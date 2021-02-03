@@ -1,11 +1,11 @@
 import logging
 
-from core.models import Site
-from core.crawlers import (
+from ..models import Site
+from ..crawlers import (
     NovgorodRuCrawler,
     VNRuCrawler
 )
-from core.processing.scrape_socio import save_articles
+from .scrape_socio import save_articles
 
 logger = logging.getLogger(__name__)
 
