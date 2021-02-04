@@ -17,8 +17,6 @@ def index(request):
     themes2display = []
     for theme in themes:
         article_count = ThemeArticles.objects.filter(theme_link=theme).filter(article_link__theme=True).count()
-        if article_count < 3:
-            continue
         t = {'id': theme.id, 'name': theme.name}
         earliest = ThemeArticles.objects.filter(theme_link=theme).filter(article_link__theme=True).order_by(
             'article_link__publish_date')[0]
@@ -42,7 +40,7 @@ def index(request):
         themes2display.append(t)
     context = {
         'title': 'FreyrMonitoring',
-        'page_title': 'Кластеры событий',
+        'page_title': 'Выявленные события',
         'themes': themes2display,
         'themes_orig': themes,
     }

@@ -111,3 +111,17 @@ def nps_norm10(nps: float) -> float:
     data = [-100, 100, nps]
     data = (data - np.min(data)) / (np.max(data) - np.min(data))
     return data[-1]*10
+
+
+def nps_norm100(nps: float) -> float:
+    """Переводим индекс NPS в шкалу 0..10
+
+    Args:
+        nps (float): Индекс
+
+    Returns:
+        float: Нормализованный индекс
+    """
+    data = [-100, 100, nps]
+    data = (data - np.min(data)) / (np.max(data) - np.min(data))
+    return data[-1]*100

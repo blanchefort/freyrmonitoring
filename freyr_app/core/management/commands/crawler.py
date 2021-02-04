@@ -50,7 +50,6 @@ def crawler_step():
     logger.info('START CRAWLER')
     tg_run()
     collect_socio_posts()
-    #scrape_custom_sites()
     collect_comments()
     logger.info('STOP CRAWLER')
 
@@ -75,7 +74,7 @@ class Command(BaseCommand):
         clustering_step()
         
         schedule.every().day.at('02:00').do(crawler_step)
-        schedule.every().day.at('02:30').do(processing_step)
+        schedule.every().day.at('03:30').do(processing_step)
         schedule.every().day.at('05:00').do(clustering_step)
 
         while True:

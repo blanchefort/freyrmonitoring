@@ -1,10 +1,9 @@
-from django.template.response import TemplateResponse
-from core.models.article import Article
-from core.models.entity import Entity, EntityLink
-from core.models.theme import Theme, ThemeArticles
 from datetime import date, timedelta
 import configparser
 from django.conf import settings
+from django.template.response import TemplateResponse
+from ..models import Article, Entity, EntityLink, Theme, ThemeArticles
+from ..processing.calculate_indexes import nps_norm100
 
 def index(request):
     """Стартовая страница
@@ -122,10 +121,11 @@ def index(request):
     loyalty_index = pos - neg
     loyalty_index /= total
     loyalty_index *= 100
+    loyalty_index = nps_norm100(loyalty_index)
     context.update({'loyalty_index': loyalty_index})
-    if loyalty_index <= -26:
+    if loyalty_index <= 25:
         context.update({'loyalty_type': 'bad'})
-    elif loyalty_index >= 26:
+    elif loyalty_index >= 55:
         context.update({'loyalty_type': 'good'})
     else:
         context.update({'loyalty_type': 'nono'})
