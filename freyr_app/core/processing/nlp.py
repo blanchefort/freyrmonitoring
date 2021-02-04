@@ -62,13 +62,8 @@ def get_title(text: str) -> str:
     Returns:
         [str]: Заголовок
     """
-    text = text.replace(' \n', '. ')
-    text = text.replace('\n\r', ' ')
-    text = text.replace('\n', ' ')
-    text = text.replace('|', ' ')
-    text = re.sub(r'http\S+', '', text.strip(), flags=re.MULTILINE)
-    text = text.replace('[—](', ' ')
-    text = text.replace('[', ' ').replace(']', ' ')
+    text = text.replace('\n', '.').replace('..', '.')
+    text = preprocess_text(text)
     sents = list(sentenize(text))
     if len(sents[0].text) > 0:
         title = sents[0].text
@@ -76,8 +71,6 @@ def get_title(text: str) -> str:
         title = sents[1].text
     else:
         title = '(без заголовка)'
-    title = title.replace('**', ' ')
-    title = title.replace('__', ' ')
     if len(title.split(',')[0].replace('.', '').split()) == 1:
         return title.replace('.', '')
     return title.split(',')[0].replace('.', '')

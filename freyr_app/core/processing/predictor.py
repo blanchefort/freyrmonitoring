@@ -2,8 +2,8 @@ import os
 import torch
 from transformers import BertTokenizer, BertForSequenceClassification
 from django.conf import settings
-from core.models import categories
-from core.nn import CategoryClassifier
+from ..models import categories
+from ..nn import CategoryClassifier
 from .nlp import preprocess_text
 
 
