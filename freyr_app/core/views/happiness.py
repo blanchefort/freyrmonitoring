@@ -15,7 +15,7 @@ from ..models import District, Category
 from ..processing.calculate_indexes import calculate_happiness, calculate_happiness_by_district
 
 
-@cache_page(3600 * 24)
+# @cache_page(3600 * 24)
 def index(request):
     """Индекс счастья региона
     """
@@ -40,8 +40,8 @@ def index(request):
     config = configparser.ConfigParser()
     config.read(settings.CONFIG_INI_PATH)
     ext_districts_compact, ext_happiness = [], []
+    show_external_index = 0
     if 'HAPPINESS_INDEX' in config:
-        show_external_index = True
         try:
             ext_districts, ext_happiness = external_happiness_index()
             ext_districts_compact = []
@@ -51,9 +51,10 @@ def index(request):
                 ext_districts_compact.append(d)
             ext_happiness = list(map(str, ext_happiness))
         except:
-            show_external_index = False
-    else:
-        show_external_index = False
+            pass
+
+    if len(ext_happiness) > 0:
+        show_external_index = 1
     context = {
         'page_title': 'Индекс удовлетворённости жизнью',
         'categories': Category.objects.exclude(name='Без темы'),

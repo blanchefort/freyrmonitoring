@@ -212,22 +212,27 @@ def clustering(delta_hours=5):
     themes = Theme.objects.filter(
         theme_articles__article_link__publish_date__range=[end_date, start_date])
     tsc = TextStreamClustering()
+
+    delta_hours = -delta_hours
+    start_date = timezone.now()
+    end_date = timezone.now() + datetime.timedelta(hours=delta_hours)
+    articles = Article.objects.filter(theme=True).filter(
+        publish_date__gte=end_date,
+        publish_date__lte=start_date
+    ).order_by('publish_date')[:500]
+    lag_idx = [article.id for article in articles]
+    lag_titles = [article.title for article in articles]
+    lag_texts = [article.text for article in articles]
     if len(themes) == 0:
         logger.info('New Clustering')
-        articles = Article.objects.filter(theme=True).all()
-
-        lag_idx = [article.id for article in articles]
-        lag_titles = [article.title for article in articles]
-        lag_texts = [article.text for article in articles]
-        
+        logger.info(f'Len of articles len(articles)')
         logger.info('generate_corpus_embs')
         corpus_embeddings = tsc.generate_corpus_embs(titles=lag_titles, texts=lag_texts)
-
         logger.info('generate_new_clusters')
-        (cluster_embeddings, 
-        cluster_titles, 
-        cluster_keywords, 
-        cluster_articles) = tsc.generate_new_clusters(corpus_embeddings, lag_titles, lag_texts)
+        (cluster_embeddings,
+         cluster_titles,
+         cluster_keywords,
+         cluster_articles) = tsc.generate_new_clusters(corpus_embeddings, lag_titles, lag_texts)
 
         logger.info('save clusters and links')
         for cl_idx in range(0, len(cluster_embeddings)):
@@ -243,40 +248,16 @@ def clustering(delta_hours=5):
                 ).save()
     else:
         logger.info('TimeSiquenceClustering')
-        delta_hours = -delta_hours
-        start_date = timezone.now()
-        end_date = timezone.now() + datetime.timedelta(hours=delta_hours)
-        articles = Article.objects.filter(theme=True).filter(
-                    publish_date__gte=end_date,
-                    publish_date__lte=start_date
-                )
         logger.info(f'Len of articles len(articles)')
-        lag_idx = [article.id for article in articles]
-        lag_titles = [article.title for article in articles]
-        lag_texts = [article.text for article in articles]
-        logger.info('='*10)
-        logger.info('CHECK LENGTHS OF CONTENT')
-        logger.info('Titles:')
-        for i in lag_titles:
-            logger.info(len(i))
-        logger.info('Texts:')
-        for i in lag_texts:
-            logger.info(len(i))
         # Получаем эмбеддинги новой выборки
         logger.info('Получаем эмбеддинги новой выборки')
         corpus_embeddings = tsc.generate_corpus_embs(titles=lag_titles, texts=lag_texts)
-        logger.info('Corpus embeddings:')
-        for i in corpus_embeddings:
-            logger.info(len(i))
-        logger.info('='*10)
         # Прогоняем статьи по имеющимся кластерам
         logger.info('Прогоняем статьи по имеющимся кластерам')
         selected_articles = []
-        #TODO: Темы надо тоже по времени ограничивать
         for theme in themes:
             cluster_new_articles = []
             cluster_embedding = torch.load(os.path.join(settings.CLUSTERS_PATH, f'{theme.id}.bin'))
-            logger.info(f'Cluster embedding, {cluster_embedding.shape}')
             selected, _, _ = tsc.select_cluster_articles(cluster_embedding, corpus_embeddings)
             if len(selected) > 0:
                 cluster_new_articles = selected
@@ -299,10 +280,10 @@ def clustering(delta_hours=5):
 
             # Новые кластеры
             logger.info('Новые кластеры')
-            (cluster_embeddings, 
-            cluster_titles, 
-            cluster_keywords, 
-            cluster_articles) = tsc.generate_new_clusters(corpus_embeddings, lag_titles, lag_texts)
+            (cluster_embeddings,
+             cluster_titles,
+             cluster_keywords,
+             cluster_articles) = tsc.generate_new_clusters(corpus_embeddings, lag_titles, lag_texts)
 
             # Сохраняем новые кластеры
             logger.info('Сохраняем новые кластеры')

@@ -113,6 +113,8 @@ pip install -r requirements.txt
 
 #### 2.1. Установить часовой пояс:
 
+Посмотреть временные зоны можно здесь: https://www.timeserver.ru/
+
 ```python
 TIME_ZONE = 'Europe/Moscow'
 ```

@@ -76,7 +76,7 @@ class DefineText:
         1 - статья подходит под региональные новости, обсуждающие власть
         0 - не подходит
         """
-        tokenizer = BertTokenizer.from_pretrained(f'{self.model_path}/rubert-base-cased-sentence-tokenizer')
+        tokenizer = BertTokenizer.from_pretrained(f'{self.model_path}/rubert-base-cased-conversational-tokenizer')
         model = BertForSequenceClassification.from_pretrained(f'{self.model_path}/article_theme')
         model.to(self.device)
         model.eval()
@@ -89,7 +89,7 @@ class DefineText:
         0: 'Neutral',
         2: 'Negative',
         """
-        tokenizer = BertTokenizer.from_pretrained(f'{self.model_path}/rubert-base-cased-sentence-tokenizer')
+        tokenizer = BertTokenizer.from_pretrained(f'{self.model_path}/rubert-base-cased-conversational-tokenizer')
         model = BertForSequenceClassification.from_pretrained(f'{self.model_path}/article_sentiment')
         model.to(self.device)
         model.eval()
