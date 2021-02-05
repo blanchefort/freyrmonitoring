@@ -83,7 +83,7 @@ freyr_files = [
     {'save_path': 'article_theme', 'file_name': 'config.json',
      'url': 'https://www.dropbox.com/s/plsxvqk6aj052t1/config.json?dl=1',},
     {'save_path': 'article_theme', 'file_name': 'pytorch_model.bin',
-     'url': 'https://www.dropbox.com/s/0o455t87cy0e1yn/pytorch_model.bin?dl=1',},
+     'url': 'https://www.dropbox.com/s/as8nrz5y8ubcbua/pytorch_model.bin?dl=1',},
     {'save_path': 'gov_categories', 'file_name': 'classifier.pt',
      'url': 'https://www.dropbox.com/s/knjbpwxj7vcizcf/classifier.pt?dl=1',},
     {'save_path': '', 'file_name': 'stopwords.txt',
