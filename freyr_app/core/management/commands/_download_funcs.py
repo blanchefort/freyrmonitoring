@@ -79,7 +79,7 @@ freyr_files = [
     {'save_path': 'article_sentiment', 'file_name': 'config.json',
      'url': 'https://www.dropbox.com/s/xppp7h47nvvpm5c/config.json?dl=1',},
     {'save_path': 'article_sentiment', 'file_name': 'pytorch_model.bin',
-     'url': 'https://www.dropbox.com/s/kr36141osykt7f9/pytorch_model.bin?dl=1',},
+     'url': 'https://www.dropbox.com/s/sg7h06va70ikenb/pytorch_model.bin?dl=1',},
     {'save_path': 'article_theme', 'file_name': 'config.json',
      'url': 'https://www.dropbox.com/s/plsxvqk6aj052t1/config.json?dl=1',},
     {'save_path': 'article_theme', 'file_name': 'pytorch_model.bin',
