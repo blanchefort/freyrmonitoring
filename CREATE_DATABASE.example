@@ -1,0 +1,5 @@
+CREATE DATABASE freyr_nov;
+CREATE USER nov_user WITH PASSWORD 'pasdfgdsword';
+ALTER ROLE nov_user SET client_encoding TO 'utf8';
+ALTER ROLE nov_user SET default_transaction_isolation TO 'read committed';
+ALTER ROLE nov_user SET timezone TO 'UTC+3';

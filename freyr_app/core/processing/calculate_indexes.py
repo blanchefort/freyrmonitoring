@@ -125,3 +125,34 @@ def nps_norm100(nps: float) -> float:
     data = [-100, 100, nps]
     data = (data - np.min(data)) / (np.max(data) - np.min(data))
     return data[-1]*100
+
+
+def loyalty_index(year: int, month: int) -> float:
+    """Индекс лояльности за определённый период
+
+    NPS = # Promoters - # Detractors / # Votes * 100
+    У нас:
+    (pos - neg) / total * 100
+
+    Args:
+        year (int): Год
+        month (int): Месяц
+
+    Returns:
+        float: Нормализованный индекс 0..100
+    """
+    total = Article.objects.filter(theme=True) \
+        .filter(publish_date__year=year, publish_date__month=month) \
+        .count() + 1e-8
+    pos = Article.objects.filter(theme=True) \
+        .filter(publish_date__year=year, publish_date__month=month) \
+        .filter(sentiment=1).count()
+    neg = Article.objects.filter(theme=True) \
+        .filter(publish_date__year=year, publish_date__month=month) \
+        .filter(sentiment=2).count()
+
+    loyalty = pos - neg
+    loyalty /= total
+    loyalty *= 100
+    loyalty = nps_norm100(loyalty)
+    return loyalty

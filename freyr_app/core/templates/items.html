@@ -16,10 +16,7 @@
             <h1 class="m-0 text-dark">{{page_title}}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
-              <li class="breadcrumb-item active">{{page_title}}</li>
-            </ol>
+            &nbsp;
           </div><!-- /.col -->
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
@@ -31,84 +28,125 @@
       <div class="container-fluid">
           
           
-          <div class="row"> 
-             <div class="col-lg-12">
-                 
-          <!-- Default box -->
-            <!-- <div class="card">
-              <div class="card-body">
-                Источниками для анализа реакции жителей региона являются статьи информационных ресурсов, а также посты и видеоролики в социальных сетях. Здесь представлен список всех данных, собранных системой за время работы.
-              </div>
-            </div> -->
-            <!-- /.card -->
-             
-          </div>
-        </div>
-          
-          
           <div class="row">
-          <div class="col-lg-12">
-            
-              
-              <!-- Default box -->
-            <div class="card">
-              <div class="card-body">
-                  <div class="row">
-                      
-                      <div class="col-12 col-sm-6 col-md-4">
-            <div class="info-box">
-              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-thumbs-up"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Положительных</span>
-                <span class="info-box-number">
-                  {{positive_count}}
-                </span>
-              </div>
-              <!-- /.info-box-content -->
+             <div class="col-lg-12">
+                 <!-- Default box -->
+                 <div class="card">
+                      <div class="card-body">
+                          <p>Индекс лояльности отражает отношение к&nbsp;региональной власти на&nbsp;основе собранных постов.
+                              Система анализирует все собранные посты и&nbsp;пытается определить,
+                              говорится&nbsp;ли в&nbsp;посте о&nbsp;региональной власти, либо влияет&nbsp;ли данный
+                              пост на&nbsp;отношение общества к&nbsp;региональной власти. Выявив посты, которые
+                              относятся к&nbsp;региональной власти, система пытается понять, хорошо в&nbsp;данном
+                              материале говорится о&nbsp;региональной власти, плохо или нейтрально.</p>
+                          <p>Проанализировав все собранные посты, система строит индекс лояльности
+                              на&nbsp;шкале от&nbsp;0&nbsp;до&nbsp;100, где 0&nbsp;&mdash; крайне негативное
+                              отношение к&nbsp;органам власти, 100&nbsp;&mdash; полностью положительное отношение.</p>
+                          {{earliest.publish_date.year}}
+                          {{oldest.publish_date.year}}
+                      </div>
+                 </div>
+                <!-- /.card -->
             </div>
-            <!-- /.info-box -->
           </div>
-          <!-- /.col -->
-                      
-                      <div class="col-12 col-sm-6 col-md-4">
-            <div class="info-box">
-              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-comment"></i></span>
 
-              <div class="info-box-content">
-                <span class="info-box-text">Нейтральных</span>
-                <span class="info-box-number">
-                  {{neutral_count}}
-                </span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
-                      
-                      <div class="col-12 col-sm-6 col-md-4">
-            <div class="info-box">
-              <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-down"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Отрицательных</span>
-                <span class="info-box-number">
-                  {{negative_count}}
-                </span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
-          <!-- /.col -->
+          <div class="row">
+              <div class="col-lg-12">
+                  <div class="card">
+                      <div class="card-body">
+                          <form method="get">
+                              <div class="row">
+                                  <div class="col-sm-2">
+                                      <select class="form-control" name="month">
+                                          <option value="1" {%if selected_month == 1%}selected{%endif%}>Январь</option>
+                                          <option value="2" {%if selected_month == 2%}selected{%endif%}>Февраль</option>
+                                          <option value="3" {%if selected_month == 3%}selected{%endif%}>Март</option>
+                                          <option value="4" {%if selected_month == 4%}selected{%endif%}>Апрель</option>
+                                          <option value="5" {%if selected_month == 5%}selected{%endif%}>Май</option>
+                                          <option value="6" {%if selected_month == 6%}selected{%endif%}>Июнь</option>
+                                          <option value="7" {%if selected_month == 7%}selected{%endif%}>Июль</option>
+                                          <option value="8" {%if selected_month == 8%}selected{%endif%}>Август</option>
+                                          <option value="9" {%if selected_month == 9%}selected{%endif%}>Сентябрь</option>
+                                          <option value="10" {%if selected_month == 10%}selected{%endif%}>Октябрь</option>
+                                          <option value="11" {%if selected_month == 11%}selected{%endif%}>Ноябрь</option>
+                                          <option value="12" {%if selected_month == 12%}selected{%endif%}>Декабрь</option>
+                                      </select>
+                                  </div>
+                                  <div class="col-sm-2">
+                                      <select class="form-control" name="year">
+                                          {%for y in year_range%}
+                                          {%if y == selected_year%}
+                                          <option value="{{y}}" selected>{{y}}</option>
+                                          {%else%}
+                                          <option value="{{y}}">{{y}}</option>
+                                          {%endif%}
+                                          {%endfor%}
+                                      </select>
+                                  </div>
+                                  <div class="col-sm-3">
+                                      <button type="submit" class="btn btn-info float-left">Применить</button>
+                                  </div>
+                              </div>
+                          </form>
+                      </div>
                   </div>
-              
-              
+              </div>
           </div>
-          <!-- /.col-md-6 -->
-        </div>
-        <!-- /.row -->
+
+          <div class="row">
+              <div class="col-lg-12">
+                  <div class="card">
+                      <div class="card-body">
+                          <div class="row">
+                              <div class="col-sm-3">
+                                  <div class="info-box">
+                                      <span class="info-box-icon bg-purple elevation-1">
+                                          <i class="fas fa-award"></i>
+                                      </span>
+                                      <div class="info-box-content">
+                                          <span class="info-box-text">Индекс</span>
+                                          <span class="info-box-number">{{loyalty|floatformat}}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="col-sm-3">
+                                  <div class="info-box">
+                                      <span class="info-box-icon bg-success elevation-1">
+                                          <i class="fas fa-thumbs-up"></i>
+                                      </span>
+                                      <div class="info-box-content">
+                                          <span class="info-box-text">Положительных</span>
+                                          <span class="info-box-number">{{positive_count}}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="col-sm-3">
+                                  <div class="info-box">
+                                      <span class="info-box-icon bg-info elevation-1">
+                                          <i class="fas fa-comment"></i>
+                                      </span>
+                                      <div class="info-box-content">
+                                          <span class="info-box-text">Нейтральных</span>
+                                          <span class="info-box-number">{{neutral_count}}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="col-sm-3">
+                                  <div class="info-box">
+                                      <span class="info-box-icon bg-danger elevation-1">
+                                          <i class="fas fa-thumbs-down"></i>
+                                      </span>
+                                      <div class="info-box-content">
+                                          <span class="info-box-text">Отрицательных</span>
+                                          <span class="info-box-number">{{negative_count}}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
           
         <div class="row">
           <div class="col-lg-12">
@@ -124,7 +162,7 @@
                         <a href="{{a.url}}" class="text-lg">{{a.title}}</a>
                     </div>
                     <div class="card-body">
-                        <p>{{a.text|truncatechars:300}}</p>
+                        <p>{{a.text|truncatewords:30}}</p>
                         <span class="mr-3">
                             <i class="fas fa-calendar-alt"></i> {{a.publish_date}}
                         </span>
@@ -148,19 +186,21 @@
             <nav aria-label="Page navigation">
               <ul class="pagination justify-content-left">
                 {% if articles.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ articles.previous_page_number }}">&laquo;</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{articles.previous_page_number}}&month={{selected_month}}&year={{selected_year}}">&laquo;</a>
+                </li>
                 {% else %}
                 <li class="page-item disabled"><a class="page-link" href="#"><span>&laquo;</span></a></li>
                 {% endif %}
-                {% for i in paginator.page_range %}
+                {% for i in page_range %}
                 {% if articles.number == i %}
                 <li class="page-item active"><a class="page-link" href="#">{{ i }} <span class="sr-only">(current)</span></a></li>
                 {% else %}
-                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{i}}&month={{selected_month}}&year={{selected_year}}">{{ i }}</a></li>
                 {% endif %}
                 {% endfor %}
                 {% if articles.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ articles.next_page_number }}">&raquo;</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{articles.next_page_number}}&month={{selected_month}}&year={{selected_year}}">&raquo;</a></li>
                 {% else %}
                 <li class="page-item disabled"><a class="page-link" href="#"><span>&raquo;</span></a></li>
                 {% endif %}
@@ -172,10 +212,7 @@
               
               
               
-          </div>
-          <!-- /.col-md-6 -->
-        </div>
-        <!-- /.row -->
+
       </div><!-- /.container-fluid -->
     </div>
     <!-- /.content -->

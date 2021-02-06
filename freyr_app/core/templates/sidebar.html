@@ -24,6 +24,14 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="{% url 'items' %}" class="nav-link">
+              <i class="nav-icon fas fa-award"></i>
+              <p>
+                Индекс лояльности
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="{% url 'events' %}" class="nav-link">
               <i class="nav-icon fas fa-bell"></i>
               <p>
@@ -32,14 +40,7 @@
             </a>
           </li>
             
-            <li class="nav-item">
-            <a href="{% url 'items' %}" class="nav-link">
-              <i class="nav-icon fas fa-comments"></i>
-              <p>
-                Статьи и посты
-              </p>
-            </a>
-          </li>
+
             
           {% if user.is_authenticated %}
           <li class="nav-item has-treeview">
