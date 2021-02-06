@@ -6,7 +6,7 @@ from core.models import Article, Comment, ArticleDistrict, Theme, ThemeArticles,
 from core.processing.markup_content import localize
 from core.processing.markup_content import appeals as appl
 from core.processing.predictor import DefineText
-from core.processing.clustering import clustering
+from core.processing.clustering import clustering as clstr
 
 
 logger = logging.getLogger(__name__)
@@ -86,4 +86,4 @@ def clustering():
     ThemeMarkup.objects.all().delete()
     logger.info('Все кластеры удалены')
     logger.info('Приступаем к новой кластеризации')
-    clustering(delta_hours=24)
+    clstr(delta_hours=24)
