@@ -1,5 +1,6 @@
 import os, shutil
 import logging
+from django.conf import settings
 from core.processing.nlp import get_title
 from core.models import Article, Comment, ArticleDistrict, Theme, ThemeArticles, ThemeMarkup
 from core.processing.markup_content import localize
