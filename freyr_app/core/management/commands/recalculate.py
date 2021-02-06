@@ -30,6 +30,8 @@ class Command(BaseCommand):
             geo()
         if options['loyalty']:
             loyalty()
+        if options['clustering']:
+            clustering()
 
     def add_arguments(self, parser):
         commands = (
