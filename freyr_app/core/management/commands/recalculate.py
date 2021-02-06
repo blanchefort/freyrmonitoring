@@ -12,7 +12,7 @@ $ python manage.py recalculate --help
 """
 import logging
 from django.core.management.base import BaseCommand
-from ._recalc_funcs import titles, appeals, geo, loyalty
+from ._recalc_funcs import titles, appeals, geo, loyalty, clustering
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,7 @@ class Command(BaseCommand):
             ('--titles', 'Переделать все заголовки, сгенерированные для текстов из соцсетей',),
             ('--geo', 'Пересчёт привязки статей к муниципалитетам',),
             ('--loyalty', 'Пересчитать индекс лояльности',),
+            ('--clustering', 'Новая кластеризация. Все старые данные будут удалены. Лучше не использовать.',),
         )
         for command, help in commands:
             parser.add_argument(

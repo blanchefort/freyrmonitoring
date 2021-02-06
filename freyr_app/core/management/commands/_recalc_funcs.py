@@ -1,9 +1,12 @@
+import os, shutil
 import logging
 from core.processing.nlp import get_title
-from core.models import Article, Comment, ArticleDistrict
+from core.models import Article, Comment, ArticleDistrict, Theme, ThemeArticles, ThemeMarkup
 from core.processing.markup_content import localize
 from core.processing.markup_content import appeals as appl
 from core.processing.predictor import DefineText
+from core.processing.clustering import clustering
+
 
 logger = logging.getLogger(__name__)
 
@@ -68,3 +71,18 @@ def loyalty():
         article.theme = bool(theme)
         article.sentiment = sentiment
         article.save()
+
+
+def clustering():
+    """Новая кластеризация. Старые кластеры будут удалены, кластеризуются лишь последние новые материалы."""
+    logger.warning('Новая кластеризация. \
+    Старые кластеры будут удалены, кластеризуются лишь последние новые материалы.')
+    if os.path.isdir(settings.CLUSTERS_PATH):
+        shutil.rmtree(settings.CLUSTERS_PATH, ignore_errors=True)
+    os.makedirs(settings.CLUSTERS_PATH, exist_ok=True)
+    Theme.objects.all().delete()
+    ThemeArticles.objects.all().delete()
+    ThemeMarkup.objects.all().delete()
+    logger.info('Все кластеры удалены')
+    logger.info('Приступаем к новой кластеризации')
+    clustering(delta_hours=24)

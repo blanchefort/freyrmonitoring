@@ -42,7 +42,7 @@ class ThemeArticles(models.Model):
 
 class ThemeMarkup(models.Model):
     """Пользовательская разметка. 
-    Пользовательскае названия кластеров 
+    Пользовательские названия кластеров
     для обучения модели формирования заголовков.
     """
     theme = models.ForeignKey(Theme,
