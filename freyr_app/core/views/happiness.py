@@ -15,7 +15,7 @@ from ..models import District, Category
 from ..processing.calculate_indexes import calculate_happiness, calculate_happiness_by_district
 
 
-# @cache_page(3600 * 24)
+@cache_page(3600 * 24)
 def index(request):
     """Индекс счастья региона
     """
@@ -196,6 +196,7 @@ def excelview(request, category: int, start_date: str, end_date: str):
             'Индекс удовлетворённости жизнью': float(item['nps']),
         })
     return ExcelResponse(data, title)
+
 
 def external_happiness_index():
     """Индекс счастья внешний"""
