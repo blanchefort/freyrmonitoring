@@ -6,16 +6,18 @@ import requests
 import datetime
 import configparser
 from excel_response import ExcelResponse
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.template.response import TemplateResponse
 from django.views.decorators.cache import cache_page
 from django.utils import timezone
 from django.conf import settings
-from ..models import District, Category
+from django.contrib import messages
+from django.core.files.storage import FileSystemStorage
+from ..models import District, Category, Happiness
 from ..processing.calculate_indexes import calculate_happiness, calculate_happiness_by_district
+from ..forms import UploadHappinessIndex
+from django.db.models import Sum
 
-
-@cache_page(3600 * 24)
 def index(request):
     """Индекс счастья региона
     """
@@ -36,25 +38,27 @@ def index(request):
     start_date = str(start_date.day) + '.' + str(start_date.month) + '.' + str(start_date.year)
     end_date = str(end_date.day) + '.' + str(end_date.month) + '.' + str(end_date.year)
 
-    # Показывать ли графики внешнего индекса счастья
-    config = configparser.ConfigParser()
-    config.read(settings.CONFIG_INI_PATH)
-    ext_districts_compact, ext_happiness = [], []
-    show_external_index = 0
-    if 'HAPPINESS_INDEX' in config:
-        try:
-            ext_districts, ext_happiness = external_happiness_index()
-            ext_districts_compact = []
-            for d in ext_districts:
-                d = d.replace('городской округ ', '')
-                d = d.replace('район', 'р-н')
-                ext_districts_compact.append(d)
-            ext_happiness = list(map(str, ext_happiness))
-        except:
-            pass
+    reports = set(h.name for h in Happiness.objects.filter(source_type=1))
 
-    if len(ext_happiness) > 0:
+    if len(reports) > 0:
         show_external_index = 1
+        districts = District.objects.exclude(name='region')
+        ext_districts = [d.name for d in districts]
+        ext_happiness = []
+        report = list(reports)[0]
+        for d in districts:
+            value = 0
+            values = Happiness.objects.filter(district=d)
+            for v in values:
+                value += v.value
+            value /= len(values)
+            ext_happiness.append(value)
+        results_for_table = []
+        for r in results:
+            r = float(r['nps'])
+            if r < 0:
+                r = 0
+            results_for_table.append(r)
     context = {
         'page_title': 'Индекс удовлетворённости жизнью',
         'categories': Category.objects.exclude(name='Без темы'),
@@ -66,13 +70,15 @@ def index(request):
         'mean_index': mean_index,
         'selected_cat': category,
         'show_external_index': show_external_index,
-        'ext_districts': ext_districts_compact,
+        'ext_districts': ext_districts,
         'ext_happiness': ext_happiness,
+        'results_for_table': results_for_table,
+        'ext_name': report,
     }
     return TemplateResponse(request, 'happiness.html', context=context)
 
 
-@cache_page(3600 * 24)
+#@cache_page(3600 * 24)
 def leaflet_map(request, category: int, start_date: str, end_date: str):
     """Карта
 
@@ -220,3 +226,69 @@ def external_happiness_index():
         except:
             ext_districts, ext_happiness = [], []
     return ext_districts, ext_happiness
+
+
+def upload_custom_data(request):
+    """Загрузить собственные данные
+    """
+    context = {}
+    if request.method == 'POST':
+        form = UploadHappinessIndex(request.POST, request.FILES)
+        if form.is_valid() and request.FILES['file']:
+            file = request.FILES['file']
+            fs = FileSystemStorage()
+            filename = fs.save(file.name, file)
+            messages.success(request, f'Файл успешно загружен!')
+            filename = os.path.join(settings.MEDIA_ROOT, filename)
+            df = False
+            try:
+                df = pd.read_csv(filename, index_col='Муниципалитет')
+            except:
+                messages.error(request, 'Файл не может быть прочтён!')
+            if df is not False:
+                regions = District.objects.all()
+                categories = Category.objects.exclude(name='Без темы')
+                try:
+                    for r in regions:
+                        for c in categories:
+                            value = df.loc[r.name, c.name]
+                            Happiness(
+                                source_type=1,
+                                name=request.POST['name'],
+                                district=r,
+                                category=c,
+                                value=float(value),
+                            ).save()
+                except:
+                    Happiness.objects.filter(name=request.POST['name']).delete()
+                    messages.error(request, f'Парсинг файла не удался, проверьте, ести ли муниципалитет {r} и категория {c}')
+        else:
+            messages.error(request, 'Файл не загружен!')
+    else:
+        form = UploadHappinessIndex()
+
+    context.update({'form': form})
+
+
+    reports = set(h.name for h in Happiness.objects.filter(source_type=1))
+    context.update({'reports': reports})
+
+    return TemplateResponse(request, 'happiness_add.html', context=context)
+
+
+def example_csv(request):
+    """Возвращаем файл-пример для кастомного индекса счастья
+    """
+    regions = District.objects.all()
+    categories = Category.objects.exclude(name='Без темы')
+    example_df = pd.DataFrame(regions, columns=['Муниципалитет'])
+    for c in categories:
+        example_df[c] = [0]*len(example_df)
+    example_df_path = os.path.join(settings.STATIC_ROOT, 'example_df.csv')
+    example_df.to_csv(example_df_path, index=False)
+
+    response = HttpResponse(
+        open(example_df_path).read(),
+        content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="example_df.csv"'
+    return response

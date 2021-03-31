@@ -22,6 +22,9 @@ KALDI = os.path.join(ML_MODELS, 'kaldi')
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # CONFIG.INI
 config = configparser.ConfigParser()
 CONFIG_INI_PATH = os.path.join(BASE_DIR, 'config.ini')

@@ -219,11 +219,7 @@
           <div class="col-sm-6">
             <h1 class="m-0 text-dark">{{page_title}}</h1>
           </div><!-- /.col -->
-          <div class="col-sm-6">
-              <a class="btn btn-info float-right" href="{% url 'happiness_excel' selected_cat start_date end_date %}">
-                  <i class="fas fa-download"></i>
-                  Скачать сводку
-              </a>
+          <div class="col-sm-6">&nbsp; 
           </div><!-- /.col -->
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
@@ -270,6 +266,18 @@
                     <div class="input-group mt-5">
                         <button class="btn btn-info" type="submit">Применить</button>
                     </div>
+                    <div class="input-group mt-5">
+                      <a class="btn btn-info float-right" href="{% url 'happiness_excel' selected_cat start_date end_date %}">
+                        <i class="fas fa-download"></i>
+                        Скачать сводку
+                      </a>
+                    </div>
+                    <div class="input-group mt-2">
+                      <a class="btn btn-info float-right" href="{% url 'happiness_upload_custom_data'%}">
+                        <i class="fas fa-download"></i>
+                        Загрузить свои данные
+                      </a>
+                    </div>
                 </div>
               </form>
             </div>
@@ -287,6 +295,7 @@
         <div class="row mt-5 mb-2">
             <div class="col-sm-12">
                 <h3>Индекс удовлетворённости жизнью: {{mean_index}}</h3>
+                {{value}}
                 <p>{{show_external_index}}
                     Важнейшим показателем при расчёте индекса счастья (HPL)
                     является субъективная удовлетворенность людей жизнью (Wellbeing),
@@ -359,7 +368,6 @@
             {
                 "Муниципальное образование": "{{item.district.name}}",
                 "Индекс удовлетворённости жизнью": {{item.nps}},
-                "Индекс счастья": {{item.ext_district_happiness}},
             },
           {%endfor%}
         ]
@@ -374,7 +382,6 @@
             fields: [
                 { name: "Муниципальное образование", type: "text", width: 150 },
                 { name: "Индекс удовлетворённости жизнью", type: "number", width: 50 },
-                { name: "Индекс счастья", type: "number", width: 50 },
             ]
         });
     })
@@ -392,18 +399,29 @@
           {%endfor%}
         ],
         datasets: [{
+          label: 'FreyrMonitoring',
           backgroundColor: '#06CCB8',
           borderColor: '#009688',
           data: [
+          {%for i in results_for_table%}
+            {{i|floatformat}},
+            {%endfor%}
+          ],
+        },
+        {
+          label: '{{ext_name}}',
+          backgroundColor: '#FFCCB8',
+          borderColor: '#009688',
+          data: [
             {%for i in ext_happiness%}
-            {{i}},
+            {{i|floatformat}},
             {%endfor%}
           ],
         }]
       },
       options: {
         legend: {
-                display: false,
+                display: true,
             },
       }
   });

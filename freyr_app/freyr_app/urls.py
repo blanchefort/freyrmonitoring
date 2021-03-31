@@ -35,6 +35,8 @@ urlpatterns = [
     path('happiness/', happiness.index, name='happiness'),
     path('happiness_map/<int:category>/<str:start_date>/<str:end_date>', happiness.leaflet_map, name='leaflet_map'),
     path('happiness/excel/<int:category>/<str:start_date>/<str:end_date>', happiness.excelview, name='happiness_excel'),
+    path('happiness/add', happiness.upload_custom_data, name='happiness_upload_custom_data'),
+    path('happiness/example_df.csv', happiness.example_csv, name='happiness_example_csv'),
     # AUTH
     path('accounts/', include('django.contrib.auth.urls')),
 ]

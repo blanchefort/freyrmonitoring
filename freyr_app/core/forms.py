@@ -4,3 +4,9 @@ class AddUrlForm(forms.Form):
     """Добавляем УРЛ для проверки
     """
     url = forms.URLField(initial='https://', label='Введите ссылку для проверки')
+
+class UploadHappinessIndex(forms.Form):
+    """Форма для загрузки файла с кастомным индексом счастья
+    """
+    name = forms.CharField(max_length=256, label='Название отчёта')
+    file = forms.FileField(label='CSV-файл с отчётом')
