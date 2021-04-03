@@ -5,13 +5,13 @@
 $python manage.py crawler
 """
 import warnings
+warnings.filterwarnings("ignore")
 import os
 import time
 import schedule
 import logging
 import asyncio
 from django.core.management.base import BaseCommand
-from core.processing.clustering import clustering
 from core.processing.scrape_socio import (
     collect_socio_posts,
     collect_comments,
@@ -21,20 +21,12 @@ from core.processing.markup_content import (
     markup_theme,
     article_happiness,
     comment_sentiment,
+    update_search_index,
+    clustering
 )
-warnings.filterwarnings("ignore")
+
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 logger = logging.getLogger(__name__)
-
-
-def clustering_step():
-    """Кластеризация
-    """
-    logger.info('START CLUSTERING')
-    try:
-        clustering(delta_hours=24)
-    except:
-        logger.error('CLUSTERING FAILED')
 
 
 def tg_run():
@@ -47,22 +39,23 @@ def tg_run():
 def crawler_step():
     """Полный цикл сбора информации
     """
-    logger.info('START CRAWLER')
+    logger.info('Начало работы краулера')
     tg_run()
     collect_socio_posts()
     collect_comments()
-    logger.info('STOP CRAWLER')
+    logger.info('Окончание работы краулера')
 
 
 def processing_step():
     """Полный цикл обработки собранной информации
     """
-    logger.info('START CONTENT PROCESSING')
+    logger.info('Начало обработки контента')
     create_titles()
     markup_theme()
     article_happiness()
     comment_sentiment()
-    logger.info('END CONTENT PROCESSING')
+    clustering(delta_hours=25)
+    logger.info('Окончание обработки контента')
 
 
 class Command(BaseCommand):
@@ -71,11 +64,9 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         crawler_step()
         processing_step()
-        clustering_step()
         
-        schedule.every().day.at('02:00').do(crawler_step)
-        schedule.every().day.at('03:30').do(processing_step)
-        schedule.every().day.at('05:00').do(clustering_step)
+        schedule.every().day.at('11:00').do(processing_step)
+        schedule.every().day.at('03:00').do(processing_step)
 
         while True:
             schedule.run_pending()

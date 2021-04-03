@@ -1,6 +1,6 @@
 """Команда скачивания новых версий ML-моделей
 
-$python manage.py download_models
+$python manage.py download_models --full
 """
 import logging
 from django.core.management.base import BaseCommand

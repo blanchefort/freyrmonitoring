@@ -1,301 +1,161 @@
 import os
 import logging
-import torch
-import datetime
-import re
-import RAKE
+from typing import List, Dict
 from sentence_transformers import SentenceTransformer, util
-
-from django.conf import settings
-from django.utils import timezone
-
+import torch
 from ..models import Article, Theme, ThemeArticles
 
 logger = logging.getLogger(__name__)
+
+
+def community_detection(embeddings, threshold=0.75, min_community_size=10, init_max_size=1000):
+    """
+    https://github.com/UKPLab/sentence-transformers/blob/master/examples/applications/clustering/fast_clustering.py
+    Function for Fast Community Detection
+    Finds in the embeddings all communities, i.e. embeddings that are close (closer than threshold).
+    Returns only communities that are larger than min_community_size. The communities are returned
+    in decreasing order. The first element in each list is the central point in the community.
+    """
+
+    # Compute cosine similarity scores
+    cos_scores = util.pytorch_cos_sim(embeddings, embeddings)
+
+    # Minimum size for a community
+    top_k_values, _ = cos_scores.topk(k=min_community_size, largest=True)
+
+    # Filter for rows >= min_threshold
+    extracted_communities = []
+    for i in range(len(top_k_values)):
+        if top_k_values[i][-1] >= threshold:
+            new_cluster = []
+
+            # Only check top k most similar entries
+            top_val_large, top_idx_large = cos_scores[i].topk(k=init_max_size, largest=True)
+            top_idx_large = top_idx_large.tolist()
+            top_val_large = top_val_large.tolist()
+
+            if top_val_large[-1] < threshold:
+                for idx, val in zip(top_idx_large, top_val_large):
+                    if val < threshold:
+                        break
+
+                    new_cluster.append(idx)
+            else:
+                # Iterate over all entries (slow)
+                for idx, val in enumerate(cos_scores[i].tolist()):
+                    if val >= threshold:
+                        new_cluster.append(idx)
+
+            extracted_communities.append(new_cluster)
+
+    # Largest cluster first
+    extracted_communities = sorted(extracted_communities, key=lambda x: len(x), reverse=True)
+
+    # Step 2) Remove overlapping communities
+    unique_communities = []
+    extracted_ids = set()
+
+    for community in extracted_communities:
+        add_cluster = True
+        for idx in community:
+            if idx in extracted_ids:
+                add_cluster = False
+                break
+
+        if add_cluster:
+            unique_communities.append(community)
+            for idx in community:
+                extracted_ids.add(idx)
+
+    return unique_communities
 
 
 class TextStreamClustering:
     """Методы кластеризации текстового потока
     """
     def __init__(self):
-        self.Rake = RAKE.Rake(os.path.join(settings.ML_MODELS, 'stopwords.txt'))
         self.embedder = SentenceTransformer('distiluse-base-multilingual-cased')
-
-    def generate_title(self, text):
-        '''Создаём заголовок статьи из её главного ключевого слова
-        Если текст настолько короткий, что не удалось извлечь ключевых слов,
-        делаем заголовком весь текст
-        '''
-        text = text.replace('\n', ' ').strip()
-        text = re.sub(r'http\S+', '', text.strip(), flags=re.MULTILINE)
-        keywords = self.Rake.run(text)
-        if len(keywords) > 0:
-            return keywords[0][0]
-        return text
-
-    def generate_kw(self, title, text, threshold):
-        '''Преобразуем статью в строку из заголовка и ключевых слов
-        '''
-        kwd_text = title.replace('\xa0', ' ') + ', '
-        text = text.replace('\n', ' ').strip()
-        text = re.sub(r'http\S+', '', text.strip(), flags=re.MULTILINE)
-        keywords = self.Rake.run(text)
-        for keyword, score in keywords:
-            if score >= threshold:
-                kwd_text += keyword + ', '
-        if len(kwd_text) < 10:
-            kwd_text = text
-        return kwd_text
-
-    def generate_corpus_embs(self, titles, texts):
-        '''Генерируем эмбеддинги корпуса
-        '''
-        lag_kwds = []
-        for title, text in zip(titles, texts):
-            text = text.replace('\n', ' ')
-            text = re.sub(r'http\S+', '', text.strip(), flags=re.MULTILINE)
-            lag_kwds.append(self.generate_kw(title.replace('\xa0', ' '), text, 4.5))
-        corpus_embeddings = self.embedder.encode(lag_kwds)
-        return corpus_embeddings
-
-    def article_similars(self, embeddings):
-        '''Находим в корпусе все семантически похожие статьи
-        '''
-        similars = []
-        for idx, query_embedding in enumerate(embeddings):
-            print(len(query_embedding))
-            cos_scores = util.pytorch_cos_sim(query_embedding, embeddings)[0]
-            cos_scores = cos_scores.cpu()
-            sims = []
-            for idx_sim, score in enumerate(cos_scores):
-                if (score > .5) and (idx != idx_sim):
-                    sims.append(idx_sim)
-            similars.append(sims)
-        return similars
-
-    def select_maximal_cluster(self, items):
-        '''находим самый большой кластер'''
-        maximal = 0
-        maximal_id = 0
-        for idx in range(0, len(items)):
-            if len(items[idx]) > maximal:
-                maximal = len(items[idx])
-                maximal_id = idx
-        return maximal_id, [maximal_id]+items[maximal_id]
-
-    def create_cluster(self, texts, titles):
-        '''Создаём кластер из группы схожих материалов
-        '''
-        texts = [text.replace('\n', ' ').strip() for text in texts]
-        texts = [re.sub(r'http\S+', '', text, flags=re.MULTILINE) for text in texts]
-        titles = [title.replace('\xa0', ' ').strip() for title in titles]
-        
-        full_text = ''
-        for text, title in zip(texts, titles):
-            full_text += self.generate_kw(title, text, 6) + ' '
-        cluster_embedding = self.embedder.encode(full_text, convert_to_tensor=True)
-        
-        item_kwds = []
-        for text, title in zip(texts, titles):
-            item_kwds.append(self.generate_kw(title, text, 4.5))
-        item_embs = self.embedder.encode(item_kwds, convert_to_tensor=True)
-        
-        cos_scores = util.pytorch_cos_sim(cluster_embedding, item_embs)[0]
-        max_score = cos_scores.max()
-        for idx, score in enumerate(cos_scores):
-            if score == max_score:
-                return idx, cluster_embedding, item_kwds
-
-    def select_cluster_articles(self, cluster_embedding, corpus_embeddings):
-        '''Проходим по всему корпусу, и выбираем статьи, семантически похожие на кластер
-        '''
-        selected = []
-        cos_scores = util.pytorch_cos_sim(cluster_embedding, corpus_embeddings)[0]
-        cos_scores = cos_scores.cpu()
-        max_score = cos_scores.max()
-        for idx, score in enumerate(cos_scores):
-            if score == max_score:
-                max_id = idx
-            if score > .5:
-                selected.append(idx)
-        return selected, max_id, max_score.item()
-
-    def rearrange_list(self, lst, to_remove):
-        '''Удаляем из списка индексы уже кластеризованных материалов
-        '''
-        new_lst = []
-        for idx, content in enumerate(lst):
-            if idx in to_remove:
-                new_lst.append([])
-            else:
-                new_lst.append(content)
-        return new_lst
-
-    def get_system_ids(self, lag_idx, reltive_ids):
-        '''Получаем системные идентификаторы статей
-        '''
-        system_ids = []
-        for idx in reltive_ids:
-            system_ids.append(lag_idx[idx])
-        return system_ids
-
-    def get_nonclustered_data(self, lag_idx, lag_titles, lag_texts, clustered_ids):
-        '''Получаем корпус статей, которые не попали ни в один кластер
-        '''
-        new_lag_idx = []
-        new_lag_titles = []
-        new_lag_texts = []
-        for idx in range(0, len(lag_idx)):
-            if idx not in clustered_ids:
-                new_lag_idx.append(lag_idx[idx])
-                new_lag_titles.append(lag_titles[idx])
-                new_lag_texts.append(lag_texts[idx])
-        return new_lag_idx, new_lag_titles, new_lag_texts
-
-    def generate_new_clusters(self, corpus_embeddings, lag_titles, lag_texts):
-        '''Выявляем кластеры, пока есть статьи-кандидаты
-        '''
-        similars = self.article_similars(embeddings=corpus_embeddings)
-        candidates = 0
-        for item in similars:
-            if len(item) > 0:
-                candidates += 1
-        cluster_embeddings = []
-        cluster_titles = []
-        cluster_keywords = []
-        cluster_articles = []
-        while candidates > 0:
-            # находим самый большой кластер
-            idx, items_ids = self.select_maximal_cluster(similars)
-            # берём все заголовки и тексты этих схожих материалов
-            items_titles = [lag_titles[i] for i in items_ids]
-            items_texts = [lag_texts[i] for i in items_ids]
-            # преобразуем схожие материалы в новый кластер
-            top_idx, cluster_embedding, cluster_kwds = self.create_cluster(items_texts, items_titles)
-            if len(items_titles[top_idx]) < 1:
-                cluster_title = self.generate_title(items_texts[top_idx])
-            else:
-                cluster_title = items_titles[top_idx]
-
-            # Проходим по всему корпусу, и выбираем статьи, семантически похожие на кластер
-            selected, max_id, max_score = self.select_cluster_articles(cluster_embedding, corpus_embeddings)
-            if (top_idx != max_id) and max_score > .7:
-                if len(lag_titles[max_id]) < 1:
-                    cluster_title = self.generate_title(lag_titles[max_id])
-                else:
-                    cluster_title = lag_titles[max_id]
-
-            # сохраняем новый кластер
-            cluster_embeddings.append(cluster_embedding)
-            cluster_titles.append(cluster_title)
-            cluster_keywords.append(cluster_kwds)
-            cluster_articles.append(selected)
-
-            # Удаляем индексы уже кластеризованных материалов
-            similars = self.rearrange_list(similars, selected)
-            # пересчитываем оставшихся кандидатов
-            candidates = 0
-            for item in similars:
-                if len(item) > 0:
-                    candidates += 1
-        return cluster_embeddings, cluster_titles, cluster_keywords, cluster_articles
-
-
-def clustering(delta_hours=5):
-    """Кластеризуем материалы
     
-    delta_hours - за сколько предыдущих часов брать статьи из БД для кластеризации.
-    """
-    logger.info('Start Clustering')
-    start_date = timezone.now()
-    end_date = timezone.now() - datetime.timedelta(hours=5*24)
-    themes = Theme.objects.filter(
-        theme_articles__article_link__publish_date__range=[end_date, start_date])
-    tsc = TextStreamClustering()
+    def clustering(self, texts: List[str], titles: List[str]) -> List[List[int]]:
+        """Кластеризация текстов
 
-    delta_hours = -delta_hours
-    start_date = timezone.now()
-    end_date = timezone.now() + datetime.timedelta(hours=delta_hours)
-    articles = Article.objects.filter(theme=True).filter(
-        publish_date__gte=end_date,
-        publish_date__lte=start_date
-    ).order_by('publish_date')[:500]
-    lag_idx = [article.id for article in articles]
-    lag_titles = [article.title for article in articles]
-    lag_texts = [article.text for article in articles]
-    if len(themes) == 0:
-        logger.info('New Clustering')
-        logger.info(f'Len of articles len(articles)')
-        logger.info('generate_corpus_embs')
-        corpus_embeddings = tsc.generate_corpus_embs(titles=lag_titles, texts=lag_texts)
-        logger.info('generate_new_clusters')
-        (cluster_embeddings,
-         cluster_titles,
-         cluster_keywords,
-         cluster_articles) = tsc.generate_new_clusters(corpus_embeddings, lag_titles, lag_texts)
+        Args:
+            texts (List[str]): Список текстов
+            titles (List[str]): Список заголовков
 
-        logger.info('save clusters and links')
-        for cl_idx in range(0, len(cluster_embeddings)):
-            theme = Theme.objects.create(
-                name=cluster_titles[cl_idx],
-                keywords=cluster_keywords[cl_idx]
-            )
-            torch.save(cluster_embeddings[cl_idx], os.path.join(settings.CLUSTERS_PATH, f'{theme.id}.bin'))
-            for art_id in tsc.get_system_ids(lag_idx=lag_idx, reltive_ids=cluster_articles[cl_idx]):
-                ThemeArticles(
-                    theme_link=theme,
-                    article_link=Article.objects.get(pk=art_id)
-                ).save()
-    else:
-        logger.info('TimeSiquenceClustering')
-        logger.info(f'Len of articles len(articles)')
-        # Получаем эмбеддинги новой выборки
-        logger.info('Получаем эмбеддинги новой выборки')
-        corpus_embeddings = tsc.generate_corpus_embs(titles=lag_titles, texts=lag_texts)
-        # Прогоняем статьи по имеющимся кластерам
-        logger.info('Прогоняем статьи по имеющимся кластерам')
-        selected_articles = []
-        for theme in themes:
-            cluster_new_articles = []
-            cluster_embedding = torch.load(os.path.join(settings.CLUSTERS_PATH, f'{theme.id}.bin'))
-            selected, _, _ = tsc.select_cluster_articles(cluster_embedding, corpus_embeddings)
-            if len(selected) > 0:
-                cluster_new_articles = selected
-                selected_articles += selected
-            # Идентификаторы статей кластера для сохранения в БД
-            for art_id in tsc.get_system_ids(lag_idx=lag_idx, reltive_ids=cluster_new_articles):
-                ThemeArticles.objects.get_or_create(
-                    theme_link=theme,
-                    article_link=Article.objects.get(pk=art_id)
-                )
-        # Смотрим, остались ли ещё неразмеченные статьи
-        logger.info('Смотрим, остались ли ещё неразмеченные статьи')
-        if len(set(selected_articles)) < len(lag_idx):
-            lag_idx, lag_titles, lag_texts = tsc.get_nonclustered_data(
-                lag_idx=lag_idx,
-                lag_titles=lag_titles,
-                lag_texts=lag_texts,
-                clustered_ids=set(selected_articles))
-            corpus_embeddings = tsc.generate_corpus_embs(titles=lag_titles, texts=lag_texts)
+        Returns:
+            List[List[int]]: Список кластеров со списком id текстов в каждом кластере. 
+            Первым в списке идёт id текста, являющегося центром кластера
+        """
+        embeddings = self.embedder.encode([t1 + '[SEP]' + t2 for t1, t2 in zip(titles, texts)])
+        clusters = community_detection(embeddings, min_community_size=4, threshold=0.6)
+        return clusters
 
-            # Новые кластеры
-            logger.info('Новые кластеры')
-            (cluster_embeddings,
-             cluster_titles,
-             cluster_keywords,
-             cluster_articles) = tsc.generate_new_clusters(corpus_embeddings, lag_titles, lag_texts)
+    def continuous_clustering(
+        self, 
+        texts: List[str], 
+        titles: List[str], 
+        clust_texts: List[str], 
+        clust_titles: List[str]) -> tuple:
+        """Кластеризация с учётом уже существующих кластеров
 
-            # Сохраняем новые кластеры
-            logger.info('Сохраняем новые кластеры')
-            for cl_idx in range(0, len(cluster_embeddings)):
-                theme = Theme.objects.create(
-                    name=cluster_titles[cl_idx],
-                    keywords=cluster_keywords[cl_idx]
-                )
-                torch.save(cluster_embeddings[cl_idx], os.path.join(settings.CLUSTERS_PATH, f'{theme.id}.bin'))
-                for art_id in tsc.get_system_ids(lag_idx=lag_idx, reltive_ids=cluster_articles[cl_idx]):
-                    ThemeArticles.objects.get_or_create(
-                        theme_link=theme,
-                        article_link=Article.objects.get(pk=art_id)
-                    )
-    logger.info('End Clustering')
+        Args:
+            texts: (List[str]): список текстов для кластеризации
+            titles: (List[str]): список заголовков для кластеризации
+            clust_texts: (List[str]): список центральных текстов существующих кластеров
+            clust_titles: (List[str]): список центральных заголовков существующих кластеров
+        
+        Возвращает кореж из 2-х элементов:
+            словарь - дополнение статей для существующих кластеров.
+                Вид: {cluster_idx: [article_idx, article_idx]}
+            Список кластеров со списком id текстов в каждом кластере. 
+            Первым в списке идёт id текста, являющегося центром кластера
+        """
+        cluster_embeddings = self.embedder.encode([t1 + ' [SEP] ' + t2 for t1, t2 in zip(clust_titles, clust_texts)])
+        embeddings = self.embedder.encode([t1 + ' [SEP] ' + t2 for t1, t2 in zip(titles, texts)])
+        cosine_scores = util.pytorch_cos_sim(embeddings, cluster_embeddings)
+        addenta_to_clusters = {}
+        for i in range(len(texts)):
+            for j in range(len(clust_texts)):
+                if cosine_scores[i][j] > .6:
+                    if j in addenta_to_clusters.keys():
+                        addenta_to_clusters[j].append(i)
+                    else:
+                        addenta_to_clusters[j] = [i]
+        
+        # Удаляем занятые статьи. И, если статьи ещё остались, проводим новую кластеризацию по ним
+        reselved_articles = set()
+        for c in addenta_to_clusters.keys():
+            reselved_articles.update(addenta_to_clusters[c])
+        text_ids = [i for i in range(len(texts))]
+        for i in reselved_articles:
+            text_ids.remove(i)
+        
+        if len(text_ids) > 5:
+            new_texts = [texts[i] for i in text_ids]
+            new_titles = [titles[i] for i in text_ids]
+            clusters = self.clustering(new_texts, new_titles)
+            new_clusters = []
+            for cluster in clusters:
+                new_cluster = [text_ids.index(i) for i in cluster]
+                new_clusters.append(new_cluster)
+        
+        return addenta_to_clusters, new_clusters
+
+    def closest_title(self, cluster_core: str, cluster_titles: List[str]) -> str:
+        """Выбираем наиболее близкий по косинусу заголовок к центру кластера
+
+        Args:
+            cluster_core (str): Текст центра кластера
+            cluster_titles (List[str]): Все заголовки кластера
+
+        Returns:
+            str: Ближайший кластер
+        """
+        titles_embedding = self.embedder.encode(cluster_titles)
+        core_embedding = self.embedder.encode(cluster_core)
+        cosine_scores = util.pytorch_cos_sim(titles_embedding, core_embedding)
+        best_title_idx = torch.argmax(cosine_scores[0]).item()
+        return cluster_titles[best_title_idx]
+
+    

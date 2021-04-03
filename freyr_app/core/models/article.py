@@ -78,6 +78,11 @@ class Article(models.Model):
         default=0,
         null=True
     )
+    search_idx = models.PositiveIntegerField(
+        verbose_name='Поисковый индекс',
+        default=None,
+        null=True
+    )
     
     def __str__(self):
         return str(self.title)

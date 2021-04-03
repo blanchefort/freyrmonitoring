@@ -12,7 +12,13 @@ $ python manage.py recalculate --help
 """
 import logging
 from django.core.management.base import BaseCommand
-from ._recalc_funcs import titles, appeals, geo, loyalty, clustering
+from ._recalc_funcs import (
+    titles,
+    appeals, 
+    geo, 
+    loyalty, 
+    clustering,
+    indexing)
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +38,8 @@ class Command(BaseCommand):
             loyalty()
         if options['clustering']:
             clustering()
+        if options['indexing']:
+            indexing()
 
     def add_arguments(self, parser):
         commands = (
@@ -40,6 +48,7 @@ class Command(BaseCommand):
             ('--geo', 'Пересчёт привязки статей к муниципалитетам',),
             ('--loyalty', 'Пересчитать индекс лояльности',),
             ('--clustering', 'Новая кластеризация. Все старые данные будут удалены. Лучше не использовать.',),
+            ('--indexing', 'Пересборка индекса поиска'),
         )
         for command, help in commands:
             parser.add_argument(

@@ -7,7 +7,7 @@ from core.processing.markup_content import localize
 from core.processing.markup_content import appeals as appl
 from core.processing.predictor import DefineText
 from core.processing.clustering import clustering as clstr
-
+from core.processing.search import FaissSearch
 
 logger = logging.getLogger(__name__)
 
@@ -87,3 +87,19 @@ def clustering():
     logger.info('Все кластеры удалены')
     logger.info('Приступаем к новой кластеризации')
     clstr(delta_hours=24)
+
+
+def indexing() -> None:
+    """Индексация для поиска: индексируем статьи"""
+    articles = Article.objects.all()
+    if articles.count() == 0:
+        logger.warning('Нечего индексировать. Выходим.')
+    logger.info(f'Начинаем создание нового индекса. Всего статей: {len(articles)}')
+    indexer = FaissSearch()
+    items_index = [a.title + ' ' + a.text for a in articles]
+    cnt = indexer.create_index(items_index)
+    indexer.save()
+    for idx, a in enumerate(articles):
+        a.search_idx = idx
+        a.save()
+    logger.info(f'Создан индекс на {cnt} статей.')
