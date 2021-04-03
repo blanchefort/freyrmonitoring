@@ -34,7 +34,8 @@ def index(request):
                 pos += 1
             if item.sentiment == 2:
                 neg += 1
-            likes += item.likes
+            if item.likes:
+                likes += item.likes
         t['likes_count'] = likes
         t['warning'] = neg > pos
         themes2display.append(t)
