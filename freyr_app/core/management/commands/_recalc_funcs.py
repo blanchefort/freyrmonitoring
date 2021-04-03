@@ -112,7 +112,7 @@ def clustering():
     ThemeMarkup.objects.all().delete()
     logger.info('Все кластеры удалены')
 
-    articles_full = Article.objects.filter(theme=True).order_by('-publish_date')
+    articles_full = Article.objects.filter(theme=True).order_by('publish_date')
     clusterer = TextStreamClustering()
 
     step = 500
@@ -137,6 +137,7 @@ def clustering():
                     theme_link=theme,
                     article_link=articles[idx]
                 ).save()
+        s += 1
 
 
 def indexing() -> None:
