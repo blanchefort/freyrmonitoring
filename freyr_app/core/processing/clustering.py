@@ -4,6 +4,7 @@ from typing import List, Dict
 from sentence_transformers import SentenceTransformer, util
 import torch
 from ..models import Article, Theme, ThemeArticles
+from freyr_app import sentence_embedder
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ class TextStreamClustering:
     """Методы кластеризации текстового потока
     """
     def __init__(self):
-        self.embedder = SentenceTransformer('distiluse-base-multilingual-cased')
+        self.embedder = sentence_embedder
     
     def clustering(self, texts: List[str], titles: List[str]) -> List[List[int]]:
         """Кластеризация текстов
@@ -88,7 +89,7 @@ class TextStreamClustering:
             Первым в списке идёт id текста, являющегося центром кластера
         """
         embeddings = self.embedder.encode([t1 + '[SEP]' + t2 for t1, t2 in zip(titles, texts)])
-        clusters = community_detection(embeddings, min_community_size=4, threshold=0.6)
+        clusters = community_detection(embeddings, min_community_size=4, threshold=0.6, init_max_size=len(embeddings))
         return clusters
 
     def continuous_clustering(
