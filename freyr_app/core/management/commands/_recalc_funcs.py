@@ -120,7 +120,8 @@ def clustering():
     logger.info(f'Количество материалов: {len(articles_full)}. Количество шагов: {int(len(articles_full)/step)}')
 
     s = 0
-    for articles in range(0, len(articles_full), step):
+    for batch in range(0, len(articles_full), step):
+        articles = articles_full[batch:batch+step]
         logger.info(f'Шаг {s}')
         titles = [a.title for a in articles]
         texts = [a.text for a in articles]
