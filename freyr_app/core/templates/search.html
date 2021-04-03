@@ -1,0 +1,113 @@
+{% load bootstrap4 %}
+{% load static %}
+
+{% include 'header.html' %}
+
+{% include 'sidebar.html' %}
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">{{page_title}}</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            &nbsp;
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+
+
+        <div class="row">
+            <div class="col-lg-12">
+            <!-- Default box -->
+            <div class="card">
+                <div class="card-body">
+                <form action="" method="POST" class="form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-10">
+                            {% bootstrap_field form.search_query show_label=False %}
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-info">Поискать.</button>
+                        </div>
+                    </div>
+                </form>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+            </div>
+        </div>
+
+        {%if search_results %}
+        <div class="row">
+            <div class="col-lg-12">
+            <!-- Default box -->
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="mb-5">Результаты поиска для «{{search_query}}»</h3>
+                    {{dist}}
+                    {%for a in search_results%}
+                    <div class="card card-info card-outline">
+                        <div class="card-header">
+                            <a href="{{a.url}}" class="text-lg">{{a.title}}</a>
+                        </div>
+                        <div class="card-body">
+                            <p>{{a.text|truncatewords:30}}</p>
+                            <span class="mr-3">
+                                <i class="fas fa-calendar-alt"></i> {{a.publish_date}}
+                            </span>
+                            <span class="mr-3">
+                            {% include 't/site_types.html' %}
+                            <span class="badge bg-info">{{a.site.title}}</span>
+                            </span>
+                            <span class="mr-3">
+                                <i class="fas fa-thumbs-up"></i> <span class="badge bg-success">{{a.likes}}</span>
+                            </span>
+                            <span class="mr-3">
+                                <i class="far fa-eye"></i> <span class="badge bg-success">{{a.views}}</span>
+                            </span>
+                            <span class="mr-3">
+                                <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.comment_articles.count}}</span>
+                            </span>
+                        </div>
+                    </div>
+                    {%endfor%}
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+            </div>
+        </div>
+        {%endif%}
+
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+    <div class="p-3">
+      <h5>Title</h5>
+      <p>Sidebar content</p>
+    </div>
+  </aside>
+  <!-- /.control-sidebar -->
+
+
+{% include 'footer.html' %}

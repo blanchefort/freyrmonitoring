@@ -3,14 +3,16 @@ from typing import List
 import faiss
 from sentence_transformers import SentenceTransformer, util
 from django.conf import settings
+from freyr_app import sentence_embedder
+
 
 class FaissSearch:
     """Создание индекса с помощью faiss и sbert
     """
     def __init__(self):
         self.path = os.path.join(settings.TENSORS_PATH, 'articles.index.faiss')
-        self.embedder = SentenceTransformer('distiluse-base-multilingual-cased')
         self.load()
+        self.embedder = sentence_embedder
     
     def create_index(self, texts: List[str]) -> int:
         """Создание нового индекса

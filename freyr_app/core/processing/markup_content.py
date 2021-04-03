@@ -182,16 +182,19 @@ def clustering(delta_hours: int = 5):
     Args:
         delta_hours (int, optional): за сколько предыдущих часов брать статьи из БД для кластеризации.
     """
+    logger.info(f'Кластеризация')
     start_date = timezone.now()
-    end_date = timezone.now() + datetime.timedelta(hours=delta_hours)
+    end_date = timezone.now() + datetime.timedelta(hours=-delta_hours)
     articles = Article.objects.filter(theme=True).filter(
         publish_date__gte=end_date,
         publish_date__lte=start_date
     )
     if len(articles) < 5:
+        logger.info(f'Недостаточно статей для кластеризации')
         return False
     
     logger.info(f'Начало кластеризации')
+    logger.info(f'Количество материалов для кластеризации: {len(articles)}')
     end_date = timezone.now() - datetime.timedelta(hours=5*24)
     themes = Theme.objects.filter(
         theme_articles__article_link__publish_date__range=[end_date, start_date])
@@ -217,6 +220,8 @@ def clustering(delta_hours: int = 5):
                 ).save()
     else:
         clusters = clusterer.clustering(texts, titles)
+    
+    logger.info(f'Количество выявленных кластеров: {len(clusters)}')
         
     for cluster in clusters:
         theme = Theme.objects.create(
@@ -231,7 +236,3 @@ def clustering(delta_hours: int = 5):
 
 
     logger.info(f'Окончание кластеризации')
-    
-    
-
-    

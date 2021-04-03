@@ -40,6 +40,7 @@ def index(request):
 
     reports = set(h.name for h in Happiness.objects.filter(source_type=1))
 
+    show_external_index, ext_districts, ext_happiness, results_for_table, report  = 0, [], [], [], 0
     if len(reports) > 0:
         show_external_index = 1
         districts = District.objects.exclude(name='region')

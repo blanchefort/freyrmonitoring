@@ -3,7 +3,8 @@ from django.template.response import TemplateResponse
 from django.core.paginator import Paginator
 from ..models.article import Article
 from ..processing.calculate_indexes import loyalty_index
-
+from ..forms import SearchItem
+from core.processing.search import FaissSearch
 
 def index(request):
     """Стартовая страница
@@ -59,3 +60,26 @@ def index(request):
         'page_range': page_range,
     }
     return TemplateResponse(request, 'items.html', context=context)
+
+
+def search(request):
+    """Поиск по всем материалам
+    """
+    form = SearchItem()
+    context = {
+        'title': 'FreyrMonitoring',
+        'page_title': 'Поиск по проиндексированным материалам',
+        'form': form,
+    }
+
+    if request.method == 'POST':
+        search_query = request.POST.get('search_query')
+        searcher = FaissSearch()
+        if searcher.index:
+            dist, ids = searcher.search(search_query)
+            search_results = [Article.objects.get(search_idx=idx) for idx, d in zip(ids[0], dist[0]) if d > 0.02]
+
+            context.update({'search_results': search_results})
+            context.update({'search_query': search_query})
+    
+    return TemplateResponse(request, 'search.html', context=context)

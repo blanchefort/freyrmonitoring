@@ -28,6 +28,7 @@ urlpatterns = [
     path('orgs/', orgs.index, name='orgs'),
     path('orgs/<int:ent_id>', orgs.org_page, name='org_page'),
     path('items/', items.index, name='items'),
+    path('search/', items.search, name='search'),
     path('events/', events.index, name='events'),
     path('events/<int:event_id>', events.info, name='event_info'),
     path('events/excel/<int:event_id>', events.excelview, name='event_excel'),

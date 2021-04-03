@@ -10,3 +10,8 @@ class UploadHappinessIndex(forms.Form):
     """
     name = forms.CharField(max_length=256, label='Название отчёта')
     file = forms.FileField(label='CSV-файл с отчётом')
+
+class SearchItem(forms.Form):
+    """Поиск по проиндексированным материалам
+    """
+    search_query = forms.CharField(max_length=512, label='✨✨✨Поиск!')
