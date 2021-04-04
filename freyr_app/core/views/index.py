@@ -35,17 +35,19 @@ def index(request):
     
     # personStat
     top_per, per_neutral_count, per_positive_count, per_negative_count = [], 0, 0, 0
-    top_per = Entity.objects.filter(type='PER').annotate(total=Count('entity_articles')).order_by('-total')[0]
-    per_neutral_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=0).count()
-    per_positive_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=1).count()
-    per_negative_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=2).count()
+    if Entity.objects.filter(type='PER').count() > 0:
+        top_per = Entity.objects.filter(type='PER').annotate(total=Count('entity_articles')).order_by('-total')[0]
+        per_neutral_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=0).count()
+        per_positive_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=1).count()
+        per_negative_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=2).count()
     
     # orgStat
     top_org, org_neutral_count, org_positive_count, org_negative_count = [], 0, 0, 0
-    top_org = Entity.objects.filter(type='ORG').annotate(total=Count('entity_articles')).order_by('-total')[0]
-    org_neutral_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=0).count()
-    org_positive_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=1).count()
-    org_negative_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=2).count()
+    if Entity.objects.filter(type='ORG').count() > 0:
+        top_org = Entity.objects.filter(type='ORG').annotate(total=Count('entity_articles')).order_by('-total')[0]
+        org_neutral_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=0).count()
+        org_positive_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=1).count()
+        org_negative_count = EntityLink.objects.filter(entity_link=top_per).filter(sentiment=2).count()
     
     # TopCluster
     top_theme, theme_articles, theme_count = [], [], 0
