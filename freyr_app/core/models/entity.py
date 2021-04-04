@@ -23,6 +23,13 @@ class Entity(models.Model):
 class EntityLink(models.Model):
     """Связи сущностей и статей
     """
+    SENTIMENT_TYPES = (
+        (0, 'Нейтральный'),
+        (1, 'Положительный'),
+        (2, 'Отрицательный'),
+        (9, 'Не размечен'),
+    )
+
     entity_link = models.ForeignKey(Entity,
         on_delete=models.SET_NULL,
         related_name='entity_articles',
@@ -35,6 +42,12 @@ class EntityLink(models.Model):
         verbose_name='Сущности статьи',
         null=True,
         )
+    sentiment = models.PositiveSmallIntegerField(
+        verbose_name='Тональность',
+        blank=True,
+        null=True,
+        choices=SENTIMENT_TYPES
+    )
     
     def __str__(self):
         return str(self.entity_link)

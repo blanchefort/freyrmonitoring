@@ -5,6 +5,7 @@ import time
 import datetime
 from nltk.metrics import distance
 from django.utils import timezone
+from django.conf import settings
 from ..models import (
     Article,
     Category,
@@ -21,6 +22,8 @@ from .nlp import get_title, deEmojify, ner, get_district
 from .predictor import DefineText
 from core.processing.search import FaissSearch
 from core.processing.clustering import TextStreamClustering
+from core.processing.nlp import extract_entities
+from core.processing.sentiment import Sentimenter
 
 logger = logging.getLogger(__name__)
 
@@ -104,17 +107,46 @@ def comment_sentiment():
 def ner_articles(articles: Article):
     """Извлечение именованных сущностей из размеченных статей
     """
-    for article in articles:
-        entities = ner(article.text)
-        for ent in entities:
-            if ent[1] in ('PER', 'LOC', 'ORG', ) and ent[0] is not None:
-                entity, _ = Entity.objects.get_or_create(
-                    name=ent[0],
-                    type=ent[1]
-                )
+    logger.info('Приступаем к разметке именованных сущностей')
+    if articles.count() == 0:
+        logger.warning('Нечего индексировать. Выходим.')
+    
+    sent = Sentimenter()
+
+    for batch in range(0, len(articles), settings.BATCH_SIZE):
+        logger.info('Батч текстов')
+        batch_articles = articles[batch:batch+settings.BATCH_SIZE]
+        batch_entities = []
+        # NER
+        for item in batch_articles:
+            article_entities = extract_entities(item.text)
+            for e in article_entities:
+                e.article_link = item
+            batch_entities += article_entities
+        
+        logger.info(f'В батче {len(batch_entities)} сущностей')
+        logger.info('Анализ тональности')
+        
+        # Sentiment
+        labels = sent([e.sentence for e in batch_entities])
+
+        # Save
+        for ent, l in zip(batch_entities, labels):
+            if ent.type in ('PER', 'LOC', 'ORG', ):
+                if len(ent.norm) > 0:
+                    entity, _ = Entity.objects.get_or_create(
+                        name=ent.norm,
+                        type=ent.type
+                    )
+                else:
+                    entity, _ = Entity.objects.get_or_create(
+                        name=ent.text,
+                        type=ent.type
+                    )
                 EntityLink(
                     entity_link=entity,
-                    article_link=article
+                    article_link=ent.article_link,
+                    sentiment=l
                 ).save()
 
 

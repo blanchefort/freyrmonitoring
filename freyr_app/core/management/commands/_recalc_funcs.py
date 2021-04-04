@@ -2,12 +2,22 @@ import os, shutil
 import logging
 from django.conf import settings
 from core.processing.nlp import get_title
-from core.models import Article, Comment, ArticleDistrict, Theme, ThemeArticles, ThemeMarkup
+from core.models import (
+    Article, 
+    Comment, 
+    ArticleDistrict, 
+    Theme, 
+    ThemeArticles, 
+    ThemeMarkup,
+    Entity,
+    EntityLink)
 from core.processing.markup_content import localize
 from core.processing.markup_content import appeals as appl
+from core.processing.markup_content import ner_articles
 from core.processing.predictor import DefineText
 from core.processing.clustering import TextStreamClustering
 from core.processing.search import FaissSearch
+
 
 logger = logging.getLogger(__name__)
 
@@ -74,37 +84,6 @@ def loyalty():
         article.save()
 
 
-# def clustering():
-#     """Новая кластеризация. Старые кластеры будут удалены, кластеризуются лишь последние новые материалы."""
-#     logger.warning('Новая кластеризация.')
-
-#     Theme.objects.all().delete()
-#     ThemeArticles.objects.all().delete()
-#     ThemeMarkup.objects.all().delete()
-#     logger.info('Все кластеры удалены')
-    
-#     articles = Article.objects.filter(theme=True)
-#     if len(articles) < 5:
-#         logger.info(f'Недостаточно статей для кластеризации')
-#         return False
-    
-#     logger.info('Приступаем к новой кластеризации')
-#     clusterer = TextStreamClustering()
-#     titles = [a.title for a in articles]
-#     texts = [a.text for a in articles]
-#     clusters = clusterer.clustering(texts, titles)
-
-#     for cluster in clusters:
-#         theme = Theme.objects.create(
-#             name=titles[cluster[0]],
-#             keywords=texts[cluster[0]]
-#         )
-#         for idx in cluster:
-#             ThemeArticles(
-#                 theme_link=theme,
-#                 article_link=articles[idx]
-#             ).save()
-
 def clustering():
     logger.warning('Новая кластеризация. Старые кластеры будут удалены.')
     Theme.objects.all().delete()
@@ -154,3 +133,13 @@ def indexing() -> None:
         a.search_idx = idx
         a.save()
     logger.info(f'Создан индекс на {cnt} статей.')
+
+
+def ner():
+    """Извлекаем именованные сущности
+    """    
+    EntityLink.objects.all().delete()
+    Entity.objects.all().delete()
+    articles = Article.objects.all()
+    ner_articles(articles)
+    

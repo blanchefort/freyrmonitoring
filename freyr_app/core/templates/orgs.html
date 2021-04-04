@@ -16,10 +16,7 @@
             <h1 class="m-0 text-dark">{{page_title}}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
-              <li class="breadcrumb-item active">{{page_title}}</li>
-            </ol>
+            &nbsp;
           </div><!-- /.col -->
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
@@ -37,7 +34,8 @@
           <!-- Default box -->
             <div class="card">
               <div class="card-body">
-                Иногда важно знать не только то, какие темы обсуждаются жителями региона, но и то, о ком они говорят. Например, важно знать, поддерживает ли население действия губернатора или министра. Здесь собраны все персоны, выявленные системой в ходе анализа данных. Вы можете посмотреть обнаруженных людей по частоте их встречаемости, а также увидеть краткую сводку о том, в каком контексте встречается данное лицо. Перейдя по выбранному имени, вы увидите, в каких материалах упоминается данное лицо.
+                <p>А в этом разделе мы можем узнать, о каких организациях говорится в интернете.</p>
+                <p>Начните вводить название интересующей организации, чтобы система нашла вам ссылку на неё в индексе.</p>
               </div>
               <!-- /.card-body -->
             </div>
@@ -51,14 +49,22 @@
           <div class="col-lg-12">
               <div class="card">
               <div class="card-body">
-                  {%for e in ents%}
-                  <a href="{{e.id}}" class="btn btn-sm btn-outline-primary">{{e.name}}</a>
-                  {%endfor%}
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-university"></i></span>
+                  </div>
+                  <input type="text" id="myAutocomplete" class="form-control" placeholder="ООО «Рога и Копыта»" />
+                </div>
+                
+                <div id="output"></div>
             </div></div>
           </div>
           <!-- /.col-md-6 -->
         </div>
         <!-- /.row -->
+
+        
+
       </div><!-- /.container-fluid -->
     </div>
     <!-- /.content -->

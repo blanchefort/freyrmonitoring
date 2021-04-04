@@ -18,7 +18,8 @@ from ._recalc_funcs import (
     geo, 
     loyalty, 
     clustering,
-    indexing)
+    indexing,
+    ner)
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,8 @@ class Command(BaseCommand):
             clustering()
         if options['indexing']:
             indexing()
+        if options['ner']:
+            ner()
 
     def add_arguments(self, parser):
         commands = (
@@ -47,8 +50,9 @@ class Command(BaseCommand):
             ('--titles', 'Переделать все заголовки, сгенерированные для текстов из соцсетей',),
             ('--geo', 'Пересчёт привязки статей к муниципалитетам',),
             ('--loyalty', 'Пересчитать индекс лояльности',),
-            ('--clustering', 'Новая кластеризация. Все старые данные будут удалены. Лучше не использовать.',),
+            ('--clustering', 'Новая кластеризация.',),
             ('--indexing', 'Пересборка индекса поиска'),
+            ('--ner', 'Пересборка именованных сущностей'),
         )
         for command, help in commands:
             parser.add_argument(

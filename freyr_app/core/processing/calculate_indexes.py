@@ -92,6 +92,20 @@ def calculate_nps(pos: list, neg: list, neu: list) -> float:
     pos = sum(pos)
     neg = sum(neg)
     neu = sum(neu)
+    return calculate_nps_int(pos, neg, neu)
+
+
+def calculate_nps_int(pos: int, neg: int, neu: int) -> float:
+    """Считаем Net Promoter Score
+
+    Args:
+        pos (list): Сумма позитивных оценок
+        neg (list): Сумма негативных оценок
+        neu (list): Сумма нейтральных оценок
+
+    Returns:
+        float: NPS
+    """
     total = pos + neg + neu + 1e-8
     nps = pos - neg
     nps /= total

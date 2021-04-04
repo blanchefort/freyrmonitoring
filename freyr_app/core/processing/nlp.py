@@ -1,5 +1,7 @@
 import os
 import re
+from typing import List
+from dataclasses import dataclass
 from razdel import sentenize
 from natasha import (Doc, 
                      NewsEmbedding, 
@@ -9,8 +11,10 @@ from natasha import (Doc,
                      NewsMorphTagger)
 import networkx as nx
 from nltk.stem.snowball import SnowballStemmer
-
 from django.conf import settings
+from .named_entity import NamedEntity
+import warnings
+
 
 emb = NewsEmbedding()
 ner_tagger = NewsNERTagger(emb)
@@ -20,7 +24,7 @@ morph_tagger = NewsMorphTagger(emb)
 
 stemmer = SnowballStemmer('russian')
 G = nx.read_edgelist(path=os.path.join(settings.ML_MODELS, 'geograph.edgelist'), delimiter=':')
-
+    
 
 def lemmatize(text):
     doc = Doc(text)
@@ -35,6 +39,7 @@ def lemmatize(text):
 def ner(text: str) -> set:
     """Распознавание именованных сущностей
     """
+    warnings.warn('К удалению. Заменится на `extract_entities`', DeprecationWarning)
     doc = Doc(text)
     doc.segment(segmenter)
     doc.tag_ner(ner_tagger)
@@ -51,6 +56,29 @@ def ner(text: str) -> set:
         else:
             ner_tokens.append((span.text, span.type))
     return set(ner_tokens)
+
+
+def extract_entities(text: str) -> List[NaimedEntity]:
+    """Распознавание именованных сущностей"""
+    doc = Doc(text)
+    doc.segment(segmenter)
+    doc.tag_ner(ner_tagger)
+    doc.tag_morph(morph_tagger)
+    for token in doc.tokens:
+        token.lemmatize(morph_vocab)
+
+    for span in doc.spans:
+        span.normalize(morph_vocab)
+    entities = []
+    for sentence in doc.sents:
+        for span in sentence.spans:
+            ent = NamedEntity(
+                text=span.text,
+                type=span.type,
+                norm=span.normal,
+                sentence=sentence.text)
+            entities.append(ent)
+    return entities
 
 
 def get_title(text: str) -> str:

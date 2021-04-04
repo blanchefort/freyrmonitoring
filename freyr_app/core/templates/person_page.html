@@ -16,10 +16,7 @@
             <div class="col-sm-6">
             </div><!-- /.col -->
             <div class="col-sm-6">
-              <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
-                <li class="breadcrumb-item active">{{page_title}}</li>
-              </ol>
+              &nbsp;
             </div><!-- /.col -->
           </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -38,10 +35,10 @@
                         <div class="text-center">
                             <img class="profile-user-img img-fluid img-circle"
                                 src="{% static 'AdminLTE/dist/img/boxed-bg.jpg' %}"
-                                alt="Person profile picture">
+                                alt="{{page_title}}">
                         </div>
-                        <h3 class="profile-username text-center">{{page_title}}</h3>
-                        <!-- <p class="text-muted text-center">Linked Data</p>
+                        <h1 class="profile-username text-center">{{page_title}}</h1>
+                        <p class="text-muted text-center">Счётчик за весь период:</p>
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
                                 <b>Позитив</b> <a class="float-right">{{positive_count}}</a>
@@ -53,7 +50,8 @@
                                 <b>Негатив</b> <a class="float-right">{{negative_count}}</a>
                             </li>
                         </ul>
-                        <a href="#" class="btn btn-info btn-block"><b>Добавить ссылку</b></a> -->
+                        <!-- <a href="#" class="btn btn-info btn-block"><b>Добавить ссылку</b></a> -->
+                        <div class="row mb-5">&nbsp;</div>
                     </div>
                 </div>
                 <!--/ Profile Card -->
@@ -78,8 +76,8 @@
                                 <i class="fas fa-award"></i>
                             </div>
                             <div class="small-box-footer">
-                                <i class="fas fa-tachometer-alt"></i>
-                                Место в рейтинге: 1
+                                <!-- <i class="fas fa-tachometer-alt"></i>
+                                Место в рейтинге: 1 -->
                             </div>
                         </div>
                         <!--/ Loyalty Index Plate-->
@@ -95,70 +93,95 @@
                                 <i class="fas fa-chess"></i>
                             </div>
                             <div class="small-box-footer">
-                                <i class="fas fa-tachometer-alt"></i>
-                                Место в рейтинге: 1
+                                <!-- <i class="fas fa-tachometer-alt"></i>
+                                Место в рейтинге: 1 -->
                             </div>
                         </div>
                         <!-- / Significance Index Plate-->
                     </div>
                 </div>
                 <!-- chr -->
-            </div>
-        </div>
-        <!--Chronology-->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card card-info card-outline">
-                    <div class="card-body">
-                        <h5>Динамика сообщений</h5>
-                        <canvas id="totalStat" height="135"></canvas>
+                <!--Chronology-->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card card-info card-outline">
+                            <div class="card-body">
+                                <h5>Динамика сообщений за последние 30 дней</h5>
+                                <canvas id="totalStat" height="100"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <!--Chronology-->   
             </div>
         </div>
-        <!--Chronology-->   
+        
         <!--Article List-->
         <div class="row">
             <div class="col-lg-12">
+                <h1>Материалы с упоминаниями</h1>
             {%for a in articles%}
-                {% if a.sentiment == 2%}
-                <div class="card card-danger card-outline">
-                {% elif a.sentiment == 1%}
-                <div class="card card-success card-outline">
-                {% elif a.sentiment == 0%}
-                <div class="card card-info card-outline">
-                {%endif%}
-                    <div class="card-header">
-                        {% if a.title == '(без заголовка)' %}
-                        <a href="{{a.url}}" class="text-lg">{{a.site.title}}</a>
-                        {%else%}
-                        <a href="{{a.url}}" class="text-lg">{{a.title}}</a>
-                        {%endif%}
-                    </div>
-                    <div class="card-body">
-                        <p>{{a.text|truncatechars:300}}</p>
-                        <span class="mr-3">
-                            <i class="fas fa-calendar-alt"></i> {{a.publish_date}}
-                        </span>
-                        <span class="mr-3">
-                        {% include 't/site_types.html' %}
-                        <span class="badge bg-info">{{a.site.title}}</span>
-                        </span>
-                        <span class="mr-3">
-                            <i class="fas fa-thumbs-up"></i> <span class="badge bg-success">{{a.likes}}</span>
-                        </span>
-                        <!-- <span class="mr-3">
-                            <i class="far fa-eye"></i> <span class="badge bg-success">{{a.likes}}</span>
-                        </span>
-                        <span class="mr-3">
-                            <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.likes}}</span>
-                        </span> -->
-                    </div>
+            {% if a.sentiment == 2%}
+            <div class="card card-danger card-outline">
+            {% elif a.sentiment == 1%}
+            <div class="card card-success card-outline">
+            {% elif a.sentiment == 0%}
+            <div class="card card-info card-outline">
+            {%endif%}
+                <div class="card-header">
+                    <a href="{{a.url}}" class="text-lg">{{a.title}}</a>
                 </div>
+                <div class="card-body">
+                    <p>{{a.text|truncatewords:30}}</p>
+                    <span class="mr-3">
+                        <i class="fas fa-calendar-alt"></i> {{a.publish_date}}
+                    </span>
+                    <span class="mr-3">
+                    {% include 't/site_types.html' %}
+                    <span class="badge bg-info">{{a.site.title}}</span>
+                    </span>
+                    <span class="mr-3">
+                        <i class="fas fa-thumbs-up"></i> <span class="badge bg-success">{{a.likes}}</span>
+                    </span>
+                    <span class="mr-3">
+                        <i class="far fa-eye"></i> <span class="badge bg-success">{{a.views}}</span>
+                    </span>
+                    <span class="mr-3">
+                        <i class="fas fa-comments"></i> <span class="badge bg-success">{{a.comment_articles.count}}</span>
+                    </span>
+                </div>
+            </div>
             {%endfor%}
             </div>
         </div>
         <!--/Article List-->
+
+        <!--Page navigation-->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-left">
+              {% if articles.has_previous %}
+              <li class="page-item">
+                  <a class="page-link" href="?page={{articles.previous_page_number}}">&laquo;</a>
+              </li>
+              {% else %}
+              <li class="page-item disabled"><a class="page-link" href="#"><span>&laquo;</span></a></li>
+              {% endif %}
+              {% for i in page_range %}
+              {% if articles.number == i %}
+              <li class="page-item active"><a class="page-link" href="#">{{i}} <span class="sr-only">(current)</span></a></li>
+              {% else %}
+              <li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+              {% endif %}
+              {% endfor %}
+              {% if articles.has_next %}
+              <li class="page-item"><a class="page-link" href="?page={{articles.next_page_number}}">&raquo;</a></li>
+              {% else %}
+              <li class="page-item disabled"><a class="page-link" href="#"><span>&raquo;</span></a></li>
+              {% endif %}
+            </ul>
+          </nav>
+        <!--/Page navigation-->     
+
       </div>
     </div>
     <!-- /Main content -->
