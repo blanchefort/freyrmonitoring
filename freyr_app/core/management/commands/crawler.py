@@ -65,7 +65,7 @@ class Command(BaseCommand):
         crawler_step()
         processing_step()
         
-        schedule.every().day.at('11:00').do(processing_step)
+        schedule.every().day.at('23:00').do(crawler_step)
         schedule.every().day.at('03:00').do(processing_step)
 
         while True:

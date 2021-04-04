@@ -244,10 +244,9 @@ def clustering(delta_hours: int = 5):
             clust_texts, 
             clust_titles)
         for clister_idx in clustered_ids.keys():
-            theme = Theme.objects.get(pk=themes[clister_idx])
             for article_idx in clustered_ids[clister_idx]:
                 ThemeArticles(
-                    theme_link=theme,
+                    theme_link=themes[clister_idx],
                     article_link=articles[article_idx]
                 ).save()
     else:
