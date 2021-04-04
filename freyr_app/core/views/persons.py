@@ -33,11 +33,11 @@ def person_page(request, ent_id):
         day = date.today() - timedelta(days=i)
         days.append(day.strftime('%d.%m.%y'))
         counts_positive.append(
-            EntityLink.objects.filter(entity_link=entity).filter(article_link__publish_date__date=day).filter(article_link__sentiment=1).count())
+            EntityLink.objects.filter(entity_link=entity).filter(article_link__publish_date__date=day).filter(sentiment=1).count())
         counts_neutral.append(
-            EntityLink.objects.filter(entity_link=entity).filter(article_link__publish_date__date=day).filter(article_link__sentiment=0).count())
+            EntityLink.objects.filter(entity_link=entity).filter(article_link__publish_date__date=day).filter(sentiment=0).count())
         counts_negative.append(
-            EntityLink.objects.filter(entity_link=entity).filter(article_link__publish_date__date=day).filter(article_link__sentiment=2).count())
+            EntityLink.objects.filter(entity_link=entity).filter(article_link__publish_date__date=day).filter(sentiment=2).count())
 
     articles = Article.objects.filter(article_entities__entity_link=entity)
     paginator = Paginator(articles, 10)
