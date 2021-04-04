@@ -3,7 +3,7 @@ from ..models import Article
 
 
 @dataclass
-class NaimedEntity:
+class NamedEntity:
     """Объект именованной сущности для обработки её конвейером алгоритмов
 
     text: str - Сущность

@@ -58,7 +58,7 @@ def ner(text: str) -> set:
     return set(ner_tokens)
 
 
-def extract_entities(text: str) -> List[NaimedEntity]:
+def extract_entities(text: str) -> List[NamedEntity]:
     """Распознавание именованных сущностей"""
     doc = Doc(text)
     doc.segment(segmenter)
