@@ -9,6 +9,8 @@ from core.processing.search import FaissSearch
 def index(request):
     """Стартовая страница
     """
+    if Article.objects.filter(theme=True).count() == 0:
+        return TemplateResponse(request, 'items.html', context={})
     today = datetime.datetime.now()
     earliest = Article.objects.filter(theme=True).order_by('publish_date')[0]
     oldest = Article.objects.filter(theme=True).order_by('-publish_date')[0]

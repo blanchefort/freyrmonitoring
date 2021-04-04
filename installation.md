@@ -129,7 +129,7 @@ python manage.py migrate
 Периодически мы обновляем модели, улучшая их качество, поэтому иногда можно повторять эту операцию, чтобы получать свежие обновления.
 
 ```
-python manage.py download_models
+python manage.py download_models --full
 ```
 
 #### 5. Установить статичные файлы:
