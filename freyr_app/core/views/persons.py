@@ -40,6 +40,7 @@ def person_page(request, ent_id):
             EntityLink.objects.filter(entity_link=entity).filter(article_link__publish_date__date=day).filter(article_link__sentiment=2).count())
 
     articles = Article.objects.filter(article_entities__entity_link=entity)
+    articles = articles.distinct()
     paginator = Paginator(articles, 10)
     page = request.GET.get('page')
     articles = paginator.get_page(page)

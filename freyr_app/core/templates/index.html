@@ -49,7 +49,7 @@
             <div class="card card-info card-outline">
               <div class="card-header">
                 <h3 class="card-title">
-                  <i class="far fa-chart-bar"></i>
+                  <i class="fas fa-award"></i>
                   Индекс лояльности
                 </h3> 
               </div>
@@ -77,8 +77,10 @@
             <div class="card card-info card-outline">
               <div class="card-header">
                 <h3 class="card-title">
-                  <i class="far fa-chart-bar"></i>
-                  Самая упоминаемая персона: <br />{{top_per.name}}
+                  <i class="fas fa-user"></i>
+                  Самая упоминаемая персона:<br />
+                  <a href="{% url 'person_page' top_per.id %}">{{top_per.name}}</a>
+                  
                 </h3>
 
                 
@@ -94,8 +96,9 @@
             <div class="card card-info card-outline">
               <div class="card-header">
                 <h3 class="card-title">
-                  <i class="far fa-chart-bar"></i>
-                  Самая упоминаемая организация: <br />{{top_org.name}}
+                  <i class="fas fa-university"></i>
+                  Самая упоминаемая организация:<br />
+                  <a href="{% url 'org_page' top_org.id %}">{{top_org.name}}</a>
                 </h3>
 
                 
@@ -114,7 +117,7 @@
             <div class="card card-info card-outline">
               <div class="card-header">
                 <h3 class="card-title">
-                  <i class="far fa-chart-bar"></i>
+                  <i class="fas fa-bell"></i>
                   Самая популярная тема:
                   {% if top_theme.id > 0 %}
                   <a href="{% url 'event_info' top_theme.id %}">{{top_theme.name}}</a>
