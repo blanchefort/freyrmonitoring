@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 from django.core.paginator import Paginator
 from core.models.entity import Entity, EntityLink
@@ -6,6 +7,7 @@ from core.models.article import Article
 from core.processing.calculate_indexes import calculate_nps_int, nps_norm100
 
 
+@login_required
 def index(request):
     """Стартовая страница
     """
@@ -20,6 +22,7 @@ def index(request):
     return TemplateResponse(request, 'persons.html', context=context)
 
 
+@login_required
 def person_page(request, ent_id):
     """Страница сущности
     """

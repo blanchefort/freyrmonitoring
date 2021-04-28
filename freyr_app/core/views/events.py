@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 from django.http import HttpResponseNotFound, JsonResponse
 from django.db.models import Count, Sum
@@ -7,6 +8,7 @@ from excel_response import ExcelResponse
 from ..models import Theme, ThemeArticles, ThemeMarkup, Article, Comment, Site
 
 
+@login_required
 def index(request):
     """Стартовая страница
     """
@@ -48,6 +50,7 @@ def index(request):
     return TemplateResponse(request, 'events.html', context=context)
 
 
+@login_required
 def info(request, event_id):
     """Информация о кластере
     """
@@ -140,6 +143,7 @@ def info(request, event_id):
     return TemplateResponse(request, 'event_page.html', context=context)
 
 
+@login_required
 def excelview(request, event_id):
     """Выборка по кластеру в виде эксель-файла
 
@@ -167,6 +171,7 @@ def excelview(request, event_id):
         return HttpResponseNotFound('Такая тема не найдена!')
 
 
+@login_required
 def suggest_alt_title(request):
     """Предложение альтернативного заголовка
     """

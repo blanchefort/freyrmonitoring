@@ -47,7 +47,7 @@ class Happiness(models.Model):
 
     def __str__(self):
         return f'{self.name}: {self.value}'
-    
+
     class Meta:
         verbose_name = 'Показатели индекса счастья'
         verbose_name_plural = 'Показатели индекса счастья'

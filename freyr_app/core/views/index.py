@@ -1,11 +1,14 @@
 from datetime import date, timedelta
 import configparser
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.template.response import TemplateResponse
 from django.db.models import Count
 from ..models import Article, Entity, EntityLink, Theme, ThemeArticles
 from ..processing.calculate_indexes import nps_norm100, calculate_nps_int
 
+
+@login_required
 def index(request):
     """Стартовая страница
     """

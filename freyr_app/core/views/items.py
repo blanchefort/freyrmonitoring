@@ -1,4 +1,5 @@
 import datetime
+from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 from django.core.paginator import Paginator
 from ..models.article import Article
@@ -6,6 +7,8 @@ from ..processing.calculate_indexes import loyalty_index
 from ..forms import SearchItem
 from core.processing.search import FaissSearch
 
+
+@login_required
 def index(request):
     """Стартовая страница
     """
@@ -64,6 +67,7 @@ def index(request):
     return TemplateResponse(request, 'items.html', context=context)
 
 
+@login_required
 def search(request):
     """Поиск по всем материалам
     """

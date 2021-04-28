@@ -6,6 +6,7 @@ import requests
 import datetime
 import configparser
 from excel_response import ExcelResponse
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.template.response import TemplateResponse
 from django.views.decorators.cache import cache_page
@@ -18,6 +19,8 @@ from ..processing.calculate_indexes import calculate_happiness, calculate_happin
 from ..forms import UploadHappinessIndex
 from django.db.models import Sum
 
+
+@login_required
 def index(request):
     """Индекс счастья региона
     """
@@ -28,38 +31,23 @@ def index(request):
         start_date = datetime.datetime.strptime(start_date, "%d-%m-%Y")
         end_date = datetime.datetime.strptime(end_date, "%d-%m-%Y")
         category = int(request.POST.get('category'))
+        map_type = request.POST.get('map_type')
     else:
         end_date = timezone.now() - datetime.timedelta(days=1)
         start_date = timezone.now() - datetime.timedelta(days=30)
         category = 0
+        map_type = 'freyr'
+
+    if category == 0:
+        chart_name = 'Индекс для всего региона по всем категориям'
+    else:
+        chart_name = f'Индекс для всего региона по категории «{Category.objects.get(pk=category).name}»'
 
     mean_index, results = happiness_index(category, start_date, end_date)
 
     start_date = str(start_date.day) + '.' + str(start_date.month) + '.' + str(start_date.year)
     end_date = str(end_date.day) + '.' + str(end_date.month) + '.' + str(end_date.year)
 
-    reports = set(h.name for h in Happiness.objects.filter(source_type=1))
-
-    show_external_index, ext_districts, ext_happiness, results_for_table, report  = 0, [], [], [], 0
-    if len(reports) > 0:
-        show_external_index = 1
-        districts = District.objects.exclude(name='region')
-        ext_districts = [d.name for d in districts]
-        ext_happiness = []
-        report = list(reports)[0]
-        for d in districts:
-            value = 0
-            values = Happiness.objects.filter(district=d)
-            for v in values:
-                value += v.value
-            value /= len(values)
-            ext_happiness.append(value)
-        results_for_table = []
-        for r in results:
-            r = float(r['nps'])
-            if r < 0:
-                r = 0
-            results_for_table.append(r)
     context = {
         'page_title': 'Индекс удовлетворённости жизнью',
         'categories': Category.objects.exclude(name='Без темы'),
@@ -70,17 +58,16 @@ def index(request):
         'center_b': str(center_b),
         'mean_index': mean_index,
         'selected_cat': category,
-        'show_external_index': show_external_index,
-        'ext_districts': ext_districts,
-        'ext_happiness': ext_happiness,
-        'results_for_table': results_for_table,
-        'ext_name': report,
+        'show_external': True if Happiness.objects.filter(source_type=1).count() > 0 else False,
+        'chart_name': chart_name,
+        'map_type': map_type
     }
     return TemplateResponse(request, 'happiness.html', context=context)
 
 
 #@cache_page(3600 * 24)
-def leaflet_map(request, category: int, start_date: str, end_date: str):
+@login_required
+def leaflet_map(request, category: int, start_date: str, end_date: str, map_type: str):
     """Карта
 
     Args:
@@ -88,26 +75,46 @@ def leaflet_map(request, category: int, start_date: str, end_date: str):
         start_date (str): Начальная дата
         end_date (str): Конечная дата
     """
-    start_date = datetime.datetime.strptime(start_date, "%d.%m.%Y")
-    end_date = datetime.datetime.strptime(end_date, "%d.%m.%Y")
     data_path = os.path.join(settings.ML_MODELS, 'region.geojson')
     with open(data_path) as fp:
         geodata = json.load(fp)
+
+    start_date = datetime.datetime.strptime(start_date, "%d.%m.%Y")
+    end_date = datetime.datetime.strptime(end_date, "%d.%m.%Y")
     if Category.objects.filter(pk=category).count() == 0:
         for f in geodata['features']:
             district = District.objects.get(name=f['properties']['russian_name'])
-            nps, _, _, _ = calculate_happiness_by_district(district, (start_date, end_date))
-            if round(nps, 2) == 5.00:
-                nps = np.nan
-            f['properties']['nps'] = str(round(nps, 2))
+
+            if map_type == 'external':
+                nps = external_report(district, 0)
+                f['properties']['nps'] = str(nps)
+            elif map_type == 'freyr':
+                nps, _, _, _ = calculate_happiness_by_district(district, (start_date, end_date))
+                if round(nps, 3) == 5.00:
+                    nps = np.nan
+                f['properties']['nps'] = str(round(nps, 3))
+            elif map_type == 'weighted':
+                nps, _, _, _ = calculate_happiness_by_district(district, (start_date, end_date))
+                external = external_report(district, 0)
+                nps = (nps * .2) + (external * .8)
+                f['properties']['nps'] = str(round(nps, 3))
     else:
         category = Category.objects.get(pk=category)
         for f in geodata['features']:
             district = District.objects.get(name=f['properties']['russian_name'])
-            nps, _, _, _ = calculate_happiness(district, category, (start_date, end_date))
-            if round(nps, 2) == 5.00:
-                nps = np.nan
-            f['properties']['nps'] = str(round(nps, 2))
+            if map_type == 'external':
+                nps = external_report(district, category)
+                f['properties']['nps'] = str(nps)
+            elif map_type == 'freyr':
+                nps, _, _, _ = calculate_happiness(district, category, (start_date, end_date))
+                if round(nps, 3) == 5.00:
+                    nps = np.nan
+                f['properties']['nps'] = str(round(nps, 3))
+            elif map_type == 'weighted':
+                nps, _, _, _ = calculate_happiness(district, category, (start_date, end_date))
+                external = external_report(district, category)
+                nps = (nps * .2) + (external * .8)
+                f['properties']['nps'] = str(round(nps, 3))
 
     return JsonResponse(geodata)
 
@@ -131,56 +138,72 @@ def get_center():
 
 
 def happiness_index(category, start_date, end_date):
+    """Индекс
+    """
     results = []
     mean_index = 0
-    ext_districts, ext_happiness = external_happiness_index()
     districts = District.objects.exclude(name='region')
     if Category.objects.filter(pk=category).count() == 0:
         for district in districts:
             nps, pos, neg, neu = calculate_happiness_by_district(district, (start_date, end_date))
-            if district.name in ext_districts:
-                ext_idx = ext_districts.index(district.name)
-                ext_district_happiness = ext_happiness[ext_idx]
-            else:
-                ext_district_happiness = 0
             mean_index += nps
             if round(nps, 3) == 5.000:
-                nps = '-1'
-            else:
-                nps = str(round(nps, 3))
+                nps = 0
+            # индекс из внешнего отчёта
+            ext_district_happiness = external_report(district, category=0)
+            # Глупая формула Ульяновска
+            weighted_happiness = (nps * .2) + (ext_district_happiness * .8)
             results.append({
                 'district': district,
-                'nps': nps,
+                'nps': str(nps),
                 'pos': pos,
                 'neg': neg,
                 'neu': neu,
-                'ext_district_happiness': str(round(ext_district_happiness, 3))
+                'external_report': ext_district_happiness,
+                'weighted_happiness': weighted_happiness,
             })
     else:
         category = Category.objects.get(pk=category)
         for district in districts:
             nps, pos, neg, neu = calculate_happiness(district, category, (start_date, end_date))
-            if district.name in ext_districts:
-                ext_idx = ext_districts.index(district.name)
-                ext_district_happiness = ext_happiness[ext_idx]
-            else:
-                ext_district_happiness = 0
             mean_index += nps
             if round(nps, 3) == 5.000:
-                nps = '-1'
-            else:
-                nps = str(round(nps, 3))
+                nps = 0
+            # индекс из внешнего отчёта
+            ext_district_happiness = external_report(district, category)
+            # Глупая формула Ульяновска
+            weighted_happiness = (nps * .2) + (ext_district_happiness * .8)
             results.append({
                 'district': district,
-                'nps': nps,
+                'nps': str(nps),
                 'pos': pos,
                 'neg': neg,
                 'neu': neu,
-                'ext_district_happiness': str(round(ext_district_happiness, 3))
+                'external_report': ext_district_happiness,
+                'weighted_happiness': weighted_happiness,
             })
-    return round(mean_index/len(districts), 2), results
+    return round(mean_index/len(districts), 3), results
 
 
+def external_report(district, category):
+    """
+    Сторонний отчёт
+    """
+    value = 0
+    if category == 0:
+        values = Happiness.objects.filter(district=district).filter(source_type=1)
+    else:
+        values = Happiness.objects.filter(district=district).filter(source_type=1).filter(category=category)
+    if len(values) == 0:
+        return value
+    for v in values:
+        value += v.value
+    value /= len(values)
+    return value
+
+
+
+@login_required
 def excelview(request, category: int, start_date: str, end_date: str):
     """Эксель-файл для выборки
 
@@ -205,30 +228,7 @@ def excelview(request, category: int, start_date: str, end_date: str):
     return ExcelResponse(data, title)
 
 
-def external_happiness_index():
-    """Индекс счастья внешний"""
-    config = configparser.ConfigParser()
-    config.read(settings.CONFIG_INI_PATH)
-    ext_districts, ext_happiness = [], []
-    if 'HAPPINESS_INDEX' in config:
-        try:
-            response = requests.get(config['HAPPINESS_INDEX']['LINK'])
-            if response.status_code == 200:
-                data = response.json()
-
-                ext_districts = []
-                for item in data['Наименование МО']:
-                    if data['Наименование МО'][item].startswith('г. '):
-                        ext_districts.append(data['Наименование МО'][item].replace('г. ', 'городской округ '))
-                    else:
-                        ext_districts.append(data['Наименование МО'][item])
-
-                ext_happiness = list(data['Индекс счастья'].values())
-        except:
-            ext_districts, ext_happiness = [], []
-    return ext_districts, ext_happiness
-
-
+@login_required
 def upload_custom_data(request):
     """Загрузить собственные данные
     """
@@ -263,6 +263,8 @@ def upload_custom_data(request):
                 except:
                     Happiness.objects.filter(name=request.POST['name']).delete()
                     messages.error(request, f'Парсинг файла не удался, проверьте, ести ли муниципалитет {r} и категория {c}')
+                # Удалим предыдущий отчёт
+                Happiness.objects.filter(source_type=1).exclude(name=request.POST['name']).delete()
         else:
             messages.error(request, 'Файл не загружен!')
     else:
@@ -277,6 +279,7 @@ def upload_custom_data(request):
     return TemplateResponse(request, 'happiness_add.html', context=context)
 
 
+@login_required
 def example_csv(request):
     """Возвращаем файл-пример для кастомного индекса счастья
     """

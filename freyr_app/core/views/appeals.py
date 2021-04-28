@@ -1,6 +1,9 @@
+from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 from ..models import Article
 
+
+@login_required
 def index(request):
     """Сообщения, на которые следует обратить внимание"""
     if request.GET.get('nonrelevant'):

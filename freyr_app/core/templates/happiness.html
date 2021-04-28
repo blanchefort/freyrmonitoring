@@ -70,10 +70,9 @@
     }
   </style>
   <script>
-    var dataurl = '{% url "leaflet_map" selected_cat start_date end_date %}';
+    var dataurl = '{% url "leaflet_map" selected_cat start_date end_date map_type %}';
 
     window.addEventListener("map:init", function (event) {
-
       
       var map = event.detail.map.setView([{{center_a}}, {{center_b}}], 7);
 
@@ -203,7 +202,7 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="{% url 'index' %}" class="brand-link">
-      <img src="{% static 'freyr_images/freyr_graph.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3">
+      <img src="{% static 'freyr_images/freyr_graph.png' %}" alt="FreyrMonitoring" class="brand-image img-circle elevation-3">
       <span class="brand-text font-weight-light">FreyrMonitoring</span>
     </a>
 
@@ -231,11 +230,23 @@
       <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-7">
-                {% leaflet_map "main" %}
+              {% leaflet_map "main" %}
+                
             </div>
             <div class="col-sm-5">
               <form method="POST">
                 {% csrf_token %}
+
+                {% if show_external %}
+                <div class="form-group">
+                  <label>Карта</label>
+                  <select name="map_type" class="form-control select2bs4" data-dropdown-css-class="select2bs4">
+                    <option {% if map_type == 'freyr' %}selected="selected"{%endif%} value="freyr">FreyrMonitoring</option>
+                    <option {% if map_type == 'external' %}selected="selected"{%endif%} value="external">Внешний отчёт</option>
+                    <option {% if map_type == 'weighted' %}selected="selected"{%endif%} value="weighted">Сводный индекс</option>
+                  </select>
+                </div>
+                {%endif%}
                 <div class="form-group">
                     <label>Категория</label>
                     <select name="category" class="form-control select2bs4" data-dropdown-css-class="select2bs4">
@@ -283,20 +294,10 @@
             </div>
         </div>
 
-          {%if show_external_index == 1 %}
-          <div class="row mt-5 mb-2">
-              <div class="col-sm-12">
-                  <h3>Индекс счастья на фактических данных</h3>
-                  <canvas id="external_happiness_index"></canvas>
-              </div>
-          </div>
-          {%endif%}
-
         <div class="row mt-5 mb-2">
             <div class="col-sm-12">
-                <h3>Индекс удовлетворённости жизнью: {{mean_index}}</h3>
-                {{value}}
-                <p>{{show_external_index}}
+                <h3>Индекс удовлетворённости жизнью</h3>
+                <p>
                     Важнейшим показателем при расчёте индекса счастья (HPL)
                     является субъективная удовлетворенность людей жизнью (Wellbeing),
                     получаемая в рамках всемирного опроса населения, проводимого Институтом Гэллапа.
@@ -307,10 +308,19 @@
                     это показатель, рассчитываемый по шкале от 0 до 10, где 0 &mdash; полная неудовлетворённость, 10 &mdash; полная удовлетворённость.
                 </p>
                 <div class="card-body">
-                    <div id="districts"></div>
+                  <div class="row mt-5 mb-2">
+                    <div class="col-sm-12">
+                      <h3>{{chart_name}}: {{mean_index}}</h3>
+                        <canvas id="happiness_index"></canvas>
+                    </div>
+                  </div>
                 </div>
             </div>
         </div>
+
+
+
+
                  
       </div><!-- /.container-fluid -->
     </div>
@@ -361,63 +371,95 @@
                 firstDay: 1
             }
         })
-
-        var district_data = [
-          {%for item in results%}
-
-            {
-                "Муниципальное образование": "{{item.district.name}}",
-                "Индекс удовлетворённости жизнью": {{item.nps}},
-            },
-          {%endfor%}
-        ]
-        $("#districts").jsGrid({
-            height: "100%",
-            width: "100%",
-    
-            sorting: true,
-    
-            data: district_data,
-    
-            fields: [
-                { name: "Муниципальное образование", type: "text", width: 150 },
-                { name: "Индекс удовлетворённости жизнью", type: "number", width: 50 },
-            ]
-        });
-    })
+      });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
 <script>
-  var ctx = document.getElementById('external_happiness_index').getContext('2d');
+  // var ctx = document.getElementById('external_happiness_index').getContext('2d');
+  // var barChart = new Chart(ctx, {
+  //     type: 'bar',
+  //     data: {
+  //       labels: [
+  //         {%for i in ext_districts%}
+  //         '{{i}}',
+  //         {%endfor%}
+  //       ],
+  //       datasets: [{
+  //         label: 'FreyrMonitoring',
+  //         backgroundColor: '#06CCB8',
+  //         borderColor: '#009688',
+  //         data: [
+  //         {%for i in results_for_table%}
+  //           {{i|floatformat}},
+  //           {%endfor%}
+  //         ],
+  //       },
+  //       {
+  //         label: '{{ext_name}}',
+  //         backgroundColor: '#FFCCB8',
+  //         borderColor: '#009688',
+  //         data: [
+  //           {%for i in ext_happiness%}
+  //           {{i|floatformat}},
+  //           {%endfor%}
+  //         ],
+  //       }]
+  //     },
+  //     options: {
+  //       legend: {
+  //               display: true,
+  //           },
+  //     }
+  // });
+</script>
+<script>
+  var ctx = document.getElementById('happiness_index').getContext('2d');
   var barChart = new Chart(ctx, {
+      // type: 'horizontalBar',
       type: 'bar',
       data: {
         labels: [
-          {%for i in ext_districts%}
-          '{{i}}',
+          {%for item in results%}
+          '{{item.district.name}}',
           {%endfor%}
         ],
         datasets: [{
           label: 'FreyrMonitoring',
-          backgroundColor: '#06CCB8',
+          backgroundColor: '#3c8dbc',
           borderColor: '#009688',
           data: [
-          {%for i in results_for_table%}
-            {{i|floatformat}},
+            {%for item in results%}
+            {{item.nps|floatformat:3}},
             {%endfor%}
           ],
         },
-        {
-          label: '{{ext_name}}',
-          backgroundColor: '#FFCCB8',
-          borderColor: '#009688',
-          data: [
-            {%for i in ext_happiness%}
-            {{i|floatformat}},
-            {%endfor%}
-          ],
-        }]
+        {% if show_external %}
+          {
+            label: 'Внешний отчёт',
+            backgroundColor: '#06CCB8',
+            borderColor: '#009688',
+            data: [
+              {%for item in results%}
+              {{item.external_report|floatformat:3}},
+              {%endfor%}
+            ],
+          },
+
+          {
+            label: 'Сводный индекс',
+            backgroundColor: '#00a65a',
+            borderColor: '#009688',
+            data: [
+              {%for item in results%}
+              {{item.weighted_happiness|floatformat:3}},
+              {%endfor%}
+            ],
+          },
+        
+        {%endif%}
+
+        ],
       },
       options: {
         legend: {
