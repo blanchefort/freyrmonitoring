@@ -138,7 +138,11 @@ class TextStreamClustering:
             clusters = self.clustering(new_texts, new_titles)
             new_clusters = []
             for cluster in clusters:
-                new_cluster = [text_ids.index(i) for i in cluster]
+                new_cluster = []
+                for i in cluster:
+                    selected_text = new_texts[i]
+                    selected_index = texts.index(selected_text)
+                    new_cluster.append(selected_index)
                 new_clusters.append(new_cluster)
         
         return addenta_to_clusters, new_clusters
