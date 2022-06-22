@@ -4,4 +4,4 @@ sudo apt-get install libgdal-dev
 export CPLUS_INCLUDE_PATH=/usr/include/gdal
 export C_INCLUDE_PATH=/usr/include/gdal
 gdal-config --version
-pip install --global-option=build_ext --global-option="-I/usr/include/gdal/" GDAL==3.0.4
+pip install --global-option=build_ext --global-option="-I/usr/include/gdal/" GDAL==3.4.1

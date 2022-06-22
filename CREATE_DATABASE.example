@@ -1,5 +1,6 @@
-CREATE DATABASE freyr_nov;
-CREATE USER nov_user WITH PASSWORD 'pasdfgdsword';
-ALTER ROLE nov_user SET client_encoding TO 'utf8';
-ALTER ROLE nov_user SET default_transaction_isolation TO 'read committed';
-ALTER ROLE nov_user SET timezone TO 'UTC+3';
+~$ sudo -u postgres psql
+CREATE DATABASE freyr_russia;
+CREATE USER freyr_user WITH PASSWORD 'russia';
+ALTER ROLE freyr_user SET client_encoding TO 'utf8';
+ALTER ROLE freyr_user SET default_transaction_isolation TO 'read committed';
+ALTER ROLE freyr_user SET timezone TO 'UTC+3';

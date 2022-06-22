@@ -142,3 +142,4 @@ audio_cache/
 .virtual_documents/
 cache/
 media/
+poetry.lock

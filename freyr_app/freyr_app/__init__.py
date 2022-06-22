@@ -1,3 +1,3 @@
-from sentence_transformers import SentenceTransformer
+# from sentence_transformers import SentenceTransformer
 
-sentence_embedder = SentenceTransformer('distiluse-base-multilingual-cased')
+# sentence_embedder = SentenceTransformer('distiluse-base-multilingual-cased')

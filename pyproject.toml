@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "FreyrMonitoring"
+version = "0.2.0"
+description = "Мониторинг общественного мнения в интернете"
+authors = ["Igor Shatalin <shatalin.ip@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Django = "^4.0.5"
+django-bootstrap4 = "^22.1"
+django-extensions = "^3.1.5"
+django-import-export = "^2.8.0"
+networkx = "^2.8.4"
+numpy = "^1.22.4"
+psycopg2-binary = "^2.9.3"
+purl = "^1.6"
+torch = "^1.11.0"
+transformers = "^4.20.1"
+sentence-transformers = "^2.2.0"
+Telethon = "^1.24.0"
+vk-api = "^11.9.8"
+wget = "^3.2"
+youtube_dl = "^2021.12.17"
+python-dateutil = "^2.8.2"
+pandas = "^1.4.2"
+faiss-cpu = "^1.7.2"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+mypy = "^0.961"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+interrogate = "^1.5.0"
+pytest = "^7.1.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

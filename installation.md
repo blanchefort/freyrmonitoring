@@ -120,7 +120,7 @@ TIME_ZONE = 'Europe/Moscow'
 
 ```
 cd freyrmonitoring/freyr_app
-python manage.py makemigrations core
+python manage.py makemigrations russia
 python manage.py migrate
 ```
 

@@ -21,6 +21,9 @@ KALDI = os.path.join(ML_MODELS, 'kaldi')
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'core/static'),
+)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -45,17 +48,16 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'bootstrap4',
-    #'jazzmin', Админка
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core.apps.CoreConfig',
     'django_extensions',
     'import_export',
-    'leaflet',
+
+    'russia.apps.RussiaConfig',
 ]
 
 MIDDLEWARE = [
@@ -132,7 +134,7 @@ LOGOUT_REDIRECT_URL = '/'
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 LANGUAGE_CODE = 'ru-RU'
-TIME_ZONE = config['REGION']['TIME_ZONE']
+TIME_ZONE = config['DJANGO']['TIME_ZONE']
 USE_I18N = True
 USE_L10N = False
 USE_TZ = True
